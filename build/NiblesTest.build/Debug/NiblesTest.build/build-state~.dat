@@ -1,0 +1,166 @@
+TNiblesTest
+v7
+r2
+t713902159.412760
+cCheck dependencies
+cProcessPCH /var/folders/L7/L75cIwayGzeX0koTLvoACE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/NiblesTest_Prefix-glpowwroylomorehfouxtnkhxefu/NiblesTest_Prefix.pch.gch NiblesTest_Prefix.pch normal x86_64 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/NiblesTestAppDelegate.o /Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m normal x86_64 objective-c com.apple.compilers.gcc.4_2
+
+N/Developer/SDKs/MacOSX10.6.sdk
+c000000004D5A274300000000000000EE
+t1297753923
+s238
+
+N/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Carbon.framework/Carbon
+c000000004D5A27900000000000003A54
+t1297754000
+s14932
+
+N/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
+c0000000040C4AA6800000000000001E5
+t1086630504
+s485
+
+N/System/Library/Frameworks/Cocoa.framework/Cocoa
+c000000004A1F2D63000000000000A5E0
+t1243557219
+s42464
+
+N/Users/idelovski/Developer/NiblesTest/English.lproj/InfoPlist.strings
+c0000000064DD0E93000000000000002D
+t1692208787
+s45
+
+N/Users/idelovski/Developer/NiblesTest/English.lproj/MainMenu.xib
+c0000000064DD0E93000000000002BB8C
+t1692208787
+s179084
+
+N/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.h
+c0000000064DD0FA3000000000000014F
+t1692209059
+s335
+i<Cocoa/Cocoa.h>
+
+N/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m
+c0000000064DD10C6000000000000079B
+t1692209350
+s1947
+i"NiblesTestAppDelegate.h"
+
+N/Users/idelovski/Developer/NiblesTest/NiblesTest_Prefix.pch
+c0000000064DD0E930000000000000097
+t1692208787
+s151
+i<Cocoa/Cocoa.h>
+
+N/Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/Info.plist
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/MacOS/NiblesTest
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/PkgInfo
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/Resources/English.lproj/InfoPlist.strings
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/Resources/English.lproj/MainMenu.nib
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/NiblesTest.LinkFileList
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/NiblesTestAppDelegate.o
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/main.o
+t2
+s0
+
+N/Users/idelovski/Developer/NiblesTest/main.m
+c0000000064DD0E930000000000000103
+t1692208787
+s259
+i<Cocoa/Cocoa.h>
+
+N/var/folders/L7/L75cIwayGzeX0koTLvoACE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/NiblesTest_Prefix-glpowwroylomorehfouxtnkhxefu/NiblesTest_Prefix.pch.gch
+t1692209359
+s54306576
+
+NNiblesTest-Info.plist
+c0000000064DD0E9300000000000003EA
+t1692208787
+s1002
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies713902157#713902157#0(0"0(0#1#0"0#0"0#
+
+CCompileC build/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/NiblesTestAppDelegate.o /Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m normal x86_64 objective-c com.apple.compilers.gcc.4_2
+s713902159.353641
+e713902159.412598
+r0
+xCompileC
+xbuild/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/NiblesTestAppDelegate.o
+x/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m
+xnormal
+xx86_64
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m: In function '-[NiblesTestAppDelegate applicationDidFinishLaunching:]':
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:25: error: 'sel' undeclared (first use in this function)
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:25: error: (Each undeclared identifier is reported only once
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:25: error: for each function it appears in.)
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: 'NiblesTestAppDelegate' may not respond to '-buildMainMenu'
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: (Messages without a matching method signature
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: will be assumed to return 'id' and accept
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: '...' as arguments.)
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m: In function '-[NiblesTestAppDelegate buildMainMenu]':
+o/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:49: error: 'theNSApplication' undeclared (first use in this function)
+lSLF07#2@69"Compile /Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m713902159#713902159#0(1201"/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m: In function '-[NiblesTestAppDelegate applicationDidFinishLaunching:]':/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:25: error: 'sel' undeclared (first use in this function)/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:25: error: (Each undeclared identifier is reported only once/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:25: error: for each function it appears in.)/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: 'NiblesTestAppDelegate' may not respond to '-buildMainMenu'/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: (Messages without a matching method signature/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: will be assumed to return 'id' and accept/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:28: warning: '...' as arguments.)/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m: In function '-[NiblesTestAppDelegate buildMainMenu]':/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m:49: error: 'theNSApplication' undeclared (first use in this function)4(4@45"'sel' undeclared (first use in this function)713902159#134#119#0(6@61"/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m713902150#25#0#25#0#43"'*' undeclared (first use in this function)0(22@59"'NiblesTestAppDelegate' may not respond to '-buildMainMenu'713902159#483#135#0(6@61"/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m713902150#28#0#28#0#26"'*' may not respond to '*'0(13@108"(Messages without a matching method signature will be assumed to return 'id' and accept '...' as arguments.)713902159#618#121#0(6@61"/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m713902150#28#0#28#0#0"0(4@58"'theNSApplication' undeclared (first use in this function)713902159#1069#132#0(6@61"/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m713902150#49#0#49#0#43"'*' undeclared (first use in this function)0(0#0#61"/Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m8614842880#1533"    cd /Users/idelovski/Developer/NiblesTest    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x objective-c -arch x86_64 -fmessage-length=0 -pipe -std=gnu99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/SDKs/MacOSX10.6.sdk -mfix-and-continue -mmacosx-version-min=10.6 -gdwarf-2 -iquote /Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-generated-files.hmap -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-own-target-headers.hmap -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-all-target-headers.hmap -iquote /Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-project-headers.hmap -F/Users/idelovski/Developer/NiblesTest/build/Debug -I/Users/idelovski/Developer/NiblesTest/build/Debug/include -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/DerivedSources/x86_64 -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/DerivedSources -include /var/folders/L7/L75cIwayGzeX0koTLvoACE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/NiblesTest_Prefix-glpowwroylomorehfouxtnkhxefu/NiblesTest_Prefix.pch -c /Users/idelovski/Developer/NiblesTest/NiblesTestAppDelegate.m -o /Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/NiblesTestAppDelegate.o1#
+
+CCompileC build/NiblesTest.build/Debug/NiblesTest.build/Objects-normal/x86_64/main.o /Users/idelovski/Developer/NiblesTest/main.m normal x86_64 objective-c com.apple.compilers.gcc.4_2
+r0
+
+CCompileXIB /Users/idelovski/Developer/NiblesTest/English.lproj/MainMenu.xib
+r0
+
+CCopyStringsFile /Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/Resources/English.lproj/InfoPlist.strings English.lproj/InfoPlist.strings
+r0
+
+CLd /Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/MacOS/NiblesTest normal x86_64
+r0
+
+CProcessInfoPlistFile /Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app/Contents/Info.plist NiblesTest-Info.plist
+r0
+
+CProcessPCH /var/folders/L7/L75cIwayGzeX0koTLvoACE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/NiblesTest_Prefix-glpowwroylomorehfouxtnkhxefu/NiblesTest_Prefix.pch.gch NiblesTest_Prefix.pch normal x86_64 objective-c com.apple.compilers.gcc.4_2
+s713902157.296207
+e713902159.353504
+r1
+xProcessPCH
+x/var/folders/L7/L75cIwayGzeX0koTLvoACE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/NiblesTest_Prefix-glpowwroylomorehfouxtnkhxefu/NiblesTest_Prefix.pch.gch
+xNiblesTest_Prefix.pch
+xnormal
+xx86_64
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@32"Precompile NiblesTest_Prefix.pch713902157#713902159#0(0"0(0#0#59"/Users/idelovski/Developer/NiblesTest/NiblesTest_Prefix.pch8030612440409467904#1403"    cd /Users/idelovski/Developer/NiblesTest    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x objective-c-header -arch x86_64 -fmessage-length=0 -pipe -std=gnu99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -isysroot /Developer/SDKs/MacOSX10.6.sdk -mfix-and-continue -mmacosx-version-min=10.6 -gdwarf-2 -iquote /Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-generated-files.hmap -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-own-target-headers.hmap -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-all-target-headers.hmap -iquote /Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/NiblesTest-project-headers.hmap -F/Users/idelovski/Developer/NiblesTest/build/Debug -I/Users/idelovski/Developer/NiblesTest/build/Debug/include -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/DerivedSources/x86_64 -I/Users/idelovski/Developer/NiblesTest/build/NiblesTest.build/Debug/NiblesTest.build/DerivedSources -c /Users/idelovski/Developer/NiblesTest/NiblesTest_Prefix.pch -o /var/folders/L7/L75cIwayGzeX0koTLvoACE+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/NiblesTest_Prefix-glpowwroylomorehfouxtnkhxefu/NiblesTest_Prefix.pch.gch0#
+
+CTouch /Users/idelovski/Developer/NiblesTest/build/Debug/NiblesTest.app
+r0
+
