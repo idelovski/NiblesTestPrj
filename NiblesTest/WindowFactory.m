@@ -435,30 +435,6 @@
 - (void)textDidChange:(NSNotification*)notification
 {
    NSLog (@"textDidChange:");
-#ifdef _NIJE_
-   unref(notification);
-   if ([self isEnabled] == YES && self->OnFilter != NULL)
-   {
-      EvText params;
-      EvTextFilter result;
-      NSText *text = NULL;
-      params.text = (const char_t*)[[self stringValue] UTF8String];
-      text = [[self window] fieldEditor:YES forObject:self];
-      params.cpos = (uint32_t)[text selectedRange].location;
-      result.apply = FALSE;
-      result.text[0] = '\0';
-      result.cpos = UINT32_MAX;
-      listener_event(self->OnFilter, ekEVTXTFILTER, (OSEdit*)self, &params, &result, OSEdit, EvText, EvTextFilter);
-      
-      if (result.apply == TRUE)
-         _oscontrol_set_text(self, &self->attrs, result.text);
-      
-      if (result.cpos != UINT32_MAX)
-         [text setSelectedRange:NSMakeRange((NSUInteger)result.cpos, 0)];
-      else
-         [text setSelectedRange:NSMakeRange((NSUInteger)params.cpos, 0)];
-   }
-#endif
 }
 
 /*---------------------------------------------------------------------------*/
@@ -466,11 +442,6 @@
 - (void)textDidBeginEditing:(NSNotification *)obj
 {
    NSLog (@"textDidBeginEditing:");
-#ifdef _NIJE_
-   unref(obj);
-   if (BIT_TEST(self->flags, ekEDAUTOSEL) == TRUE)
-       [[self currentEditor] selectAll:nil];
-#endif
 }
 
 /*---------------------------------------------------------------------------*/
@@ -478,46 +449,6 @@
 - (void)textDidEndEditing:(NSNotification*)notification
 {
    NSLog (@"textDidEndEditing:");
-#ifdef _NIJE_
-   unref(notification);
-   if ([self isEnabled] == YES && self->OnChange != NULL
-       && _oswindow_in_destroy([self window]) == NO)
-   {
-      EvText params;
-      params.text = (const char_t*)[[self stringValue] UTF8String];
-      listener_event(self->OnChange, ekEVTXTCHANGE, (OSEdit*)self, &params, NULL, OSEdit, EvText, void);
-   }
-   
-   [[self window] endEditingFor:nil];
-   
-   if (self->OnFocus != NULL)
-   {
-      bool_t params = FALSE;
-      listener_event(self->OnFocus, ekEVFOCUS, (OSEdit*)self, &params, NULL, OSEdit, bool_t, void);
-   }
-   
-   {
-      unsigned int whyEnd = [[[notification userInfo] objectForKey:@"NSTextMovement"] unsignedIntValue];
-      NSView *nextView = nil;
-      
-      if (whyEnd == NSReturnTextMovement)
-      {
-         [[self window] keyDown:(NSEvent*)231];
-         nextView = self;
-      }        
-      else if (whyEnd == NSTabTextMovement)
-      {
-         nextView = [self nextValidKeyView];
-      }
-      else if (whyEnd == NSBacktabTextMovement)
-      {
-         nextView = [self previousValidKeyView];
-      }
-      
-      if (nextView != nil)
-         [[self window] makeFirstResponder:nextView];
-   }
-#endif
 }
 
 #pragma mark -
