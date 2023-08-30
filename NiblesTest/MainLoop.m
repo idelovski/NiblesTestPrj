@@ -52,7 +52,7 @@ static FORM_REC  newForm;
    NSLog (@"Screen Frame normal: %@", NSStringFromRect (id_CocoaRect(nil, availableFrame)));
    
    
-   NSRect  winFrame = NSMakeRect (100, 64, 640, 360);
+   NSRect  winFrame = NSMakeRect (100, 64, 640, 390);
    
    aWindow = [[[NSWindow alloc] initWithContentRect:id_CocoaRect(nil, winFrame)
                                                styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask

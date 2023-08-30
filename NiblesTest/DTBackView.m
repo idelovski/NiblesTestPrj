@@ -58,7 +58,7 @@
 {
    NSButton  *btn = (NSButton *)sender;
    
-   NSLog (@"Button: %d", (int)btn.tag);
+   NSLog (@"Toolbar Button: %d", (int)btn.tag);
 }
 
 @end
