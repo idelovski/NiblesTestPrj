@@ -2,8 +2,8 @@
 //  BackView.m
 //  EventMonitor
 //
-//  Created by don on Fri Nov 02 2001.
-//  Copyright (c) 2001 Don Yacktman. All rights reserved.
+//  Created by me on Fri Nov 02 2001.
+//  Copyright (c) 2023 Delovski d.o.o. All rights reserved.
 //
 
 #import  "DTBackView.h"
@@ -50,6 +50,15 @@
 - (BOOL)isFlipped
 {
    return (YES);
+}
+
+#pragma mark -
+
+- (void)handleToolbar:(id)sender
+{
+   NSButton  *btn = (NSButton *)sender;
+   
+   NSLog (@"Button: %d", (int)btn.tag);
 }
 
 @end

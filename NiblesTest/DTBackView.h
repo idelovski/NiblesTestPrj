@@ -15,4 +15,6 @@
 
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent;
 
+- (void)handleToolbar:(id)sender;
+
 @end

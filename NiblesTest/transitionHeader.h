@@ -2,7 +2,7 @@
 //  transitionHeader.h
 //  GeneralCocoaProject
 //
-//  Created by Sophie Marceau on 16.07.23.
+//  Created by me on 16.07.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
@@ -432,6 +432,38 @@ extern DTGlobalData  *dtGData;
 
 #pragma mark TB
 
+/* --------------------------------------------------------------- Menu IDs ---------- */
+
+#define  kMenusInBar        6
+
+#define  Apple_MENU_ID    128         /* --- Menu Titles --- */
+#define  File_MENU_ID     129
+#define  Edit_MENU_ID     130
+#define  Task_MENU_ID     131
+#define  Work_MENU_ID     132
+#define  Wind_MENU_ID     133
+
+#define  kSubMenusInAppl    9
+
+#define  NEW_Command        1           /* --- File Menu Items --- */
+#define  OPEN_Command       3
+#define  LOCK_Command       4
+#define  CLOSE_Command      5
+#define  SAVE_Command       7
+#define  SAVE_AS_Command    8
+#define  INFO_Command      10
+#define  PG_SET_Command    12
+#define  PRINT_Command     13
+#define  QUIT_Command      15
+
+#define  undoCommand       1           /* --- Edit Menu Items --- */
+#define  cutCommand        3
+#define  copyCommand       4
+#define  pasteCommand      5
+#define  clearCommand      6
+
+#define  FIND_Command       1         /* --- Work Menu Items --- */
+
 /* ................................................... TOOLBAR ...................... */
 
 #define  kMAX_IDTOOLS      16
@@ -494,7 +526,7 @@ typedef struct _IDToolbar  {
    NSImage     *hciPadding;  // CIconHandle
 
    NSImage     *hciNormal[kMAX_IDTOOLS];   // CIconHandle
-   NSImageView *imvNormal[kMAX_IDTOOLS];
+   NSButton    *imbNormal[kMAX_IDTOOLS];
    // NSImage     *hciHigh[kMAX_IDTOOLS];      // CIconHandle
    // NSImage     *hciDisabled[kMAX_IDTOOLS];  // CIconHandle
    

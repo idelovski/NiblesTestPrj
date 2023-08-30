@@ -62,11 +62,18 @@
    return (YES);
 }
 
+// Called repeatedly if I have a default glowing button in this view
+
+// So in the real project check if there's a default button and ...
+// ... see if dirtyRect is basically just that and then ignore everything
+
 - (void)drawRect:(NSRect)dirtyRect
 {
    CGRect     smallRect, rect = CGRectInset ((CGRect){.size = dirtyRect.size}, 50, 50);
    NSWindow  *win = self.window;
    FORM_REC  *form = id_FindForm (win);
+   
+   // NSLog (@"drawRect: %@", NSStringFromRect(dirtyRect));
    
    rect = CGRectOffset (rect, 0, 20);
    
@@ -169,7 +176,8 @@
    
    smallRect = [self bounds];
    
-   smallRect.size.height -= kSBAR_HEIGHT;
+   smallRect.origin.y += dtGData->toolBarHeight;
+   smallRect.size.height -= kSBAR_HEIGHT + dtGData->toolBarHeight;
    
    NSFrameRect (NSInsetRect(smallRect, 3, 3));
    
@@ -177,7 +185,10 @@
    
    NSImage  *image = [NSImage imageNamed:@"Bouquet512"];
    
-   smallRect = CGRectMake (5, self.bounds.size.height-image.size.height-5, image.size.width, image.size.height);
+   smallRect = CGRectMake (5,
+                           self.bounds.size.height-image.size.height-5,
+                           image.size.width,
+                           image.size.height);
    
    smallRect = CGRectOffset (smallRect, 0, -kSBAR_HEIGHT);
    

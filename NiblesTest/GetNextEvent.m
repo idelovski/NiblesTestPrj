@@ -2,7 +2,7 @@
 //  GeneralCocoaProjectAppDelegate.m
 //  GeneralCocoaProject
 //
-//  Created by Sophie Marceau on 09.07.23.
+//  Created by me on 09.07.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 

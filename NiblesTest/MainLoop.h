@@ -2,7 +2,7 @@
 //  MainLoop.h
 //  GeneralCocoaProject
 //
-//  Created by Sophie Marceau on 16.07.23.
+//  Created by me on 16.07.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
@@ -251,3 +251,6 @@ CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 #define  kSBAR_SEP_WIDTH   12
 
 int  id_DrawStatusbar (FORM_REC *form, short drawNow);
+
+void id_create_toolbar (FORM_REC *form);
+int  id_DrawIconToolbar (FORM_REC *form);

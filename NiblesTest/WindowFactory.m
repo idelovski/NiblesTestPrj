@@ -2,7 +2,7 @@
 //  NiblesTestAppDelegate.m
 //  NiblesTest
 //
-//  Created by Sophie Marceau on 16.08.23.
+//  Created by me on 16.08.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 

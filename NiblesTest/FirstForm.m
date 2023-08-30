@@ -2,7 +2,7 @@
 //  FirstForm.m
 //  NiblesTest
 //
-//  Created by Sophie Marceau on 17.08.23.
+//  Created by me on 17.08.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
@@ -15,6 +15,7 @@
 extern FORM_REC  *dtMainForm;
 
 static double  gXOffset = 60.;
+static double  gYOffset = 30.;
 
 @implementation FirstForm
 
@@ -119,7 +120,7 @@ static double  gXOffset = 60.;
    //Start from bottom left corner
    
    int  x = gXOffset; //possition x
-   int  y = 16; //possition y
+   int  y = 16 + gYOffset; //possition y
    
    int  width = 130;
    int  height = 24; 
@@ -157,7 +158,7 @@ static double  gXOffset = 60.;
    //Start from bottom left corner
    
    int  x = gXOffset; //possition x
-   int  y = 46; //possition y
+   int  y = 46 + gYOffset; //possition y
    
    int  width = 130;
    int  height = 24; 
@@ -238,7 +239,7 @@ static double  gXOffset = 60.;
 - (NSButton *)createImgButtonInForm:(FORM_REC *)form withImageName:(NSString *)imgName
 {
    int  x = gXOffset + 180.; //possition x
-   int  y = 6; //possition y
+   int  y = 6 + gYOffset; //possition y
    
    int  width =  132;
    int  height = 107; 
@@ -275,7 +276,7 @@ static double  gXOffset = 60.;
 - (NSImageView *)createImageViewInForm:(FORM_REC *)form withImageName:(NSString *)imgName
 {
    int  x = gXOffset + 320; //possition x
-   int  y = 6; //possition y
+   int  y = 6 + gYOffset; //possition y
    
    int  width =  132;
    int  height = 107; 
@@ -323,7 +324,7 @@ static double  gXOffset = 60.;
 - (NSButton *)createCheckBoxInForm:(FORM_REC *)form
 {
    int  x = gXOffset;  //possition x
-   int  y = 76;  //possition y
+   int  y = 76 + gYOffset;  //possition y
    
    NSInteger  width = 100, height = 24;
    
@@ -399,7 +400,7 @@ static double  gXOffset = 60.;
                                    inForm:(FORM_REC *)form
 {
    int  x = offset;  //possition x
-   int  y = 116;  //possition y
+   int  y = 116 + gYOffset;  //possition y
    
    NSInteger  width = 100, height = 24;
    
@@ -439,7 +440,7 @@ static double  gXOffset = 60.;
 - (void)createEditFieldsInForm:(FORM_REC *)form
 {
    int  x = gXOffset;  //possition x
-   int  y = 146;  //possition y
+   int  y = 146 + gYOffset;  //possition y
    
    NSInteger  width = 160, height = 24;
 
@@ -514,7 +515,7 @@ static double  gXOffset = 60.;
 - (NSTextField *)createLabelInForm:(FORM_REC *)form version:(char *)titleStr
 {
    int  x = gXOffset;  //possition x
-   int  y = 176;  //possition y
+   int  y = 176 + gYOffset;  //possition y
    
    NSInteger  width = 180, height = 24;
 
@@ -561,7 +562,7 @@ static double  gXOffset = 60.;
                                   inForm:(FORM_REC *)form
 {
    int  x = gXOffset + offset;  //possition x
-   int  y = 200;  //possition y
+   int  y = 200 + gYOffset;  //possition y
    
    NSInteger  /*width = offset ? 166 : 120,*/ height = 24;
    

@@ -2,7 +2,7 @@
 //  MainLoop.m
 //  GeneralCocoaProject
 //
-//  Created by Sophie Marceau on 16.07.23.
+//  Created by me on 16.07.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
@@ -86,6 +86,12 @@ static FORM_REC  newForm;
 
 + (void)finalizeFormWindow:(FORM_REC *)form
 {
+   // TEMP HERE
+   id_create_toolbar (form);
+   if (form->toolBarHandle)
+      id_DrawIconToolbar (form);
+   // TEMP HERE ^
+   
    NSRect   winFrame = form->my_window.frame;
    NSView  *winView = form->my_window.contentView;
    // Just an illustration - contentFrame but in screen coordinates:
@@ -439,6 +445,9 @@ int  id_InitDTool (   // rev. 13.04.05
    if (!id_InitComputerUserName (userName, 128))
       NSLog (@"User: %s", userName);
    
+   dtGData->statusBarHeight = 20;  // On Win98...
+   dtGData->toolBarHeight   = kTB_ICN_HEIGHT;
+
 #ifdef _ONE_DAY_
    short   applResRef, resErr;
    DWORD   maxLen = 255;
@@ -670,15 +679,15 @@ FORM_REC  *id_FindForm (NSWindow *nsWindow)
    return (formPtr);
 #endif
    
-   NSLog (@"id_FindForm: %@ %d", nsWindow.title, (int)nsWindow.windowNumber);
+   // NSLog (@"id_FindForm: %@ %d", nsWindow.title, (int)nsWindow.windowNumber);
 
    if (dtDialogForm && dtDialogForm->my_window == nsWindow)
       return (dtDialogForm);
    if (dtRenderedForm && dtRenderedForm->my_window == nsWindow)
       return (dtRenderedForm);
 
-   if (dtMainForm && dtMainForm->my_window == nsWindow)
-      NSLog (@"We have ourseves a window!");
+   // if (dtMainForm && dtMainForm->my_window == nsWindow)
+   //    NSLog (@"We have ourseves a window!");
    
    return (dtMainForm);
 }
@@ -2057,7 +2066,7 @@ static char  *id_text_date_fmt2 (unsigned short dateShort, char *txtBuff)
    
    CFGregorianDate  gDate = CFAbsoluteTimeGetGregorianDate (theTimeInterval, gGSystemTimeZone);
    
-   sprintf (txtBuff, "%.3s, %02hd. %.3s, %hd.", dayOfWeek, (short)gDate.day, monthName, (short)gDate.year);
+   sprintf (txtBuff, "%.3s, %02hd. %.3s, %hd.", dayOfWeek, (short)gDate.day, monthName, gDate.year);
    
    return (txtBuff);
 }
@@ -2104,7 +2113,7 @@ void  id_GetClientRect (FORM_REC *form, Rect *rect)
             viewFrame.origin.x + viewFrame.size.width, viewFrame.origin.y + viewFrame.size.height);
    
    // if (form->w_procID == documentProc)  {
-      // rect->top += dtGData->toolBarHeight;
+      rect->top += dtGData->toolBarHeight;
       rect->bottom -= kSBAR_HEIGHT /*dtGData->statusBarHeight*/;
    // }
 }
@@ -2393,9 +2402,10 @@ static int  id_DrawStatusbarText (
    
    // id_set_comment_layout ();
    
-   // if ([form->overlayView canDraw])  {
+   if (form->drawRectCtx || [form->overlayView canDraw])  {
       
-      // [form->overlayView lockFocus];
+      if (!form->drawRectCtx)
+         [form->overlayView lockFocus];
       
       // CGContextRef  ctx = [NSGraphicsContext currentContext].graphicsPort;
       
@@ -2446,8 +2456,9 @@ static int  id_DrawStatusbarText (
       // ForeColor (blackColor);
       // CGContextRestoreGState (ctx);
       
-      // [form->overlayView unlockFocus];
-   // }
+      if (!form->drawRectCtx)
+         [form->overlayView unlockFocus];
+   }
    
    return (0);
 }
@@ -2538,12 +2549,12 @@ int  id_SetTBItem (
 
 // Ok, ovo se treba zvat Display, tj na Cocoa imamao NSImageView pa ga ne treba crtati
 // Pa ovo treba instalirati image view ak već nije i onda više nema što, enable/disable
-// negdje drugo - A ako je tu onda samo propery na image view
+// negdje drugo - A ako je tu onda samo property na image view
 
 static int  id_CoreDrawTBItem (FORM_REC *form, short idx, short hiFlag, short invalFlag)
 {
    IDToolbarHandle  tbHandle = (IDToolbarHandle) form->toolBarHandle;
-   NSImage         *iconHandle = NULL;
+   NSButton        *imageButton = NULL;
    short            iconWidth, iconPosHor;
    Rect             tmpRect;
    WindowPtr        savedPort;
@@ -2561,6 +2572,44 @@ static int  id_CoreDrawTBItem (FORM_REC *form, short idx, short hiFlag, short in
       SetRect (&tmpRect, iconPosHor, 0, iconPosHor + iconWidth, dtGData->toolBarHeight);   // ltrb
 
       if (form->my_window)  {
+         
+         if ((*tbHandle)->hciNormal[idx] && !(*tbHandle)->imbNormal[idx])  {
+            CGRect  btnRect = NSMakeRect (tmpRect.left, tmpRect.top, tmpRect.right-tmpRect.left, tmpRect.bottom-tmpRect.top);
+            
+            imageButton = [[NSButton alloc] initWithFrame:id_CocoaRect(form->my_window, btnRect)];
+            
+            [imageButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
+            [imageButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
+            
+            [imageButton setBordered:NO];
+            
+            [imageButton setAction:@selector(handleToolbar:)];
+            [imageButton setTarget:[form->my_window contentView]];
+            
+            [imageButton setImage:(*tbHandle)->hciNormal[idx]];
+            
+            imageButton.tag = idx;
+            
+            [[form->my_window contentView] addSubview:imageButton];
+
+            (*tbHandle)->imbNormal[idx] = imageButton;
+         }
+         if ((*tbHandle)->imbNormal[idx])  {
+            imageButton = (*tbHandle)->imbNormal[idx];
+            
+            if ((*tbHandle)->tbDisabled)
+               [imageButton setEnabled:NO];
+            else  if (invalFlag)
+               [imageButton setNeedsDisplay:YES];
+            else  if (hiFlag)
+               [imageButton setState:NSOnState];
+            else  if ((*tbHandle)->tbState[idx] && !(*tbHandle)->tbDisabled)  {
+               [imageButton setEnabled:YES];
+               [imageButton setState:NSOffState];
+            }
+            else
+               [imageButton setEnabled:NO];
+         }
          
 #ifdef _NOT_YET_
 
@@ -2647,6 +2696,9 @@ static int  id_DrawTBPadding (
 
 /* ....................................................... id_DrawIconToolbar ....... */
 
+// Here I call this on form open but really it needs to be called before drawRect:
+// Maybe as I catch needsDisplay or something
+
 int  id_DrawIconToolbar (
  FORM_REC *form
 )
@@ -2667,5 +2719,41 @@ int  id_DrawIconToolbar (
    // id_DrawTBPopUp (form);
   
    return (0);
+}
+
+/* ....................................................... id_create_toolbar ........ */
+
+void  id_create_toolbar (FORM_REC *form)
+{
+   short  idx;
+   
+   // if (!gGTBCreatorPP)  return;
+   
+   id_CreateIconToolbar (form);
+   
+   idx = 0;
+   
+   if (form->toolBarHandle)  {
+      
+      // if (gGTBCreatorPP)
+      //    (*gGTBCreatorPP) (form);
+      
+      idx = id_SetTBItem (form, idx, STD_FILENEW,  File_MENU_ID, NEW_Command);
+      idx = id_SetTBItem (form, idx, 0, 0, 0);                        // Separator
+      idx = id_SetTBItem (form, idx, STD_FILEOPEN, File_MENU_ID, OPEN_Command);
+      idx = id_SetTBItem (form, idx, STD_FILESAVE, File_MENU_ID, SAVE_Command);
+      idx = id_SetTBItem (form, idx, 0, 0, 0);                        // Separator
+      idx = id_SetTBItem (form, idx, STD_UNDO,     Edit_MENU_ID, undoCommand);
+      idx = id_SetTBItem (form, idx, STD_CUT,      Edit_MENU_ID, cutCommand);
+      idx = id_SetTBItem (form, idx, STD_COPY,     Edit_MENU_ID, copyCommand);
+      idx = id_SetTBItem (form, idx, STD_PASTE,    Edit_MENU_ID, pasteCommand);
+      idx = id_SetTBItem (form, idx, 0, 0, 0);                        // Separator
+      idx = id_SetTBItem (form, idx, STD_FIND,     Work_MENU_ID, FIND_Command);
+      idx = id_SetTBItem (form, idx, 0, 0, 0);                        // Separator
+      idx = id_SetTBItem (form, idx, STD_PRINT,    File_MENU_ID, PRINT_Command);
+      idx = id_SetTBItem (form, idx, 0, 0, 0);                        // Separator
+      
+      SetRect (&(*(IDToolbarHandle)(form->toolBarHandle))->popUpRect, 0, 0, 0, 0);  // ltrb
+   }
 }
 

@@ -20,7 +20,6 @@
 
 @end
 
-
 @interface NSColor(Additions)
 - (CGColorRef)toCGColor;
 @end
