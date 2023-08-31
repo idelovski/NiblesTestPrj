@@ -304,6 +304,26 @@ static FORM_REC  newForm;
    return (YES);
 }
 
++ (void)resizeControl:(NSControl *)aControl
+               inForm:(FORM_REC *)form
+           toNewRatio:(short)ratio
+{
+   // NSPopUpButton  *btn = (NSPopUpButton *)sender;
+   // NSWindow       *win = aControl.window;
+   CGRect  ctlRect = aControl.frame;
+   short   oldRatio = form->scaleRatio;
+   
+   CGRect  origRect = CGRectMake (ctlRect.origin.x * 100 / oldRatio, ctlRect.origin.y * 100 / oldRatio, ctlRect.size.width * 100 / oldRatio, ctlRect.size.height * 100 / oldRatio);
+   
+   CGRect  newRect = CGRectMake (origRect.origin.x * ratio / 100, origRect.origin.y * ratio / 100, origRect.size.width * ratio / 100, origRect.size.height * ratio / 100);
+   
+   // win.frame = newRect;
+   
+   // newRect.origin.y -= newRect.size.height - ctlRect.size.height;
+   
+   aControl.frame = newRect;
+}
+
 @end
 
 BOOL  id_MainLoop (FORM_REC *form)

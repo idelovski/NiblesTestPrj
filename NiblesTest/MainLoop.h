@@ -30,6 +30,10 @@
           inFrame:(CGRect)imgFrame
              form:(FORM_REC *)form;
 
++ (void)resizeControl:(NSControl *)aControl
+               inForm:(FORM_REC *)form
+           toNewRatio:(short)ratio;
+
 @end
 
 BOOL  id_MainLoop (FORM_REC *form);

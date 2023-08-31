@@ -18,5 +18,6 @@
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent;
 
 - (void)handleToolbar:(id)sender;
+- (void)resizeContentInForm:(FORM_REC *)form toNewRatio:(short)ratio;
 
 @end

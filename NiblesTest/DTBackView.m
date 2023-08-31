@@ -98,8 +98,38 @@
    
    form->overlayView.frame = ((NSView *)[self.window contentView]).frame;
    
+   [self resizeContentInForm:form toNewRatio:ratio];
+   
    form->scaleRatio = ratio;
 }
 
+- (void)resizeContentInForm:(FORM_REC *)form toNewRatio:(short)ratio
+{
+   [MainLoop resizeControl:form->okButton inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->newWinButton inForm:form toNewRatio:ratio];
+   
+   [MainLoop resizeControl:form->imgButton inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->imgView inForm:form toNewRatio:ratio];
+   
+   [MainLoop resizeControl:form->checkBoxButton inForm:form toNewRatio:ratio];
+
+   [MainLoop resizeControl:form->radioButton[0] inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->radioButton[1] inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->radioButton[2] inForm:form toNewRatio:ratio];
+
+   [MainLoop resizeControl:form->leftField inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->rightField inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->bigField inForm:form toNewRatio:ratio];
+   
+   [MainLoop resizeControl:form->labelField inForm:form toNewRatio:ratio];
+   
+   [MainLoop resizeControl:form->popUpButtonL inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->popUpButtonS inForm:form toNewRatio:ratio];
+   [MainLoop resizeControl:form->popUpButtonR inForm:form toNewRatio:ratio];
+
+   id_frame_fields (form, form->radioButton[0], form->radioButton[2], 0, NULL);
+}
 
 @end
+
+

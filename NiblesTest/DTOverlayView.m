@@ -143,7 +143,7 @@
       
       CFArrayRemoveAllValues (form->pdfsArray);
       
-      form->pdfsArray = NULL;
+      // form->pdfsArray = NULL;
    }      
    
 #ifdef _NIJE_
