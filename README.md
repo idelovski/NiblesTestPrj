@@ -5,4 +5,6 @@ So, this should be an experiment with the older Carbon code that will have to ch
 
 General idea is to convert as little Carbon code to Cocoa and continue using CarbonCore for everything that is still possible with CarbonCore so it compiles on M1 and latest Xcode having the deprecations warnings off.
 
-There is no NIB/XIB file and everything is created in code excepto for the things from an old Resource file in Classic Mac resorce format. Hard to tell how will this file be handled by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file. 
+There is no NIB/XIB file and everything is created in code excepto for the things from an old Resource file in Classic Mac resorce format.
+
+I don't think this file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file. 
