@@ -6,8 +6,10 @@
 //  Copyright (c) 2023 Delf. All rights reserved.
 //
 
-#import <AppKit/AppKit.h>
+#import  <AppKit/AppKit.h>
 
+#import  "MainLoop.h"
+#import  "WindowFactory.h"
 
 @interface  DTBackView : NSView
 {

@@ -2566,10 +2566,20 @@ static int  id_CoreDrawTBItem (FORM_REC *form, short idx, short hiFlag, short in
    
    if (idx >= 0 && idx < (*tbHandle)->tbItems)  {
       
+      OSErr   err;
+      SInt32  response;
+      
+      err = Gestalt (gestaltSystemVersion, &response);      
+      
       iconWidth = (*tbHandle)->tbWidth[idx];
       iconPosHor = (*tbHandle)->tbOffset[idx];
       
       SetRect (&tmpRect, iconPosHor, 0, iconPosHor + iconWidth, dtGData->toolBarHeight);   // ltrb
+      
+      // if (response == 4200)
+      //    tmpRect.bottom += 6;
+      // if (response == 4245)
+      //    tmpRect.bottom += 2;
 
       if (form->my_window)  {
          
@@ -2579,7 +2589,7 @@ static int  id_CoreDrawTBItem (FORM_REC *form, short idx, short hiFlag, short in
             imageButton = [[NSButton alloc] initWithFrame:id_CocoaRect(form->my_window, btnRect)];
             
             [imageButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
-            [imageButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
+            // [imageButton setBezelStyle:NSRoundedBezelStyle]; //Must not have or it will be bad
             
             [imageButton setBordered:NO];
             
@@ -2587,6 +2597,16 @@ static int  id_CoreDrawTBItem (FORM_REC *form, short idx, short hiFlag, short in
             [imageButton setTarget:[form->my_window contentView]];
             
             [imageButton setImage:(*tbHandle)->hciNormal[idx]];
+            
+            imageButton.title = @"";
+            /*
+            imageButton.imagePosition = NSImageOverlaps;
+            
+            NSButtonCell *cell = imageButton.cell;
+            
+            cell.imageScaling = NSImageScaleNone;
+            
+            NSLog (@"cellRect: %@", NSStringFromRect(imageButton.frame));*/
             
             imageButton.tag = idx;
             
@@ -2654,11 +2674,12 @@ static int  id_DrawTBItem (
 
 // Ovdje crtamo taj vrag pa nije imgView
 
-static int  id_DrawTBPadding (
+int  id_DrawTBPadding (
  FORM_REC *form
 )
 {
    IDToolbarHandle  tbHandle = (IDToolbarHandle) form->toolBarHandle;
+   NSView          *contentView = [form->my_window contentView];
    // CIconHandle      iconHandle = NULL;
    short            iconWidth, iconPosHor, idx;
    Rect             tmpRect, clientRect;
@@ -2679,14 +2700,21 @@ static int  id_DrawTBPadding (
       
       iconWidth = kTB_ICN_WIDTH;
       
-      while (iconPosHor < clientRect.right)  {
-   
-         SetRect (&tmpRect, iconPosHor, 0, iconPosHor + iconWidth, dtGData->toolBarHeight);   // ltrb
-   
-         if ((*tbHandle)->hciPadding)
-            id_PlotCIcon (&tmpRect, (*tbHandle)->hciPadding);
-         iconPosHor += iconWidth;
-      }
+      /*if ([contentView canDraw])  {
+         
+         [contentView lockFocus];*/
+      
+         while (iconPosHor < clientRect.right)  {
+            
+            SetRect (&tmpRect, iconPosHor, 0, iconPosHor + iconWidth, dtGData->toolBarHeight);   // ltrb
+            
+            if ((*tbHandle)->hciPadding)
+               id_PlotCIcon (&tmpRect, (*tbHandle)->hciPadding);
+            iconPosHor += iconWidth;
+         }
+         
+         /* [contentView unlockFocus];
+      }*/
    }
    
    HUnlock ((Handle)tbHandle);
@@ -2714,7 +2742,7 @@ int  id_DrawIconToolbar (
    for (i=0; i<tbItems; i++)
       id_DrawTBItem (form, i);
       
-   id_DrawTBPadding (form);
+   // NOT HERE! - id_DrawTBPadding (form);
    
    // id_DrawTBPopUp (form);
   

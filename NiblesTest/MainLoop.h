@@ -254,3 +254,4 @@ int  id_DrawStatusbar (FORM_REC *form, short drawNow);
 
 void id_create_toolbar (FORM_REC *form);
 int  id_DrawIconToolbar (FORM_REC *form);
+int  id_DrawTBPadding (FORM_REC *form);

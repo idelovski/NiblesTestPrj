@@ -54,6 +54,18 @@
 
 #pragma mark -
 
+- (void)drawRect:(NSRect)dirtyRect
+{
+   NSWindow  *win = self.window;
+   FORM_REC  *form = id_FindForm (win);
+   
+   id_DrawTBPadding (form);
+   
+   // NSLog (@".");
+}
+
+#pragma mark -
+
 - (void)handleToolbar:(id)sender
 {
    NSButton  *btn = (NSButton *)sender;
