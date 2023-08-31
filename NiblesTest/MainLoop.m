@@ -27,6 +27,7 @@ static int  pr_InsertSubMenu (NSMenuItem *parentMenuItem, id target, short theMe
 
 static int  id_InitStatusbarIcons (void);
 static int  id_DrawStatusbarText (FORM_REC *form, short statPart, char *statusText);
+static int  id_DrawTBPopUp (FORM_REC  *form);
 
 @implementation MainLoop
 
@@ -656,6 +657,8 @@ FORM_REC  *id_init_form (FORM_REC *form)
 {
    id_SetBlockToZeros (form, sizeof (FORM_REC));
    
+   form->scaleRatio = 100;
+   
    form->pathsArray = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
    form->pdfsArray = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
    
@@ -1227,6 +1230,77 @@ void  pr_ListEncodings (void)
          NSLog (@"Encoding: %u %@", (unsigned int)availableStringEncodings[i], encName);
    }
 }
+
+/* ................................................... TExMeasureText ............... */
+
+// This measures text with fixed font. Now we somehow need to send font decription here
+
+int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight)
+{
+   CFStringRef  cfString = NULL;
+   CGSize       resultSize;
+   
+   if (txtWidth)
+      *txtWidth = 0;
+   if (txtHeight)
+      *txtHeight = 0;
+   
+   id_Mac2CFString (cStr, &cfString, len);
+   
+   NSMutableParagraphStyle  *textStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
+   textStyle.lineBreakMode = NSLineBreakByWordWrapping;
+   textStyle.alignment = NSLeftTextAlignment;  // NSTextAlignmentLeft;
+
+   NSFont   *textFont = [NSFont labelFontOfSize:9];
+   NSColor  *theColor = [NSColor blackColor];
+   
+   NSMutableDictionary  *attrs = [NSMutableDictionary dictionaryWithCapacity:3];
+   
+   [attrs setObject:textStyle forKey:NSParagraphStyleAttributeName];
+   [attrs setObject:textFont forKey:NSFontAttributeName];
+   [attrs setObject:theColor forKey:NSForegroundColorAttributeName];
+   
+   resultSize = [(NSString *)cfString sizeWithAttributes:attrs];
+   
+   CFRelease (cfString);
+   
+   if (txtWidth)
+      *txtWidth = resultSize.width;
+   if (txtHeight)
+      *txtHeight = resultSize.height;
+   
+   return (resultSize.width < 1. ? -1 : 0);
+}
+
+/* ----------------------------------------------------- id_TextWidth ---------------- */
+
+int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
+{
+   short  retVal;
+   short  result, txtWidth, txtHeight;
+   char   tmpStr[256], *buffPtr = NULL;
+   
+   if (len > 255)  {
+      if (!(buffPtr = NewPtr(len+1)))
+         len = 255;  // fuck it!
+   }
+   
+   if (!buffPtr)  {
+      buffPtr = tmpStr;
+   }
+   strNCpy (buffPtr, txtPtr+startOffset, len);
+   
+   result = TExMeasureText (buffPtr, len, &txtWidth, &txtHeight);
+      
+   retVal = txtWidth + /*(txtWidth/16) +*/ 1;
+   
+   if (buffPtr != tmpStr)
+      DisposePtr (buffPtr);
+   
+   return (retVal);
+}
+
+#pragma mark -
 
 // Needed only for windows as all views are flipped
 
@@ -2744,7 +2818,7 @@ int  id_DrawIconToolbar (
       
    // NOT HERE! - id_DrawTBPadding (form);
    
-   // id_DrawTBPopUp (form);
+   id_DrawTBPopUp (form);
   
    return (0);
 }
@@ -2783,5 +2857,103 @@ void  id_create_toolbar (FORM_REC *form)
       
       SetRect (&(*(IDToolbarHandle)(form->toolBarHandle))->popUpRect, 0, 0, 0, 0);  // ltrb
    }
+}
+
+/* ....................................................... id_CalcTBPopRect ......... */
+
+int  id_CalcTBPopRect (
+ FORM_REC *form,
+ Rect     *popRect
+)
+{
+   static char     *templateStr = "100 % ";
+   IDToolbarHandle  tbHandle = (IDToolbarHandle) form->toolBarHandle;
+   short            popWidth, startHorPos, idx, retVal = -1;
+   Rect             clientRect, tmpRect;
+
+   if (!tbHandle)
+      return (-1);
+
+   HLock ((Handle)tbHandle);
+   
+   idx = (*tbHandle)->tbItems - 1;
+      
+   if (idx > 0 && idx < kMAX_IDTOOLS)  {
+   
+      startHorPos = (*tbHandle)->tbOffset[idx] + (*tbHandle)->tbWidth[idx] + kTB_SEP_WIDTH;
+      
+      id_GetClientRect (form, &clientRect);
+
+      // TextFont (geneva);  TextSize (9);  TextFace (0);
+      
+      popWidth = id_TextWidth (form, templateStr, 0, strlen(templateStr));
+   
+      popWidth += 48;
+      
+      SetRect (&tmpRect, startHorPos, dtGData->toolBarHeight/4+2 - 2,
+                         startHorPos + popWidth, dtGData->toolBarHeight/4 + 16 + 2);   // ltrb
+
+      if (tmpRect.right < clientRect.right)  {
+         *popRect = tmpRect;
+         retVal = 0;
+      }
+   }
+   HUnlock ((Handle)tbHandle);
+
+   return (retVal);
+}
+
+/* ....................................................... id_DrawTBPopUp ........... */
+
+static int  id_DrawTBPopUp (
+ FORM_REC  *form
+)
+{
+   char             tmpStr[256];
+   IDToolbarHandle  tbHandle = (IDToolbarHandle) form->toolBarHandle;
+   short            popWidth, popPosHor, idx;
+   Rect             tmpRect;
+   
+   if (!tbHandle || (*tbHandle)->popUpHandle || id_CalcTBPopRect(form, &tmpRect))  return (-1);
+   
+   HLock ((Handle)tbHandle);
+   
+   (*tbHandle)->popUpRect = tmpRect;
+                                           
+   sprintf (tmpStr, "%hd %%", form->scaleRatio);
+   
+   NSPopUpButton      *popUp = nil;
+   NSPopUpButtonCell  *cell = nil;
+   
+   CGRect  popFrame = NSMakeRect (tmpRect.left, tmpRect.top, tmpRect.right - tmpRect.left, tmpRect.bottom - tmpRect.top);
+   
+   popUp = [[NSPopUpButton alloc] initWithFrame:id_CocoaRect(form->my_window, popFrame)];
+   
+   [[form->my_window contentView] addSubview:popUp];
+   
+   [popUp setTag:-1];
+   
+   [popUp setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize] - 1]];
+   
+   // popUp->OnSelect_listener = NULL;
+   
+   cell = [popUp cell];
+   /*[cell setBezelStyle:NSShadowlessSquareBezelStyle];*/
+   [cell setArrowPosition:NSPopUpArrowAtBottom];
+   cell.controlSize = NSMiniControlSize;  // NSSmallControlSize
+   
+   
+   [popUp setPullsDown:NO];
+   [popUp setTarget:[form->my_window contentView]];
+   [popUp setAction:@selector(onScaleSelectionChange:)];
+   
+   [popUp addItemWithTitle:@"100 %"];
+   [popUp addItemWithTitle:@"110 %"];
+   [popUp addItemWithTitle:@"120 %"];
+   
+   
+   HUnlock ((Handle)tbHandle);
+   
+   return (0);
 }
 

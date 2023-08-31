@@ -569,7 +569,6 @@ static double  gYOffset = 30.;
    NSPopUpButton      *popUp = nil;
    NSPopUpButtonCell  *cell = nil;
    
-   
    popUp = [[NSPopUpButton alloc] initWithFrame:id_CocoaRect(self.window, NSMakeRect(x, y, width, height))];
    
    [[self.window contentView] addSubview:popUp];

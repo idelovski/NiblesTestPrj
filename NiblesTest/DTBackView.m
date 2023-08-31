@@ -73,4 +73,12 @@
    NSLog (@"Toolbar Button: %d", (int)btn.tag);
 }
 
+- (void)onScaleSelectionChange:(id)sender
+{
+   NSPopUpButton  *btn = (NSPopUpButton *)sender;
+   
+   NSLog (@"Toolbar PopUp Button: %d", (int)btn.tag);
+}
+
+
 @end

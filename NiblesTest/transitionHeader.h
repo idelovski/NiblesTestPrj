@@ -266,6 +266,7 @@ struct  _Form  {
    short         creationIndex;
    short         cur_fldno;  // Tag Minus One
    short         prev_cur_fldno;
+   short         scaleRatio;
 
    NSWindow     *my_window;
    
@@ -531,9 +532,9 @@ typedef struct _IDToolbar  {
    // NSImage     *hciDisabled[kMAX_IDTOOLS];  // CIconHandle
    
    Rect         popUpRect;
-#ifdef _DTOOL_OSX_
-   Handle       popUpHandle;
-#endif   
+   
+   NSPopUpButton  *popUpHandle;
+   
 } IDToolbarRecord, *IDToolbarPtr, **IDToolbarHandle;
 
 typedef struct _IDStatusbar  {
