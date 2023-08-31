@@ -11,6 +11,7 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */ = {isa = PBXBuildFile; fileRef = EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */; };
 		EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */; };
 		EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */; };
 		EB7B516D2A97E19A000AC12C /* DTOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7B516C2A97E199000AC12C /* DTOverlayView.m */; };
@@ -45,6 +46,7 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* NiblesTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "NiblesTest-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* NiblesTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NiblesTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Appl_KnjigeNT.rsrc.zip; sourceTree = "<group>"; };
 		EB53864A2A8FE9AC00040808 /* Temp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Temp.m; sourceTree = "<group>"; };
 		EB53864B2A8FE9AC00040808 /* Console-Output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Console-Output.h"; sourceTree = "<group>"; };
 		EB53864C2A8FE9AC00040808 /* Search-Results.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Search-Results.h"; sourceTree = "<group>"; };
@@ -212,6 +214,7 @@
 			children = (
 				EB6B95A02A9D21C50013DC1D /* CICN */,
 				EBF336982A8FA04600069683 /* Bouquet512.png */,
+				EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */,
 				EBF338842A8FB1BC00069683 /* Appl_KnjigeNT.rsrc */,
 			);
 			path = Rsrc;
@@ -305,6 +308,7 @@
 				EBF5682F2A9E63CF0062D320 /* CICN0818.jpg in Resources */,
 				EBF5682C2A9E63CF0062D320 /* CICN0813.jpg in Resources */,
 				EBF568292A9E63CF0062D320 /* CICN0816.jpg in Resources */,
+				EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */,
 				EBF568282A9E63CF0062D320 /* CICN0822.jpg in Resources */,
 				EBF568312A9E63CF0062D320 /* CICN0812.jpg in Resources */,
 				EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */,
