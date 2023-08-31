@@ -2148,8 +2148,8 @@ static char  *id_text_date_fmt2 (unsigned short dateShort, char *txtBuff)
 #pragma mark Graphics
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
-// >= 120000 ... compiles only when using the macOS12.0 SDK (or later) that comes with Xcode 13.1
-void  SetRect (Rect *rect, short l, short t, short r, short b) 
+
+void  SetRect (Rect *rect, short l, short t, short r, short b)
 { 
    rect->left = l; 
    rect->top = t; 
@@ -2157,7 +2157,7 @@ void  SetRect (Rect *rect, short l, short t, short r, short b)
    rect->bottom = b; 
 } 
 
-void  InsetRect (Rect *rect, short h, short v) 
+void  InsetRect (Rect *rect, short h, short v)
 { 
    rect->left += h; 
    rect->top += v; 
@@ -2165,6 +2165,11 @@ void  InsetRect (Rect *rect, short h, short v)
    rect->bottom -= v; 
 } 
 #endif
+
+CGRect  id_Rect2CGRect (Rect *rect)
+{
+   return (CGRectMake(rect->left, rect->top, rect->right-rect->left, rect->bottom-rect->top));
+} 
 
 /* .......................................................... id_GetClientRect ...... */
 
@@ -2401,6 +2406,8 @@ int  id_DrawStatusbar (
       return (0);
    }
       
+   NSLog (@"ClientRect: %@", NSStringFromRect(id_Rect2CGRect(&clientRect)));
+   
    while (iconPosHor < clientRect.right)  {
    
       SetRect (&tmpRect, iconPosHor, clientRect.bottom,
@@ -2890,8 +2897,8 @@ int  id_CalcTBPopRect (
    
       popWidth += 48;
       
-      SetRect (&tmpRect, startHorPos, dtGData->toolBarHeight/4+2 - 2,
-                         startHorPos + popWidth, dtGData->toolBarHeight/4 + 16 + 2);   // ltrb
+      SetRect (&tmpRect, startHorPos, dtGData->toolBarHeight/4+2 - 3,
+                         startHorPos + popWidth, dtGData->toolBarHeight/4 + 16 + 1);   // ltrb
 
       if (tmpRect.right < clientRect.right)  {
          *popRect = tmpRect;
@@ -2947,11 +2954,9 @@ static int  id_DrawTBPopUp (
    [popUp setTarget:[form->my_window contentView]];
    [popUp setAction:@selector(onScaleSelectionChange:)];
    
-   [popUp addItemWithTitle:@"100 %"];
-   [popUp addItemWithTitle:@"110 %"];
-   [popUp addItemWithTitle:@"120 %"];
-   
-   
+   for (int i=100; i<=200; i+=10)
+      [popUp addItemWithTitle:[NSString stringWithFormat:@"%d %%", i]];
+
    HUnlock ((Handle)tbHandle);
    
    return (0);

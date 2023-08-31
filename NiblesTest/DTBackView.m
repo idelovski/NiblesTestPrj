@@ -76,8 +76,29 @@
 - (void)onScaleSelectionChange:(id)sender
 {
    NSPopUpButton  *btn = (NSPopUpButton *)sender;
+   NSWindow       *win = self.window;
+   CGRect          winRect = win.frame;
+   FORM_REC       *form = id_FindForm (win);
    
-   NSLog (@"Toolbar PopUp Button: %d", (int)btn.tag);
+   NSLog (@"Toolbar PopUp Button: %d: %d %%", (int)btn.tag, (int)[btn.selectedItem.title intValue]);
+   
+   short  oldRatio = form->scaleRatio;
+   
+   CGRect   origRect = CGRectMake (winRect.origin.x, winRect.origin.y, winRect.size.width * 100 / oldRatio, winRect.size.height * 100 / oldRatio);
+
+   short  ratio = 100 + 10 * btn.indexOfSelectedItem;
+   
+   CGRect  newRect = CGRectMake (origRect.origin.x, origRect.origin.y, origRect.size.width * ratio / 100, origRect.size.height * ratio / 100);
+   
+   // win.frame = newRect;
+   
+   newRect.origin.y -= newRect.size.height - winRect.size.height;
+   
+   [win setFrame:newRect display:YES animate:YES];
+   
+   form->overlayView.frame = ((NSView *)[self.window contentView]).frame;
+   
+   form->scaleRatio = ratio;
 }
 
 
