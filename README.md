@@ -10,3 +10,5 @@ General idea is to convert as little Carbon code to Cocoa and continue using Car
 There is no NIB/XIB file and everything is created in code except  for the things from an old Resource file in Classic Mac resorce format.
 
 I don't think this file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file. 
+
+Project includes NSFont+CFTraits NSFont extension from the gist by Eric Methot 
