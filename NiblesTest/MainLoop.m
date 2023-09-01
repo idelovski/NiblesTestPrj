@@ -2171,7 +2171,7 @@ static char  *id_text_date_fmt2 (unsigned short dateShort, char *txtBuff)
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
 
-void  OffsetRect (Rect *rect, short l, short t);
+void  OffsetRect (Rect *rect, short h, short v);
 
 void  SetRect (Rect *rect, short l, short t, short r, short b)
 { 
@@ -2193,6 +2193,17 @@ void  InsetRect (Rect *rect, short h, short v)
 CGRect  id_Rect2CGRect (Rect *rect)
 {
    return (CGRectMake(rect->left, rect->top, rect->right-rect->left, rect->bottom-rect->top));
+} 
+
+Rect  *id_CGRect2Rect (CGRect cgRect, Rect *rect)
+{
+   rect->left = cgRect.origin.x;
+   rect->top  = cgRect.origin.y;
+
+   rect->right   = cgRect.origin.x + cgRect.size.width;
+   rect->bottom  = cgRect.origin.y + cgRect.size.height;
+
+   return (rect);
 } 
 
 /* .......................................................... id_GetClientRect ...... */
@@ -2232,9 +2243,11 @@ int id_itemsRect (FORM_REC *form, NSControl *field, Rect *fldRect)
    //    return (-1);
    // }
    
-   SetRect (fldRect,
-            field.frame.origin.x, field.frame.origin.y,
-            field.frame.origin.x + field.frame.size.width, field.frame.origin.y + field.frame.size.height);
+   id_CGRect2Rect (field.frame, fldRect);
+   
+   // SetRect (fldRect,
+   //          field.frame.origin.x, field.frame.origin.y,
+   //          field.frame.origin.x + field.frame.size.width, field.frame.origin.y + field.frame.size.height);
    
    // id_CopyMac2Rect (form, fldRect, &form->ditl_def[index]->i_rect);
 
@@ -2275,7 +2288,8 @@ int  id_frame_fields (
    FrameRect (&frameBounds);
    PenPat (QD_Black());*/
    
-   CGRect  frameRect = CGRectMake (frameBounds.left, frameBounds.top, frameBounds.right - frameBounds.left, frameBounds.bottom - frameBounds.top);
+   // CGRect  frameRect = CGRectMake (frameBounds.left, frameBounds.top, frameBounds.right - frameBounds.left, frameBounds.bottom - frameBounds.top);
+   CGRect  frameRect = id_Rect2CGRect (&frameBounds);
    
    CGMutablePathRef  path = CGPathCreateMutable ();
    
@@ -2386,7 +2400,8 @@ static NSImage  *id_GetCIcon (short rsrc_id)
 
 static void  id_PlotCIcon (Rect *macRect, NSImage *iconImage)
 {
-   CGRect  icnRect = CGRectMake (macRect->left, macRect->top, macRect->right - macRect->left, macRect->bottom - macRect->top);
+   // CGRect  icnRect = CGRectMake (macRect->left, macRect->top, macRect->right - macRect->left, macRect->bottom - macRect->top);
+   CGRect  icnRect = id_Rect2CGRect (macRect);
    
    [MainLoop drawImage:iconImage inFrame:icnRect form:NULL];
 }
@@ -2430,7 +2445,7 @@ int  id_DrawStatusbar (
       return (0);
    }
       
-   NSLog (@"ClientRect: %@", NSStringFromRect(id_Rect2CGRect(&clientRect)));
+   // NSLog (@"ClientRect: %@", NSStringFromRect(id_Rect2CGRect(&clientRect)));
    
    while (iconPosHor < clientRect.right)  {
    
@@ -2533,7 +2548,7 @@ static int  id_DrawStatusbarText (
       //    CGContextSetStrokeColorWithColor (ctx, [NSColor cyanColor].toCGColor);
       
       CFStringRef  cfStr;
-      CGRect       strRect = CGRectMake (tmpRect.left, tmpRect.top, tmpRect.right-tmpRect.left, tmpRect.bottom-tmpRect.top);
+      CGRect       strRect = id_Rect2CGRect (&tmpRect);
       
       id_Mac2CFString (statusText, &cfStr, strlen(statusText));
       
@@ -2689,7 +2704,8 @@ static int  id_CoreDrawTBItem (FORM_REC *form, short idx, short hiFlag, short in
       if (form->my_window)  {
          
          if ((*tbHandle)->hciNormal[idx] && !(*tbHandle)->imbNormal[idx])  {
-            CGRect  btnRect = NSMakeRect (tmpRect.left, tmpRect.top, tmpRect.right-tmpRect.left, tmpRect.bottom-tmpRect.top);
+            // CGRect  btnRect = NSMakeRect (tmpRect.left, tmpRect.top, tmpRect.right-tmpRect.left, tmpRect.bottom-tmpRect.top);
+            CGRect  btnRect = id_Rect2CGRect (&tmpRect);
             
             imageButton = [[NSButton alloc] initWithFrame:id_CocoaRect(form->my_window, btnRect)];
             

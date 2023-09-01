@@ -246,6 +246,7 @@ int  id_itemsRect (FORM_REC *form, NSControl *field, Rect *fldRect);
 int  id_frame_fields (FORM_REC *form, NSControl *fldno_1, NSControl *fldno_2, short distance, PatPtr frPatPtr);
 
 CGRect  id_Rect2CGRect (Rect *rect);
+Rect   *id_CGRect2Rect (CGRect cgRect, Rect *rect);
 
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 
