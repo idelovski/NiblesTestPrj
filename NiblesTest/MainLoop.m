@@ -130,9 +130,9 @@ static FORM_REC  newForm;
    NSNumber  *num = [menuDict valueForKey:superMenu.title];
    
    if (num)
-      NSLog (@"Menu index: %d, itemIndex: %d", [num intValue], itemIndex);
+      NSLog (@"Menu index: %d, itemIndex: %d", [num intValue], (int)itemIndex);
    else
-      NSLog (@"Menu index: %d, itemIndex: %d", menuIndex+128, itemIndex);
+      NSLog (@"Menu index: %d, itemIndex: %d", (int)menuIndex+128, (int)itemIndex);
    
 
    if (!newForm.my_window && menuIndex > 3)  {
@@ -1231,10 +1231,12 @@ void TestVersion (void)
    OSErr   err;
    SInt32  response;
    
+   NSLog (@"Sizeof long: %ld;  Sizeof int: %ld; Sizeof SInt32: %ld\n", sizeof(long), sizeof(int), sizeof(SInt32));   
+   
    err = Gestalt (gestaltSystemVersion, &response);
    
    if (err == noErr) 
-      NSLog (@"Gestalt: %ld - %lx\n", response, response);
+      NSLog (@"Gestalt: %d - %x\n", response, response);
 }
 
 void  pr_ListEncodings (void)
@@ -1928,9 +1930,9 @@ char  *id_Short2DateEx (
       y2k = dtRec.year-1900;
       
       if (y2k >= 100)
-         sprintf (dateText, "%02hd%02hd%02hd", dtRec.day, dtRec.month, dtRec.year-2000);
+         sprintf (dateText, "%02hd%02hd%02hd", dtRec.day, dtRec.month, (short)(dtRec.year-2000));
       else
-         sprintf (dateText, "%02hd%02hd%02hd", dtRec.day, dtRec.month, dtRec.year-1900);
+         sprintf (dateText, "%02hd%02hd%02hd", dtRec.day, dtRec.month, (short)(dtRec.year-1900));
    }
    
    return (dateText);
@@ -2160,7 +2162,7 @@ static char  *id_text_date_fmt2 (unsigned short dateShort, char *txtBuff)
    
    CFGregorianDate  gDate = CFAbsoluteTimeGetGregorianDate (theTimeInterval, gGSystemTimeZone);
    
-   sprintf (txtBuff, "%.3s, %02hd. %.3s, %hd.", dayOfWeek, (short)gDate.day, monthName, gDate.year);
+   sprintf (txtBuff, "%.3s, %02hd. %.3s, %hd.", dayOfWeek, (short)gDate.day, monthName, (short)gDate.year);
    
    return (txtBuff);
 }
@@ -2168,6 +2170,8 @@ static char  *id_text_date_fmt2 (unsigned short dateShort, char *txtBuff)
 #pragma mark Graphics
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
+
+void  OffsetRect (Rect *rect, short l, short t);
 
 void  SetRect (Rect *rect, short l, short t, short r, short b)
 { 
