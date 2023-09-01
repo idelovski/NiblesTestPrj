@@ -629,10 +629,25 @@ static double  gYOffset = 30.;
          [form->leftField setFont:font];
          [form->rightField setFont:boldFont];
          
-         NSLog (@"Font: %@ can be bold: %@ italic: %@",
+         NSLog (@"Font: %@ (%.0f) can be bold: %@ italic: %@",
                 [font fontName],
+                [font pointSize],
                 [font fontInFamilyExistsInBold] ? @"Yes" : @"No",
                 [font fontInFamilyExistsInItalic] ? @"Yes" : @"No");
+         
+         CGFontRef  fontRef = CTFontCopyGraphicsFont ((CTFontRef)font, NULL);
+         
+         font = (NSFont *)CTFontCreateWithGraphicsFont (fontRef, [font pointSize], NULL, NULL);
+         
+         CFRelease (fontRef); 
+
+         NSLog (@"Font: %@ (%.0f) can be bold: %@ italic: %@",
+                [font fontName],
+                [font pointSize],
+                [font fontInFamilyExistsInBold] ? @"Yes" : @"No",
+                [font fontInFamilyExistsInItalic] ? @"Yes" : @"No");
+         
+         [font release];
       }
    }
    

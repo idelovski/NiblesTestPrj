@@ -101,12 +101,12 @@ static BOOL  id_handleRightMouse (NSEvent *event)
 #endif
 
          newItem = [[NSMenuItem alloc] initWithTitle:@"PopUp Numero Uno"
-                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then all hell breaks loose
+                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then Trump becomes the president again
          
          [newItem setTarget:[NSApp delegate]];
          [newMenu addItem:newItem];
          newItem = [[NSMenuItem alloc] initWithTitle:@"PopUp Numero Dva"
-                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then all hell breaks
+                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then Trump becomes the president again
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
