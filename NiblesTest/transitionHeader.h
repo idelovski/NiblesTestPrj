@@ -52,42 +52,13 @@ typedef struct  {
    char    fName[MAX_PATH];
 } AppFile;
 
-#ifndef kFontIDNewYork
 enum {
-   kFontIDNewYork                = 2,
-   kFontIDGeneva                 = 3,
-   kFontIDMonaco                 = 4,
-   kFontIDVenice                 = 5,
-   kFontIDLondon                 = 6,
-   kFontIDAthens                 = 7,
-   kFontIDSanFrancisco           = 8,
-   kFontIDToronto                = 9,
-   kFontIDCairo                  = 11,
-   kFontIDLosAngeles             = 12,
-   kFontIDTimes                  = 20,
-   kFontIDHelvetica              = 21,
-   kFontIDCourier                = 22,
-   kFontIDSymbol                 = 23,
-   kFontIDMobile                 = 24
-};
-#endif
-
-enum {
-	newYork						= kFontIDNewYork,
-	geneva						= kFontIDGeneva,
-	monaco						= kFontIDMonaco,
-	venice						= kFontIDVenice,
-	london						= kFontIDLondon,
-	athens						= kFontIDAthens,
-	sanFran						= kFontIDSanFrancisco,
-	toronto						= kFontIDToronto,
-	cairo						= kFontIDCairo,
-	losAngeles					= kFontIDLosAngeles,
-	times						= kFontIDTimes,
-	helvetica					= kFontIDHelvetica,
-	courier						= kFontIDCourier,
-	symbol						= kFontIDSymbol,
-	mobile						= kFontIDMobile
+   newYork                 = 2,
+   geneva                  = 3,
+   monaco                  = 4,
+   times                   = 20,
+   helvetica               = 21,
+   courier                 = 22
 };
 
 
