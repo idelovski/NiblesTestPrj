@@ -7,8 +7,10 @@
 //
 
 // #import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
-#import <AppKit/AppKit.h>
+#import  <Carbon/Carbon.h>
+#import  <AppKit/AppKit.h>
+
+#import  "NSFont+CFTraits.h"
 
 // #import <CarbonCore/CarbonCore.h>
 

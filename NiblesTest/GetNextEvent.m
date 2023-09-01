@@ -94,11 +94,12 @@ static BOOL  id_handleRightMouse (NSEvent *event)
       if (CGRectContainsPoint(bounds, location))  {
       
          newMenu = [[NSMenu alloc] initWithTitle:@"PopUp"/*gNewMenuName*/];
-
+         
 #if defined(CLANG)
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector" 
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 #endif
+
          newItem = [[NSMenuItem alloc] initWithTitle:@"PopUp Numero Uno"
                                               action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then Trump becomes the president again
          
@@ -108,8 +109,9 @@ static BOOL  id_handleRightMouse (NSEvent *event)
                                               action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then Trump becomes the president again
 
 #if defined(CLANG)
-#pragma clang diagnostic pop 
+#pragma clang diagnostic pop
 #endif
+         
          [newItem setTarget:[NSApp delegate]];
          newItem.state = YES;
          [newMenu addItem:newItem];

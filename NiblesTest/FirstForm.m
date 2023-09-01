@@ -628,6 +628,11 @@ static double  gYOffset = 30.;
          
          [form->leftField setFont:font];
          [form->rightField setFont:boldFont];
+         
+         NSLog (@"Font: %@ can be bold: %@ italic: %@",
+                [font fontName],
+                [font fontInFamilyExistsInBold] ? @"Yes" : @"No",
+                [font fontInFamilyExistsInItalic] ? @"Yes" : @"No");
       }
    }
    

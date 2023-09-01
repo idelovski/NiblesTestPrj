@@ -9,20 +9,23 @@
  
  */
 
-#import "NSFont+CFTraits.h"
-#import <objc/runtime.h>
+#import  "NSFont+CFTraits.h"
+
+#import  <objc/runtime.h>
 
 /// Some traits are cached globally by fontName.
-static NSMutableDictionary *gNSFontCachedCustomTraits = nil;
+static NSMutableDictionary  *gNSFontCachedCustomTraits = nil;
 
 /// Some traits are 
-const uint64_t kNUFontTraitInFamilyExistsInBold   = 0x0000000100000000ULL;
-const uint64_t kNUFontTraitInFamilyExistsInItalic = 0x0000000200000000ULL;
+const uint64_t  kNUFontTraitInFamilyExistsInBold   = 0x0000000100000000ULL;
+const uint64_t  kNUFontTraitInFamilyExistsInItalic = 0x0000000200000000ULL;
+
+// ------------------------------
 
 @implementation NSFont (CFTraits)
 
 
-- (BOOL) checkForCachedFontTrait:(NSUInteger)trait
+- (BOOL)checkForCachedFontTrait:(NSUInteger)trait
 {
    // We use the cached traits if we have them.
    NSNumber *cachedTraits = [gNSFontCachedCustomTraits objectForKey:self.fontName];

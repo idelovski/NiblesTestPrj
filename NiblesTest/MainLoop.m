@@ -247,14 +247,14 @@ static FORM_REC  newForm;
    tmpMenuItem = [self findMenuItem:133-128 withTag:4];  // Skladno
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 2);
-   tmpMenuItem = [self findMenuItem:133-128 withTag:6];  // Skladno
+   tmpMenuItem = [self findMenuItem:133-128 withTag:6];  // Robno
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 3);
-   tmpMenuItem = [self findMenuItem:133-128 withTag:7];  // Skladno
+   tmpMenuItem = [self findMenuItem:133-128 withTag:7];  // Matno
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 4);
 
-   tmpMenuItem = [self findMenuItem:133-128 withTag:9];  // Skladno
+   tmpMenuItem = [self findMenuItem:133-128 withTag:9];  // Ostalo
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 5);
    
