@@ -1231,7 +1231,7 @@ void TestVersion (void)
    OSErr   err;
    SInt32  response;
    
-   NSLog (@"Sizeof long: %ld;  Sizeof int: %ld; Sizeof SInt32: %ld\n", sizeof(long), sizeof(int), sizeof(SInt32));   
+   NSLog (@"Sizeof long: %ld;  Sizeof int: %ld; Sizeof SInt32: %ld;  Sizeof longlong: %ld\n", sizeof(long), sizeof(int), sizeof(SInt32), sizeof(long long));
    
    err = Gestalt (gestaltSystemVersion, &response);
    

@@ -15,6 +15,7 @@
 		EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */; };
 		EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */; };
 		EB7B516D2A97E19A000AC12C /* DTOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7B516C2A97E199000AC12C /* DTOverlayView.m */; };
+		EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */; };
 		EBE7FE862A8D4635001CD6A9 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE7FE852A8D4635001CD6A9 /* Carbon.framework */; };
 		EBF336992A8FA04600069683 /* Bouquet512.png in Resources */ = {isa = PBXBuildFile; fileRef = EBF336982A8FA04600069683 /* Bouquet512.png */; };
 		EBF336DB2A8FA09700069683 /* DTBackView.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF336DA2A8FA09700069683 /* DTBackView.m */; };
@@ -57,6 +58,8 @@
 		EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0702.jpg; path = CICN/CICN0702.jpg; sourceTree = "<group>"; };
 		EB7B516B2A97E199000AC12C /* DTOverlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTOverlayView.h; path = NiblesTest/DTOverlayView.h; sourceTree = "<group>"; };
 		EB7B516C2A97E199000AC12C /* DTOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTOverlayView.m; path = NiblesTest/DTOverlayView.m; sourceTree = "<group>"; };
+		EBD283FA2AA238BE0021BAEE /* NSFont+CFTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSFont+CFTraits.h"; path = "NiblesTest/NSFont+CFTraits.h"; sourceTree = "<group>"; };
+		EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSFont+CFTraits.m"; path = "NiblesTest/NSFont+CFTraits.m"; sourceTree = "<group>"; };
 		EBE7FE852A8D4635001CD6A9 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		EBF336982A8FA04600069683 /* Bouquet512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Bouquet512.png; sourceTree = "<group>"; };
 		EBF336D92A8FA09700069683 /* DTBackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTBackView.h; path = NiblesTest/DTBackView.h; sourceTree = "<group>"; };
@@ -100,6 +103,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				EBD283F92AA2389A0021BAEE /* Extra */,
 				EBF336CC2A8FA08F00069683 /* Views */,
 				EBF56E4D2A8E7026009134BC /* NiblesTest */,
 				256AC3D80F4B6AC300CF3369 /* NiblesTestAppDelegate.h */,
@@ -207,6 +211,15 @@
 				EBF5681C2A9E63CF0062D320 /* CICN0822.jpg */,
 			);
 			name = CICN;
+			sourceTree = "<group>";
+		};
+		EBD283F92AA2389A0021BAEE /* Extra */ = {
+			isa = PBXGroup;
+			children = (
+				EBD283FA2AA238BE0021BAEE /* NSFont+CFTraits.h */,
+				EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */,
+			);
+			name = Extra;
 			sourceTree = "<group>";
 		};
 		EBF336972A8FA04600069683 /* Rsrc */ = {
@@ -354,6 +367,7 @@
 				EBF56E612A8E7039009134BC /* FirstForm.m in Sources */,
 				EBF56E622A8E7039009134BC /* MainLoop.m in Sources */,
 				EBF56E772A8E719A009134BC /* GetNextEvent.m in Sources */,
+				EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */,
 				EBF56E7C2A8E71E2009134BC /* WindowFactory.m in Sources */,
 				EBF336DB2A8FA09700069683 /* DTBackView.m in Sources */,
 				EB7B516D2A97E19A000AC12C /* DTOverlayView.m in Sources */,
