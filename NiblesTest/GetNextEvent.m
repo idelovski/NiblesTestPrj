@@ -95,20 +95,20 @@ static BOOL  id_handleRightMouse (NSEvent *event)
       
          newMenu = [[NSMenu alloc] initWithTitle:@"PopUp"/*gNewMenuName*/];
          
-#if defined(CLANG)
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 #endif
 
          newItem = [[NSMenuItem alloc] initWithTitle:@"PopUp Numero Uno"
-                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then Trump becomes the president again
+                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then all hell breaks loose
          
          [newItem setTarget:[NSApp delegate]];
          [newMenu addItem:newItem];
          newItem = [[NSMenuItem alloc] initWithTitle:@"PopUp Numero Dva"
-                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then Trump becomes the president again
+                                              action:@selector(didFuckinPopUp:) keyEquivalent:@""];  // If you send nil as hotKey then all hell breaks
 
-#if defined(CLANG)
+#if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
          
