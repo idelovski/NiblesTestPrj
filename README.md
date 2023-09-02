@@ -9,7 +9,7 @@ General idea is to convert as little Carbon code to Cocoa and continue using Car
 
 There is no NIB/XIB file and everything is created in code except  for the things from an old Resource file in Classic Mac resorce format.
 
-App starts without a NIB file - therefore, it's so called a nibless application.
+App starts without a NIB file - therefore, it's a so called nibless application.
 
 I don't think this rsrc file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file.
 
