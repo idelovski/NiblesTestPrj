@@ -353,6 +353,11 @@ BOOL  id_MainLoop (FORM_REC *form)
          }
          else  if (form->rightField.currentEditor == form->my_window.firstResponder)  {
             NSLog (@"Right has Focus");
+            [form->my_window makeFirstResponder:form->bigField];
+            // [form->leftField becomeFirstResponder];
+         }
+         else  if (form->bigField.currentEditor == form->my_window.firstResponder)  {
+            NSLog (@"Big has Focus");
             [form->my_window makeFirstResponder:form->leftField];
             // [form->leftField becomeFirstResponder];
          }

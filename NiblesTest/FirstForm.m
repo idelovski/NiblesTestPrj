@@ -512,6 +512,35 @@ static double  gYOffset = 30.;
    return (edit);
 }
 
+- (NSTextField *)coreCreateLabelWithFrame:(CGRect)fldRect
+                                   inForm:(FORM_REC *)form
+{
+   NSTextField      *label = nil;
+   NSTextFieldCell  *cell = nil;
+   
+   label = [[NSTextField alloc] initWithFrame:fldRect];
+   
+   [[form->my_window contentView] addSubview:label];
+
+   [label setTag:++form->creationIndex];
+
+   // [label setDelegate:self.windowFactory];
+   
+   cell = [label cell];  // from NSControl
+   
+   [cell setEditable:NO];
+   [cell setSelectable:NO];
+   [cell setBordered:NO];
+   [cell setBezeled:NO];
+   [cell setDrawsBackground:NO];
+   [cell setStringValue:@""];
+   
+   [cell setFont:[NSFont fontWithName:@"Lucida Grande" size:10.]];
+   // [cell setAlignment:_oscontrol_text_alignment(ekLEFT)];
+
+   return (label);
+}
+
 - (NSTextField *)createLabelInForm:(FORM_REC *)form version:(char *)titleStr
 {
    int  x = gXOffset;  //possition x
@@ -519,7 +548,11 @@ static double  gYOffset = 30.;
    
    NSInteger  width = 180, height = 24;
 
-   NSTextField      *label = nil;
+   NSTextField  *label = [self coreCreateLabelWithFrame:id_CocoaRect(form->my_window, NSMakeRect(x, y, width, height))
+                                                                     inForm:form];
+   [label setStringValue:[NSString stringWithFormat:@"%s", titleStr]];
+
+#ifdef _NIJE_
    NSTextFieldCell  *cell = nil;
    
    label = [[NSTextField alloc] initWithFrame:id_CocoaRect(self.window, NSMakeRect(x, y, width, height))];
@@ -535,7 +568,6 @@ static double  gYOffset = 30.;
    [cell setBordered:NO];
    [cell setBezeled:NO];
    [cell setDrawsBackground:NO];
-   [cell setStringValue:[NSString stringWithFormat:@"%s", titleStr]];
    // [cell setAlignment:_oscontrol_text_alignment(ekLEFT)];
 
    /*
@@ -552,6 +584,8 @@ static double  gYOffset = 30.;
    [label->scell setUsesSingleLineMode:((flags & 1) == 1) ? NO : YES];
 #endif
     */
+#endif
+   
    return (label);
 }
 
@@ -753,6 +787,17 @@ int  pr_CreateDitlWindow (
                                                                                                 inForm:form];
             
             // id_create_edit (form, index, savedPort);
+         }
+         if (f_ditl_def->i_type & statText)  {              /* If static text / label */
+            
+            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
+                                                                                             inForm:form];
+            CFStringRef  labelText = id_Mac2CFString (f_ditl_def->i_data.d_text, &labelText, f_ditl_def->i_data_size);
+            
+            [(NSTextField *)f_ditl_def->i_handle setStringValue:(NSString *)labelText];
+
+            // id_create_stat (form, index, savedPort);
+            CFRelease (labelText);
          }
          else  if (f_ditl_def->i_type & ctrlItem)  {
             

@@ -55,6 +55,9 @@
                                        inForm:(FORM_REC *)form;
 
 - (void)createEditFieldsInForm:(FORM_REC *)form;
+
+- (NSTextField *)coreCreateLabelWithFrame:(CGRect)fldRect
+                                   inForm:(FORM_REC *)form;
 - (NSTextField *)createLabelInForm:(FORM_REC *)form version:(char *)titleStr;
 
 // Image Button
