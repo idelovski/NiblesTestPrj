@@ -9,6 +9,8 @@ General idea is to convert as little Carbon code to Cocoa and continue using Car
 
 There is no NIB/XIB file and everything is created in code except  for the things from an old Resource file in Classic Mac resorce format.
 
-I don't think this file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file. 
+I don't think this file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file.
+
+# So, before running, code signing identity may be a problem, so add or remove "-" identity and then expand the zip archive in Rsrc folder after removing downloaded zero-length rsrc file.
 
 Project includes NSFont+CFTraits NSFont cat from the gist by Eric Methot: https://gist.github.com/macprog-guy/156d33bfefef570a7efb
