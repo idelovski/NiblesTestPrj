@@ -62,6 +62,8 @@
    
    [win setHasShadow:NSOnState];
    
+   [win setAcceptsMouseMovedEvents:YES];
+   
    if (wTitle)
       [win setTitle:wTitle];
    [win makeKeyAndOrderFront:self];  // NSApp or me?
