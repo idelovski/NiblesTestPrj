@@ -46,6 +46,8 @@ NSWindow  *FrontWindow (void);
 FORM_REC  *id_FindForm (NSWindow *nsWindow);
 FORM_REC  *id_init_form (FORM_REC *form);
 
+int   id_release_form (FORM_REC *form);
+
 char *strNCpy (char *s1, const char *s2, long n);
 
 OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef);

@@ -13,14 +13,10 @@
 
 @synthesize  window;
 
-/*
-- (IBAction)createWindowFromNib:(id)sender
-{
-   // Note: This leaks.
-   controller = [[NSWindowController alloc] initWithWindowNibName: @"Window"];
-   [controller showWindow: self];
-}
-*/
+// TO DO!
+// Well, this windowFactory should be allecated for each window
+// as it has KVO for a window so one instance can't observe all the windows out there
+
 
 - (id)initWithWindow:(NSWindow *)aWindow;  // Should I have this for each window and why? dont need this property
 {
@@ -62,8 +58,8 @@
    
    [win setHasShadow:NSOnState];
    
-   [win setAcceptsMouseMovedEvents:YES];
-   
+	[win setAcceptsMouseMovedEvents: YES];
+
    if (wTitle)
       [win setTitle:wTitle];
    [win makeKeyAndOrderFront:self];  // NSApp or me?
@@ -156,14 +152,33 @@
 
 #pragma mark -
 
+extern  FORM_REC  *dtRenderedForm;
+
 - (BOOL)windowShouldClose:(id)sender
 {
    NSWindow  *aWindow = (NSWindow *)sender;
    
    NSLog (@"windowShouldClose: %@ %d", aWindow.title, (int)aWindow.windowNumber);
    
+   if (![aWindow isDocumentEdited])
+      return (YES);
+   
    return (NO);
 }
+
+- (void)windowWillClose:(NSNotification *)notification;
+{
+   NSWindow  *aWindow = (NSWindow *)[notification object];
+   FORM_REC  *form = id_FindForm (aWindow);
+   
+   if (form == dtRenderedForm)  {
+      id_release_form (form);
+   }
+   
+   NSLog (@"windowWillClose: %@ %d", aWindow.title, (int)aWindow.windowNumber);
+}
+
+#pragma mark -
 
 - (void)windowDidExpose:(NSNotification *)aNotification
 {
@@ -483,6 +498,8 @@
    textField.stringValue = [NSString stringWithCharacters:stringResult length:cpt];
    
    free (stringResult);
+   
+   [textField.window setDocumentEdited:YES];
 }
 
 - (void)controlTextDidBeginEditing:(NSNotification *)notification;

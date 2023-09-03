@@ -690,6 +690,41 @@ FORM_REC  *id_init_form (FORM_REC *form)
    return (form);
 }
 
+/* ................................................... id_init_form ................. */
+
+int  id_release_form (FORM_REC *form)
+{
+   short  index;
+   // First check for elements and release each...
+   
+   if (form->pathsArray)  {
+      CFIndex  count = CFArrayGetCount (form->pathsArray);
+      
+      for (CFIndex i=0; i<count; i++)
+         CGPathRelease (CFArrayGetValueAtIndex (form->pathsArray, i));
+
+      CFArrayRemoveAllValues (form->pathsArray);
+      CFRelease (form->pathsArray);
+   }      
+   
+   if (form->pdfsArray)
+      CFRelease (form->pdfsArray);  // Nothing here that needs special release f()
+   
+   for (index=0; index<=form->last_fldno; index++)  {
+      if (form->ditl_def[index]->i_handle)
+         [(NSControl *)form->ditl_def[index]->i_handle release];
+   }
+
+   if (form->ditl_def)
+      id_free_array ((char **)form->ditl_def);
+   
+   id_SetBlockToZeros (form, sizeof (FORM_REC));
+
+   // id_init_form (<#FORM_REC *form#>);  -- HM, in the old world I call init at close so here I must be carefull as I allocate stuff in init -> therefore...allocations will happen in id_open_form()
+   
+   return (0);
+}
+
 /* ................................................... id_FindForm .................. */
 
 FORM_REC  *id_FindForm (NSWindow *nsWindow)
