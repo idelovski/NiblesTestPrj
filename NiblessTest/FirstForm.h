@@ -64,6 +64,10 @@
 
 - (NSButton *)createImgButtonInForm:(FORM_REC *)form withImageName:(NSString *)imgName;
 - (void)imgButtonPressed:(id)button;
+
+- (NSImageView *)coreCreateImageViewWithFrame:(CGRect)frame
+                                       inForm:(FORM_REC *)form
+                                withImageName:(NSString *)imgName;
 - (NSImageView *)createImageViewInForm:(FORM_REC *)form withImageName:(NSString *)imgName;
 
 // PopUp Button

@@ -113,9 +113,9 @@ static FORM_REC  newForm;
 + (void)menuAction:(id)sender
 {
    NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
-   NSDictionary           *menuDict = appDelegate.menuDict;
+   NSDictionary            *menuDict = appDelegate.menuDict;
 
-   CGRect  tmpRect = CGRectMake(1, 39, 1+484, 39+244+72+64+8+54);
+   CGRect  tmpRect = CGRectMake(1+32, 39+32, 1+484, 39+244+72+64+8+54 - 28);
    
    NSLog (@"%@", sender);
    
@@ -2543,7 +2543,7 @@ static int  id_DrawStatusbarText (
    
    switch (statPart)  {
       case  0:  // Primary
-         tmpRect.left  = 2;
+         tmpRect.left  = 2+2;
          tmpRect.right = clientRect.right - 210;
          break;
       case  1:  // Char Cnt

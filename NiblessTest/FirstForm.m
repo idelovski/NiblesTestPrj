@@ -95,7 +95,7 @@ static double  gYOffset = 30.;
                                  inForm:(FORM_REC *)form
                                   title:(NSString *)buttonTitle
 {
-   NSButton  *myButton = [[[NSButton alloc] initWithFrame:id_CocoaRect(form->my_window, frame)] autorelease];
+   NSButton  *myButton = [[NSButton alloc] initWithFrame:id_CocoaRect(form->my_window, frame)];
    
    [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
    [myButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
@@ -125,9 +125,9 @@ static double  gYOffset = 30.;
    int  width = 130;
    int  height = 24; 
    
-   NSButton  *myButton = [self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
+   NSButton  *myButton = [[self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
                                                   inForm:form
-                                                   title:buttonTitle];
+                                                   title:buttonTitle] autorelease];
    
    // [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
    // [myButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
@@ -163,9 +163,9 @@ static double  gYOffset = 30.;
    int  width = 130;
    int  height = 24; 
    
-   NSButton  *myButton = [self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
+   NSButton  *myButton = [[self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
                                                   inForm:form
-                                                   title:buttonTitle];
+                                                   title:buttonTitle] autorelease];
    
    // [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
    // [myButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
@@ -244,9 +244,9 @@ static double  gYOffset = 30.;
    int  width =  132;
    int  height = 107; 
 
-   NSButton  *myButton = [self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
+   NSButton  *myButton = [[self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
                                                   inForm:form
-                                                   title:nil];
+                                                   title:nil] autorelease];
    
    [myButton setBezelStyle:NSThickerSquareBezelStyle]; //Set what style You want
 
@@ -281,9 +281,34 @@ static double  gYOffset = 30.;
    int  width =  132;
    int  height = 107; 
 
-   NSImageView  *myImgView = [[[NSImageView alloc] initWithFrame:id_CocoaRect(self.window, NSMakeRect(x, y, width, height))] autorelease];
+   NSImageView  *myImgView = [[self coreCreateImageViewWithFrame:NSMakeRect(x, y, width, height)
+                                                         inForm:form
+                                                  withImageName:imgName] autorelease];
+   
+#ifdef _NIJE_   
+   [[[NSImageView alloc] initWithFrame:id_CocoaRect(self.window, )] autorelease];
    
    [[self.window contentView] addSubview:myImgView];
+   
+   [myImgView setTag:++form->creationIndex];
+
+   // Load images from the app's resources
+   NSImage  *image = [NSImage imageNamed:imgName /*@"icon1"*/];
+   
+   // Set images for the buttons
+   [myImgView setImage:image];
+#endif
+   
+   return (myImgView);
+}
+
+- (NSImageView *)coreCreateImageViewWithFrame:(CGRect)frame
+                                       inForm:(FORM_REC *)form
+                                withImageName:(NSString *)imgName
+{
+   NSImageView  *myImgView = [[NSImageView alloc] initWithFrame:id_CocoaRect(form->my_window, frame)];
+   
+   [[form->my_window contentView] addSubview:myImgView];
    
    [myImgView setTag:++form->creationIndex];
 
@@ -302,7 +327,7 @@ static double  gYOffset = 30.;
                                  inForm:(FORM_REC *)form
                                   title:(NSString *)buttonTitle
 {
-   NSButton  *button = [[[NSButton alloc] initWithFrame:id_CocoaRect(form->my_window, frame)] autorelease];
+   NSButton  *button = [[NSButton alloc] initWithFrame:id_CocoaRect(form->my_window, frame)];
    
    [[form->my_window contentView] addSubview:button];
    
@@ -328,9 +353,9 @@ static double  gYOffset = 30.;
    
    NSInteger  width = 100, height = 24;
    
-   NSButton  *button = [self coreCreateCheckBoxWithFrame:NSMakeRect(x, y, width, height)
+   NSButton  *button = [[self coreCreateCheckBoxWithFrame:NSMakeRect(x, y, width, height)
                                                   inForm:form
-                                                   title:@"Box"];
+                                                   title:@"Box"] autorelease];
    
    // i_UNCHECKBOX_NORMAL_IMAGE = i_image_from_view(button, &i_CHECKBOX_RECT);
    
@@ -792,9 +817,13 @@ int  pr_CreateDitlWindow (
          }
          if (f_ditl_def->i_type & statText)  {              /* If static text / label */
             
+            tmpRect = NSOffsetRect (tmpRect, 0., 2.);
+
             f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
                                                                                              inForm:form];
             CFStringRef  labelText = id_Mac2CFString (f_ditl_def->i_data.d_text, &labelText, f_ditl_def->i_data_size);
+            
+            [((NSTextField *)f_ditl_def->i_handle).cell setFont:[NSFont fontWithName:@"Lucida Grande" size:9.5]];
             
             [(NSTextField *)f_ditl_def->i_handle setStringValue:(NSString *)labelText];
 

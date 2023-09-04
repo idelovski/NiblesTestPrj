@@ -10,6 +10,9 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		EB1643952AA64255009446E6 /* PICT0603.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643922AA64255009446E6 /* PICT0603.jpg */; };
+		EB1643962AA64255009446E6 /* PICT0604.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643932AA64255009446E6 /* PICT0604.jpg */; };
+		EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643942AA64255009446E6 /* PICT0602.jpg */; };
 		EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */ = {isa = PBXBuildFile; fileRef = EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */; };
 		EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */; };
 		EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */; };
@@ -45,6 +48,9 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* NiblessTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "NiblessTest-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* NiblessTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NiblessTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB1643922AA64255009446E6 /* PICT0603.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0603.jpg; path = PICT/PICT0603.jpg; sourceTree = "<group>"; };
+		EB1643932AA64255009446E6 /* PICT0604.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0604.jpg; path = PICT/PICT0604.jpg; sourceTree = "<group>"; };
+		EB1643942AA64255009446E6 /* PICT0602.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0602.jpg; path = PICT/PICT0602.jpg; sourceTree = "<group>"; };
 		EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Appl_KnjigeNT.rsrc.zip; sourceTree = "<group>"; };
 		EB53864A2A8FE9AC00040808 /* Temp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Temp.m; sourceTree = "<group>"; };
 		EB53864B2A8FE9AC00040808 /* Console-Output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Console-Output.h"; sourceTree = "<group>"; };
@@ -180,6 +186,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		EB1643912AA64244009446E6 /* PICT */ = {
+			isa = PBXGroup;
+			children = (
+				EB1643942AA64255009446E6 /* PICT0602.jpg */,
+				EB1643922AA64255009446E6 /* PICT0603.jpg */,
+				EB1643932AA64255009446E6 /* PICT0604.jpg */,
+			);
+			name = PICT;
+			sourceTree = "<group>";
+		};
 		EB5386492A8FE9AC00040808 /* 4Dummies */ = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +241,7 @@
 		EBF336972A8FA04600069683 /* Rsrc */ = {
 			isa = PBXGroup;
 			children = (
+				EB1643912AA64244009446E6 /* PICT */,
 				EB6B95A02A9D21C50013DC1D /* CICN */,
 				EBF336982A8FA04600069683 /* Bouquet512.png */,
 				EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */,
@@ -317,11 +334,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */,
+				EB1643952AA64255009446E6 /* PICT0603.jpg in Resources */,
 				EBF568322A9E63CF0062D320 /* CICN0820.jpg in Resources */,
 				EBF5682F2A9E63CF0062D320 /* CICN0818.jpg in Resources */,
 				EBF5682C2A9E63CF0062D320 /* CICN0813.jpg in Resources */,
 				EBF568292A9E63CF0062D320 /* CICN0816.jpg in Resources */,
 				EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */,
+				EB1643962AA64255009446E6 /* PICT0604.jpg in Resources */,
 				EBF568282A9E63CF0062D320 /* CICN0822.jpg in Resources */,
 				EBF568312A9E63CF0062D320 /* CICN0812.jpg in Resources */,
 				EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */,
