@@ -8,6 +8,7 @@
 
 #import  "DTOverlayView.h"
 
+extern FORM_REC  *dtMainForm;
 
 @implementation DTOverlayView
 
@@ -170,6 +171,8 @@
 #endif   
    // Clean up background (we ignore "dirtyRect", drawing entire view at once)
    
+   if (form == dtMainForm)  {
+   
    // Draw the frame
    
    [[NSColor lightGrayColor] set];
@@ -193,6 +196,8 @@
    smallRect = CGRectOffset (smallRect, 0, -kSBAR_HEIGHT);
    
    [MainLoop drawImage:image inFrame:smallRect form:form];
+      
+   }
    
    id_DrawStatusbar (form, TRUE);
 

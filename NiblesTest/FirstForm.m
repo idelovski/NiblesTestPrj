@@ -781,6 +781,8 @@ int  pr_CreateDitlWindow (
          
          tmpRect = NSMakeRect (macRect.left, macRect.top, macRect.right-macRect.left, macRect.bottom-macRect.top);
          
+         tmpRect = NSOffsetRect (tmpRect, 0., dtGData->toolBarHeight);
+         
          if (f_ditl_def->i_type & editText)  {              /* If TE field */
             
             f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
@@ -859,6 +861,8 @@ int  pr_CreateDitlWindow (
          }
 #endif
       } /* end of for */
+      
+      [MainLoop finalizeFormWindow:form];
       
       [newWin makeKeyAndOrderFront:appDelegate.firstFormHandler];
    }

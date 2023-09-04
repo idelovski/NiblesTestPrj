@@ -101,7 +101,7 @@ static FORM_REC  newForm;
    CGRect  viewFrame = winView.bounds;  // { { 0, 0 }, { winFrame.size.width, winFrame.size.height } };
    // viewFrame.size = winFrame.size;
 
-   NSView  *foreView = [[DTOverlayView alloc] initWithFrame:viewFrame];  // Find a way to put it on top
+   NSView  *foreView = [[DTOverlayView alloc] initWithFrame:viewFrame];  // Put it on top
    
    [(NSView *)form->my_window.contentView addSubview:foreView positioned:NSWindowAbove relativeTo:nil];
    
