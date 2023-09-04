@@ -271,6 +271,33 @@ typedef struct  {                /* -------------------- Data from ResorceDataFi
 
 #endif  // _DTOOL_COCOA_
 
+struct _Form;
+
+typedef struct  {                /* -------------------- Edit data for an item ------- */
+   short       e_fldno;
+   short       e_type;
+   short       e_maxlen, e_precision;
+   short       e_elems, e_onscreen;
+   short       e_justify;
+   SInt32      e_fld_edits;
+   char       *e_regular;         // reused by TePop
+   char       *e_future_use;      // Used on titles
+   char       *e_status_line;
+   int       (*e_entry_func)(struct _Form *, int, int, int),
+             (*e_exit_func)(struct _Form *, int, int, int),
+             (*e_find_func)(struct _Form *, int, int, int);
+   short       e_occur;         /* Internal use */
+   short       e_next_field;    /* Internal use */
+   short       e_inRecOffset;   // Internal use, negative value is sfRec
+   char        e_inRecType;     // Internal use, neki enum
+   char        e_auto_alloced;  // Well, ...
+   char      **e_array;         /* Internal use */
+   char       *e_longText;      /* Internal use, content over 240 */
+   // MWSHandle   mwsHandle;       /* Internal use */
+   ID_LAYOUT  *e_fld_layout;    /* Internal use, set by user */
+} EDIT_item;
+
+
 struct  _Form  {
    short         itemHit;
    short         creationIndex;
@@ -304,6 +331,7 @@ struct  _Form  {
    short           last_fldno;  /* Copied from DITL */
    
    DITL_item     **ditl_def;
+   EDIT_item     **edit_def;
    
    Handle          toolBarHandle;
    

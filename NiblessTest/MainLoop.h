@@ -183,6 +183,7 @@ typedef struct  {
 #pragma mark -
 
 void   id_copy_DITL_info (DITL_item **ditl_def, Handle ditl_handle);
+void   id_attach_EDIT_info (FORM_REC *form, EDIT_item *edit_array, short last_fldno, short skipOthers);
 
 void  *id_calloc (size_t count, size_t size);
 char **id_malloc_array (size_t n, size_t s);

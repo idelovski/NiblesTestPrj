@@ -13,6 +13,13 @@
 #import  "NiblessTestAppDelegate.h"
 #import  "FirstForm.h"
 
+// LOCAL GLOBALS
+
+static EDIT_item  default_edit_item = { 
+   0,             0, 240, 2, 0, 0, teJustLeft, 0,
+   NULL, NULL, NULL,
+   NULL, NULL 
+};
 
 // GLOBALS
 
@@ -137,7 +144,7 @@ static FORM_REC  newForm;
 
    if (!newForm.my_window && menuIndex > 3)  {
       id_SetBlockToZeros (&newForm, sizeof(FORM_REC));
-      pr_CreateDitlWindow (&newForm, 601, tmpRect, "Bravo majstore");
+      pr_CreateDitlWindow (&newForm, 601, tmpRect, "Bravo majstore", NULL);
    }
 } 
 
@@ -717,6 +724,8 @@ int  id_release_form (FORM_REC *form)
 
    if (form->ditl_def)
       id_free_array ((char **)form->ditl_def);
+   if (form->edit_def)
+      DisposePtr ((Ptr)form->edit_def);
    
    id_SetBlockToZeros (form, sizeof (FORM_REC));
 
@@ -1459,6 +1468,31 @@ void id_copy_DITL_info (                             /* -- Copies from DITL Reso
 #endif
       cur_ditl += (14 + ditl_def[i]->i_data_size+ditl_def[i]->i_data_size%2);  // OK
    }
+}
+
+// Original function when skipOthers is FALSE
+// Needed skipOthers as TRUE when appending more items, like for AfterView
+
+void id_attach_EDIT_info (                     /*- Just attaching the pointers -*/
+ FORM_REC    *form,
+ EDIT_item   *edit_array,
+ short        last_fldno,
+ short        skipOthers
+)
+{
+   short        i;
+   EDIT_item  **edit_def = form->edit_def;
+   
+   for (i=0; i<=last_fldno; i++)  {
+      if (edit_array && (edit_array->e_fldno-1 == i))  {
+         edit_def[i] = edit_array;
+         edit_array++;
+      }
+      else  if (!skipOthers)
+         edit_def[i] = &default_edit_item/*NULL*/;
+   }
+   if (edit_def && edit_array && edit_array->e_fldno)
+      NSBeep ();  //    id_SysBeep (10);
 }
 
 static int  pr_InspectMenu (short theMenuID)  // 129 is File menu

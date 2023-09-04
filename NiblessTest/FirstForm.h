@@ -79,4 +79,4 @@
 
 @end
 
-int  pr_CreateDitlWindow (FORM_REC *form, short ditl_id, CGRect winRect, char *windowTitle);
+int  pr_CreateDitlWindow (FORM_REC *form, short ditl_id, CGRect winRect, char *windowTitle, EDIT_item *edit_items);

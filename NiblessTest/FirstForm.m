@@ -724,10 +724,11 @@ extern  FORM_REC  *dtRenderedForm;
 // do outside self.otherWindow = newWin;
 
 int  pr_CreateDitlWindow (
- FORM_REC  *form,
- short      ditl_id,
- CGRect     winRect,
- char      *windowTitle
+ FORM_REC   *form,
+ short       ditl_id,
+ CGRect      winRect,
+ char       *windowTitle,
+ EDIT_item  *edit_items
 )
 {
    short  index;
@@ -736,6 +737,7 @@ int  pr_CreateDitlWindow (
    // char   fileName[256], pathStr[256];
    
    DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
    
    NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    
@@ -768,6 +770,12 @@ int  pr_CreateDitlWindow (
       // errno = 0;
       
       ReleaseResource (form->DITL_handle);
+
+      if (!(form->edit_def = (EDIT_item **) NewPtr ((form->last_fldno+1)*sizeof(char *))))  {
+         // id_CloseWindow (form->my_window);
+         return (-1);
+      }
+      id_attach_EDIT_info (form, edit_items, form->last_fldno, FALSE);
    }   
 
    // Now, lets build our window
