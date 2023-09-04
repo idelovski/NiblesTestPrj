@@ -1,6 +1,6 @@
 //
 //  main.m
-//  NiblesTest
+//  NiblessTest
 //
 //  Created by me on 16.08.23.
 //  Copyright (c) 2023 Delovski d.o.o. All rights reserved.
@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "NiblesTestAppDelegate.h"
+#import "NiblessTestAppDelegate.h"
 #import "MainLoop.h"
 
 int  main (int argc, char *argv[])
@@ -18,7 +18,7 @@ int  main (int argc, char *argv[])
 
    [NSApplication sharedApplication]; 
    
-   NiblesTestAppDelegate  *appDelegate = [[NiblesTestAppDelegate alloc] init]; 
+   NiblessTestAppDelegate  *appDelegate = [[NiblessTestAppDelegate alloc] init]; 
    
    [NSApp setDelegate:appDelegate];
    
