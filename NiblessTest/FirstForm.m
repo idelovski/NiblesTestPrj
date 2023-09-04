@@ -1,13 +1,13 @@
 //
 //  FirstForm.m
-//  NiblesTest
+//  NiblessTest
 //
 //  Created by me on 17.08.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
 #import  "FirstForm.h"
-#import  "NiblesTestAppDelegate.h"
+#import  "NiblessTestAppDelegate.h"
 
 #import  "MainLoop.h"
 #import  "GetNextEvent.h"
@@ -712,7 +712,7 @@ int  pr_CreateDitlWindow (
    
    DITL_item  *f_ditl_def;
    
-   NiblesTestAppDelegate  *appDelegate = (NiblesTestAppDelegate *)[NSApp delegate];
+   NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    
    id_SetBlockToZeros (form, sizeof (FORM_REC));
    

@@ -10,7 +10,7 @@
 
 #import  "DTOverlayView.h"
 #import  "GetNextEvent.h"
-#import  "NiblesTestAppDelegate.h"
+#import  "NiblessTestAppDelegate.h"
 #import  "FirstForm.h"
 
 
@@ -112,7 +112,7 @@ static FORM_REC  newForm;
 
 + (void)menuAction:(id)sender
 {
-   NiblesTestAppDelegate  *appDelegate = (NiblesTestAppDelegate *)[NSApp delegate];
+   NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    NSDictionary           *menuDict = appDelegate.menuDict;
 
    CGRect  tmpRect = CGRectMake(1, 39, 1+484, 39+244+72+64+8+54);
@@ -146,7 +146,7 @@ static FORM_REC  newForm;
    char   appName[256];
    FSRef  appParentFolderFSRef;
 
-   NiblesTestAppDelegate  *appDelegate = (NiblesTestAppDelegate *)[NSApp delegate];
+   NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    NSMutableDictionary    *menuDict = appDelegate.menuDict;
 
    if (!id_GetApplicationExeFSRef(&appParentFolderFSRef))  {
@@ -1503,7 +1503,7 @@ static int  pr_CreateMenu (NSMenu *menuBar, id target, short theMenuID)  // 129 
    NSMenu      *theMenu = nil;  // [[NSMenu alloc] initWithTitle:@"File"];
    MENU_rsrc   *mr = NULL;
    
-   NiblesTestAppDelegate  *appDelegate = (NiblesTestAppDelegate *)[NSApp delegate];
+   NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    NSMutableDictionary    *menuDict = appDelegate.menuDict;
    
    if (!mh)  {
@@ -1580,7 +1580,7 @@ static int  pr_InsertSubMenu (NSMenuItem *parentMenuItem, id target, short theMe
    NSMenu      *theMenu = nil;  // [[NSMenu alloc] initWithTitle:@"File"];
    MENU_rsrc   *mr = NULL;
    
-   NiblesTestAppDelegate  *appDelegate = (NiblesTestAppDelegate *)[NSApp delegate];
+   NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    NSMutableDictionary    *menuDict = appDelegate.menuDict;
 
    if (mh)  {

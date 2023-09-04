@@ -7,18 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		256AC3DA0F4B6AC300CF3369 /* NiblesTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 256AC3D90F4B6AC300CF3369 /* NiblesTestAppDelegate.m */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */ = {isa = PBXBuildFile; fileRef = EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */; };
 		EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */; };
 		EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */; };
-		EB7B516D2A97E19A000AC12C /* DTOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7B516C2A97E199000AC12C /* DTOverlayView.m */; };
 		EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */; };
 		EBE7FE862A8D4635001CD6A9 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE7FE852A8D4635001CD6A9 /* Carbon.framework */; };
+		EBEB57302AA61A5000A55FE3 /* NiblessTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB572F2AA61A5000A55FE3 /* NiblessTestAppDelegate.m */; };
+		EBEB57352AA61B2200A55FE3 /* DTOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB57322AA61B2200A55FE3 /* DTOverlayView.m */; };
+		EBEB57362AA61B2200A55FE3 /* DTBackView.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB57332AA61B2200A55FE3 /* DTBackView.m */; };
+		EBEB57402AA61B4100A55FE3 /* GetNextEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB57372AA61B4100A55FE3 /* GetNextEvent.m */; };
+		EBEB57412AA61B4100A55FE3 /* FirstForm.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB57392AA61B4100A55FE3 /* FirstForm.m */; };
+		EBEB57422AA61B4100A55FE3 /* WindowFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB573D2AA61B4100A55FE3 /* WindowFactory.m */; };
+		EBEB57432AA61B4100A55FE3 /* MainLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB573F2AA61B4100A55FE3 /* MainLoop.m */; };
 		EBF336992A8FA04600069683 /* Bouquet512.png in Resources */ = {isa = PBXBuildFile; fileRef = EBF336982A8FA04600069683 /* Bouquet512.png */; };
-		EBF336DB2A8FA09700069683 /* DTBackView.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF336DA2A8FA09700069683 /* DTBackView.m */; };
 		EBF568282A9E63CF0062D320 /* CICN0822.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF5681C2A9E63CF0062D320 /* CICN0822.jpg */; };
 		EBF568292A9E63CF0062D320 /* CICN0816.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF5681D2A9E63CF0062D320 /* CICN0816.jpg */; };
 		EBF5682A2A9E63CF0062D320 /* CICN0814.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF5681E2A9E63CF0062D320 /* CICN0814.jpg */; };
@@ -30,23 +34,17 @@
 		EBF568312A9E63CF0062D320 /* CICN0812.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF568252A9E63CF0062D320 /* CICN0812.jpg */; };
 		EBF568322A9E63CF0062D320 /* CICN0820.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF568262A9E63CF0062D320 /* CICN0820.jpg */; };
 		EBF568332A9E63CF0062D320 /* CICN0819.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF568272A9E63CF0062D320 /* CICN0819.jpg */; };
-		EBF56E612A8E7039009134BC /* FirstForm.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF56E5D2A8E7039009134BC /* FirstForm.m */; };
-		EBF56E622A8E7039009134BC /* MainLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF56E5F2A8E7039009134BC /* MainLoop.m */; };
-		EBF56E772A8E719A009134BC /* GetNextEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF56E762A8E719A009134BC /* GetNextEvent.m */; };
-		EBF56E7C2A8E71E2009134BC /* WindowFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF56E7B2A8E71E2009134BC /* WindowFactory.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		256AC3D80F4B6AC300CF3369 /* NiblesTestAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NiblesTestAppDelegate.h; sourceTree = "<group>"; };
-		256AC3D90F4B6AC300CF3369 /* NiblesTestAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NiblesTestAppDelegate.m; sourceTree = "<group>"; };
-		256AC3F00F4B6AF500CF3369 /* NiblesTest_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NiblesTest_Prefix.pch; sourceTree = "<group>"; };
+		256AC3F00F4B6AF500CF3369 /* NiblessTest_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NiblessTest_Prefix.pch; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		8D1107310486CEB800E47090 /* NiblesTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "NiblesTest-Info.plist"; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* NiblesTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NiblesTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107310486CEB800E47090 /* NiblessTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "NiblessTest-Info.plist"; sourceTree = "<group>"; };
+		8D1107320486CEB800E47090 /* NiblessTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NiblessTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Appl_KnjigeNT.rsrc.zip; sourceTree = "<group>"; };
 		EB53864A2A8FE9AC00040808 /* Temp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Temp.m; sourceTree = "<group>"; };
 		EB53864B2A8FE9AC00040808 /* Console-Output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Console-Output.h"; sourceTree = "<group>"; };
@@ -56,14 +54,25 @@
 		EB60FC7F2A90FB9C00445F13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0701.jpg; path = CICN/CICN0701.jpg; sourceTree = "<group>"; };
 		EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0702.jpg; path = CICN/CICN0702.jpg; sourceTree = "<group>"; };
-		EB7B516B2A97E199000AC12C /* DTOverlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTOverlayView.h; path = NiblesTest/DTOverlayView.h; sourceTree = "<group>"; };
-		EB7B516C2A97E199000AC12C /* DTOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTOverlayView.m; path = NiblesTest/DTOverlayView.m; sourceTree = "<group>"; };
-		EBD283FA2AA238BE0021BAEE /* NSFont+CFTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSFont+CFTraits.h"; path = "NiblesTest/NSFont+CFTraits.h"; sourceTree = "<group>"; };
-		EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSFont+CFTraits.m"; path = "NiblesTest/NSFont+CFTraits.m"; sourceTree = "<group>"; };
+		EBD283FA2AA238BE0021BAEE /* NSFont+CFTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSFont+CFTraits.h"; path = "NiblessTest/NSFont+CFTraits.h"; sourceTree = "<group>"; };
+		EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSFont+CFTraits.m"; path = "NiblessTest/NSFont+CFTraits.m"; sourceTree = "<group>"; };
 		EBE7FE852A8D4635001CD6A9 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		EBEB572E2AA61A4F00A55FE3 /* NiblessTestAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NiblessTestAppDelegate.h; sourceTree = "<group>"; };
+		EBEB572F2AA61A5000A55FE3 /* NiblessTestAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NiblessTestAppDelegate.m; sourceTree = "<group>"; };
+		EBEB57312AA61B2200A55FE3 /* DTBackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTBackView.h; path = NiblessTest/DTBackView.h; sourceTree = "<group>"; };
+		EBEB57322AA61B2200A55FE3 /* DTOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTOverlayView.m; path = NiblessTest/DTOverlayView.m; sourceTree = "<group>"; };
+		EBEB57332AA61B2200A55FE3 /* DTBackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTBackView.m; path = NiblessTest/DTBackView.m; sourceTree = "<group>"; };
+		EBEB57342AA61B2200A55FE3 /* DTOverlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTOverlayView.h; path = NiblessTest/DTOverlayView.h; sourceTree = "<group>"; };
+		EBEB57372AA61B4100A55FE3 /* GetNextEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GetNextEvent.m; path = NiblessTest/GetNextEvent.m; sourceTree = "<group>"; };
+		EBEB57382AA61B4100A55FE3 /* WindowFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WindowFactory.h; path = NiblessTest/WindowFactory.h; sourceTree = "<group>"; };
+		EBEB57392AA61B4100A55FE3 /* FirstForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FirstForm.m; path = NiblessTest/FirstForm.m; sourceTree = "<group>"; };
+		EBEB573A2AA61B4100A55FE3 /* MainLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainLoop.h; path = NiblessTest/MainLoop.h; sourceTree = "<group>"; };
+		EBEB573B2AA61B4100A55FE3 /* transitionHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = transitionHeader.h; path = NiblessTest/transitionHeader.h; sourceTree = "<group>"; };
+		EBEB573C2AA61B4100A55FE3 /* GetNextEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GetNextEvent.h; path = NiblessTest/GetNextEvent.h; sourceTree = "<group>"; };
+		EBEB573D2AA61B4100A55FE3 /* WindowFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WindowFactory.m; path = NiblessTest/WindowFactory.m; sourceTree = "<group>"; };
+		EBEB573E2AA61B4100A55FE3 /* FirstForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FirstForm.h; path = NiblessTest/FirstForm.h; sourceTree = "<group>"; };
+		EBEB573F2AA61B4100A55FE3 /* MainLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainLoop.m; path = NiblessTest/MainLoop.m; sourceTree = "<group>"; };
 		EBF336982A8FA04600069683 /* Bouquet512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Bouquet512.png; sourceTree = "<group>"; };
-		EBF336D92A8FA09700069683 /* DTBackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTBackView.h; path = NiblesTest/DTBackView.h; sourceTree = "<group>"; };
-		EBF336DA2A8FA09700069683 /* DTBackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTBackView.m; path = NiblesTest/DTBackView.m; sourceTree = "<group>"; };
 		EBF338842A8FB1BC00069683 /* Appl_KnjigeNT.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; path = Appl_KnjigeNT.rsrc; sourceTree = "<group>"; };
 		EBF5681C2A9E63CF0062D320 /* CICN0822.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0822.jpg; path = CICN/CICN0822.jpg; sourceTree = "<group>"; };
 		EBF5681D2A9E63CF0062D320 /* CICN0816.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0816.jpg; path = CICN/CICN0816.jpg; sourceTree = "<group>"; };
@@ -76,15 +85,6 @@
 		EBF568252A9E63CF0062D320 /* CICN0812.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0812.jpg; path = CICN/CICN0812.jpg; sourceTree = "<group>"; };
 		EBF568262A9E63CF0062D320 /* CICN0820.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0820.jpg; path = CICN/CICN0820.jpg; sourceTree = "<group>"; };
 		EBF568272A9E63CF0062D320 /* CICN0819.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0819.jpg; path = CICN/CICN0819.jpg; sourceTree = "<group>"; };
-		EBF56E5C2A8E7039009134BC /* FirstForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FirstForm.h; path = NiblesTest/FirstForm.h; sourceTree = "<group>"; };
-		EBF56E5D2A8E7039009134BC /* FirstForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FirstForm.m; path = NiblesTest/FirstForm.m; sourceTree = "<group>"; };
-		EBF56E5E2A8E7039009134BC /* MainLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainLoop.h; path = NiblesTest/MainLoop.h; sourceTree = "<group>"; };
-		EBF56E5F2A8E7039009134BC /* MainLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainLoop.m; path = NiblesTest/MainLoop.m; sourceTree = "<group>"; };
-		EBF56E602A8E7039009134BC /* transitionHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = transitionHeader.h; path = NiblesTest/transitionHeader.h; sourceTree = "<group>"; };
-		EBF56E752A8E719A009134BC /* GetNextEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GetNextEvent.h; path = NiblesTest/GetNextEvent.h; sourceTree = "<group>"; };
-		EBF56E762A8E719A009134BC /* GetNextEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GetNextEvent.m; path = NiblesTest/GetNextEvent.m; sourceTree = "<group>"; };
-		EBF56E7A2A8E71E2009134BC /* WindowFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WindowFactory.h; path = NiblesTest/WindowFactory.h; sourceTree = "<group>"; };
-		EBF56E7B2A8E71E2009134BC /* WindowFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WindowFactory.m; path = NiblesTest/WindowFactory.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,8 +106,8 @@
 				EBD283F92AA2389A0021BAEE /* Extra */,
 				EBF336CC2A8FA08F00069683 /* Views */,
 				EBF56E4D2A8E7026009134BC /* NiblesTest */,
-				256AC3D80F4B6AC300CF3369 /* NiblesTestAppDelegate.h */,
-				256AC3D90F4B6AC300CF3369 /* NiblesTestAppDelegate.m */,
+				EBEB572E2AA61A4F00A55FE3 /* NiblessTestAppDelegate.h */,
+				EBEB572F2AA61A5000A55FE3 /* NiblessTestAppDelegate.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -134,7 +134,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107320486CEB800E47090 /* NiblesTest.app */,
+				8D1107320486CEB800E47090 /* NiblessTest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -155,7 +155,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				256AC3F00F4B6AF500CF3369 /* NiblesTest_Prefix.pch */,
+				256AC3F00F4B6AF500CF3369 /* NiblessTest_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 			);
 			name = "Other Sources";
@@ -165,7 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				EBF336972A8FA04600069683 /* Rsrc */,
-				8D1107310486CEB800E47090 /* NiblesTest-Info.plist */,
+				8D1107310486CEB800E47090 /* NiblessTest-Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 			);
 			name = Resources;
@@ -236,10 +236,10 @@
 		EBF336CC2A8FA08F00069683 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				EB7B516B2A97E199000AC12C /* DTOverlayView.h */,
-				EB7B516C2A97E199000AC12C /* DTOverlayView.m */,
-				EBF336D92A8FA09700069683 /* DTBackView.h */,
-				EBF336DA2A8FA09700069683 /* DTBackView.m */,
+				EBEB57312AA61B2200A55FE3 /* DTBackView.h */,
+				EBEB57332AA61B2200A55FE3 /* DTBackView.m */,
+				EBEB57342AA61B2200A55FE3 /* DTOverlayView.h */,
+				EBEB57322AA61B2200A55FE3 /* DTOverlayView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -247,15 +247,15 @@
 		EBF56E4D2A8E7026009134BC /* NiblesTest */ = {
 			isa = PBXGroup;
 			children = (
-				EBF56E5C2A8E7039009134BC /* FirstForm.h */,
-				EBF56E5D2A8E7039009134BC /* FirstForm.m */,
-				EBF56E5E2A8E7039009134BC /* MainLoop.h */,
-				EBF56E5F2A8E7039009134BC /* MainLoop.m */,
-				EBF56E752A8E719A009134BC /* GetNextEvent.h */,
-				EBF56E762A8E719A009134BC /* GetNextEvent.m */,
-				EBF56E7A2A8E71E2009134BC /* WindowFactory.h */,
-				EBF56E7B2A8E71E2009134BC /* WindowFactory.m */,
-				EBF56E602A8E7039009134BC /* transitionHeader.h */,
+				EBEB573E2AA61B4100A55FE3 /* FirstForm.h */,
+				EBEB57392AA61B4100A55FE3 /* FirstForm.m */,
+				EBEB573C2AA61B4100A55FE3 /* GetNextEvent.h */,
+				EBEB57372AA61B4100A55FE3 /* GetNextEvent.m */,
+				EBEB573A2AA61B4100A55FE3 /* MainLoop.h */,
+				EBEB573F2AA61B4100A55FE3 /* MainLoop.m */,
+				EBEB573B2AA61B4100A55FE3 /* transitionHeader.h */,
+				EBEB57382AA61B4100A55FE3 /* WindowFactory.h */,
+				EBEB573D2AA61B4100A55FE3 /* WindowFactory.m */,
 			);
 			name = NiblesTest;
 			sourceTree = "<group>";
@@ -263,9 +263,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8D1107260486CEB800E47090 /* NiblesTest */ = {
+		8D1107260486CEB800E47090 /* NiblessTest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "NiblesTest" */;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "NiblessTest" */;
 			buildPhases = (
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
@@ -276,10 +276,10 @@
 			);
 			dependencies = (
 			);
-			name = NiblesTest;
+			name = NiblessTest;
 			productInstallPath = "$(HOME)/Applications";
 			productName = NiblesTest;
-			productReference = 8D1107320486CEB800E47090 /* NiblesTest.app */;
+			productReference = 8D1107320486CEB800E47090 /* NiblessTest.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -291,7 +291,7 @@
 				LastUpgradeCheck = 1030;
 				ORGANIZATIONNAME = "Delovski d.o.o.";
 			};
-			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "NiblesTest" */;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "NiblessTest" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = en;
 			hasScannedForEncodings = 1;
@@ -306,7 +306,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8D1107260486CEB800E47090 /* NiblesTest */,
+				8D1107260486CEB800E47090 /* NiblessTest */,
 			);
 		};
 /* End PBXProject section */
@@ -362,15 +362,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EBEB57412AA61B4100A55FE3 /* FirstForm.m in Sources */,
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
-				256AC3DA0F4B6AC300CF3369 /* NiblesTestAppDelegate.m in Sources */,
-				EBF56E612A8E7039009134BC /* FirstForm.m in Sources */,
-				EBF56E622A8E7039009134BC /* MainLoop.m in Sources */,
-				EBF56E772A8E719A009134BC /* GetNextEvent.m in Sources */,
+				EBEB57422AA61B4100A55FE3 /* WindowFactory.m in Sources */,
 				EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */,
-				EBF56E7C2A8E71E2009134BC /* WindowFactory.m in Sources */,
-				EBF336DB2A8FA09700069683 /* DTBackView.m in Sources */,
-				EB7B516D2A97E19A000AC12C /* DTOverlayView.m in Sources */,
+				EBEB57362AA61B2200A55FE3 /* DTBackView.m in Sources */,
+				EBEB57302AA61A5000A55FE3 /* NiblessTestAppDelegate.m in Sources */,
+				EBEB57432AA61B4100A55FE3 /* MainLoop.m in Sources */,
+				EBEB57402AA61B4100A55FE3 /* GetNextEvent.m in Sources */,
+				EBEB57352AA61B2200A55FE3 /* DTOverlayView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,9 +398,9 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = NiblesTest_Prefix.pch;
+				GCC_PREFIX_HEADER = NiblessTest_Prefix.pch;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				INFOPLIST_FILE = "NiblesTest-Info.plist";
+				INFOPLIST_FILE = "NiblessTest-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = (
@@ -408,8 +408,8 @@
 					"-Wno-unused-variable",
 					"-Wno-parentheses",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = NiblesTest;
+				PRODUCT_BUNDLE_IDENTIFIER = "hr.delovski.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = NiblessTest;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -422,9 +422,9 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = NiblesTest_Prefix.pch;
+				GCC_PREFIX_HEADER = NiblessTest_Prefix.pch;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				INFOPLIST_FILE = "NiblesTest-Info.plist";
+				INFOPLIST_FILE = "NiblessTest-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = (
@@ -432,8 +432,8 @@
 					"-Wno-unused-variable",
 					"-Wno-parentheses",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = NiblesTest;
+				PRODUCT_BUNDLE_IDENTIFIER = "hr.delovski.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = NiblessTest;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -514,7 +514,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "NiblesTest" */ = {
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "NiblessTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4B08A954540054247B /* Debug */,
@@ -523,7 +523,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "NiblesTest" */ = {
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "NiblessTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,

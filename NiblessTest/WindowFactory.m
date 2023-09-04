@@ -1,6 +1,6 @@
 //
-//  NiblesTestAppDelegate.m
-//  NiblesTest
+//  NiblessTestAppDelegate.m
+//  NiblessTest
 //
 //  Created by me on 16.08.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
