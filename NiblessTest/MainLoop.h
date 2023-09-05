@@ -226,6 +226,10 @@ void   id_free_array (char **aPtr);
 #define  kPivotDate   32
 #define  kMaxMonths   12
 
+#define  RectWidth(rc)                    ((rc)->right-(rc)->left)
+#define  RectHeight(rc)                   ((rc)->bottom-(rc)->top)
+
+#define   IS_LEAP_YEAR(yr)   (!((yr)%4) && (yr)%100 || !((yr)%400))
 
 unsigned short  id_sys_date (void);
 
@@ -247,7 +251,14 @@ char  *id_monthName (unsigned short idxMonth);  // one based
 char  *id_get_month_name (unsigned short dateShort);
 char  *id_get_day_name (unsigned short dateShort);
 
-int  id_itemsRect (FORM_REC *form, NSControl *field, Rect *fldRect);
+int  id_inpossible_item (FORM_REC *form, short index);
+
+#define  MulDiv(val,numerator,denominator)  ((int)((double)val*numerator/denominator))
+
+void id_MulDivRect (Rect *theRect, int mul, int div);
+void id_CopyMac2Rect (FORM_REC *form, Rect *dstRect, MacRect *srcRect);
+int  id_itemsRect (FORM_REC *form, short index, Rect *fldRect);
+int  id_controlsRect (FORM_REC *form, NSControl *field, Rect *fldRect);
 int  id_frame_fields (FORM_REC *form, NSControl *fldno_1, NSControl *fldno_2, short distance, PatPtr frPatPtr);
 
 CGRect  id_Rect2CGRect (Rect *rect);
@@ -262,8 +273,233 @@ CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 #define  kSBAR_ICN_WIDTH   64
 #define  kSBAR_SEP_WIDTH   12
 
+void  id_draw_Picture (FORM_REC *form, short index);
+
 int  id_DrawStatusbar (FORM_REC *form, short drawNow);
 
 void id_create_toolbar (FORM_REC *form);
 int  id_DrawIconToolbar (FORM_REC *form);
 int  id_DrawTBPadding (FORM_REC *form);
+
+#define K_PICT_UP       1
+#define K_PICT_MID      2  // till 22
+#define K_PICT_DN      23
+
+#ifdef _MAIN_LOOP_SRC_
+
+EDIT_item  kupdob_edit_items[] = {
+ { K_PICT_UP,   ID_UT_PICTURE, 0, 0, 603, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_DN,   ID_UT_PICTURE, 0, 0, 604, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+#ifdef _NIJE_
+ { K_KUPDOB,    0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DATA_REQ,
+                NULL, NULL, NULL,
+                NULL, attach_kd_kupdob, finda_kd_kupdob },
+
+ { K_KUPDOB_CD, 0, 5, 0, 0, 0, teJustLeft, ID_FE_DIGITS | ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DATA_REQ,
+                NULL, NULL, NULL,
+                generate_kupdob_cd, generate_kupdob_cd },
+
+ { K_ADRESA_1,  0, 31, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                attach_kd_addresa_1, NULL },
+
+ { K_ADRESA_2,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_ADRESA_3,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_ADRESA_4,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, attach_kd_addresa_3 },
+
+ { K_TEL_1,     0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_TEL_2,     0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+
+ { K_TEL_3,     0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_FAX,       0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_DRZAVA,    0, 24, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                attach_kd_drzava, attach_kd_drzava },
+
+ { K_LABEL,     0, 19, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_CAT_INFO,  0, 1, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_TOUPPER,
+                "AGINPR", NULL, "Nepovezano ili A - naπa Adresa, G - Grupacija, I - sudjelujuÊi Interesi, P - Poslovnica, R - Recurring",
+                NULL, NULL },
+
+ { K_ZIRO,      0, 28, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_TOUPPER,
+                NULL, NULL, NULL,
+                NULL, attach_kd_ziro },
+
+ { K_STAT_9_L,  0, 31, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_PNBR_0,    0, 2, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_POZIV,     0, 24, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_MAT_BROJ,  0, 13, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, attach_kd_mat_broj },
+
+ { K_OIB,       0, 11, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, "OIB, obavezni podatak za sve pravne subjekte",
+                NULL, attach_kd_oib },
+
+ { K_PDV_BROJ,  0, 16, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, "PDV broj inozemnih poslovnih subjekata, vaæan podatak za EU partnere",
+                NULL, attach_kd_pdv_broj },
+
+ { K_STAT_9_R,  0, 31, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_KTO_12x,   0, 4, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, "Konto kupca, domaÊi ili inozemni",
+                attach_kd_konto, attach_kd_konto },
+
+ { K_12x_CHECK, ID_UT_CICN, 0, 516, 516, 516, 0, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_KTO_22x,   0, 4, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, "Konto dobavljaËa, domaÊi ili inozemni",
+                attach_kd_konto, attach_kd_konto },
+
+ { K_22x_CHECK, ID_UT_CICN, 0, 516, 516, 516, 0, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_PLS_KONTO, 0, 4, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                attach_kd_konto, attach_kd_konto },
+
+ { K_PLS_CHECK, ID_UT_CICN, 0, 516, 516, 516, 0, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_OSOBA,     0, 23, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_MOBITEL,   0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_E_MAIL,    0, 47, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_URL,       0, 31, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+             
+ { K_NAPOMENA,  0, 63, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_HOLDING_CD, 0, 5, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS | ID_FE_LETTERS,
+                NULL, NULL, NULL,
+                NULL, attach_k_holding, finda_k_holding },
+
+ { K_HOLDING,   0, 23, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_PROTECT | ID_FE_SKIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_STD_RBT_P, 0, 4, 1, 0, 0, teJustRight, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_NUMERIC,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_STD_ROK,   0, 3, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_LINK_TXT,  0, 240, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_S_VISITORS, 0, 240, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_I_CHAIN,   ID_UT_ICON_ITEM, 0, 145, 146, 147, 0, ID_FE_DOWN_ONLY,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_I_INFO,    ID_UT_ICON_ITEM, 0, 305, 306, 307, 0, ID_FE_UP_ONLY,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+          
+ { K_INFO_BOX,  0, 240, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_12x_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,  // Regular popUps
+                "Reg", NULL, NULL,
+                attach_kd_12x_pop, attach_kd_12x_pop },
+
+ { K_22x_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,
+                "Reg", NULL, NULL,
+                attach_kd_22x_pop, attach_kd_22x_pop },
+
+ { K_PLS_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,
+                "Reg", NULL, NULL,
+                attach_kd_pls_pop, attach_kd_pls_pop },
+
+ { K_R1R2_POP,   ID_UT_POP_UP, 0, 0, 4, 0, teJustLeft, 0,
+                NULL, NULL, NULL,
+                attach_pr_r1r2_pop, attach_pr_r1r2_pop },
+
+ { K_SMALL_9,   0, 31, 0, 0, 0, teJustCenter, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_TXT_12x,   0, 3, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_STICKY,    0, 127, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_IBAN,      0, 35, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+#endif
+
+ { 0,           0 } 
+};
+#endif
+

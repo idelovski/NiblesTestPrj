@@ -9,6 +9,11 @@
 //  WindowPtr is 64bit, evt->message is 32bit so I need to put windowNumber in there on Cocoa
 //  ... and a function like winPtr = EvtMsg2WindowPtr(evt->message)
 
+// updateEvt may be even just an info set after drawRect call so the outer code knows it happened,
+// I don't think it's needed before but if it's possible I wouldn't mind
+
+// Or maybe monitor needsDisplay property?
+
 #import "GetNextEvent.h"
 
 static BOOL  id_handleRightMouse (NSEvent *event);

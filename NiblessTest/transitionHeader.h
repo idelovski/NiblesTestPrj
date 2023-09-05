@@ -329,6 +329,9 @@ struct  _Form  {
 
    Handle          DITL_handle; /* Resorce handle */ 
    short           last_fldno;  /* Copied from DITL */
+   short           usedETypes;
+   short           hOrigin;
+   short           vOrigin;  // Win & OSX trouble with SetOrigin()
    
    DITL_item     **ditl_def;
    EDIT_item     **edit_def;
@@ -469,6 +472,157 @@ typedef struct  {
 
 extern DTGlobalData  *dtGData;
 
+#pragma mark -
+
+/* --------------------------------------- FIELD DESCRIPTION -------- */
+
+#ifndef _ID_FE_MODE_BITFIELDS_
+
+#define _ID_FE_MODE_BITFIELDS_
+
+#define   ID_FE_TOUPPER         1L   /* --- ToUpper all chars     --- */
+#define   ID_FE_DIGITS          2L   /* --- Accept only digits    --- */
+#define   ID_FE_LETTERS         4L   /* --- Accept only letters   --- */
+#define   ID_FE_NUMERIC         8L   /* --- Accept only numbers   --- */
+#define   ID_FE_PROTECT        16L   /* --- Data entry protection --- */
+#define   ID_FE_OUTGRAY        32L   /* --- Gray outlined field   --- */
+#define   ID_FE_DATA_REQ       64L   /* --- Data required         --- */
+#define   ID_FE_LINE_UNDER    128L   /* --- Just a line under     --- */
+#define   ID_FE_INVERT        256L   /* --- Inverse Text          --- */
+#define   ID_FE_WRAP_TEXT     512L   /* --- Frame round item      --- */  // was ID_FE_FRAME_FLD
+#define   ID_FE_CURRENCY     1024L   /* --- Money format          --- */
+#define   ID_FE_NO_FRAME     2048L   /* --- Don't frame EditItem  --- */
+#define   ID_FE_QUANT        4096L   /* --- Special numeric type  --- */
+#define   ID_FE_SKIP         8192L   /* --- Skip to next field    --- */
+#define   ID_FE_DATE        16384L   /* --- Standard date         --- */
+#define   ID_FE_DATECHK     32768L   /* --- Check date frame      --- */
+#define   ID_FE_SYS_DATE    65536L   /* --- fill sys date         --- */
+#define   ID_FE_EXTRA_LEN  131072L   /* --- More size for BarCode --- */
+#define   ID_FE_DATE_MMYY  262144L   /* --- More size for BarCode --- */
+#define   ID_FE_TIME       524288L   /* --- Standard time field   --- */
+#define   ID_FE_SYS_TIME  1048576L   /* --- fill sys time         --- */
+#define   ID_FE_INSET_BOX 2097152L   /* --- some Win shit         --- */
+#define   ID_FE_TEMP_SKIP 4194304L   /* --- Skip for now          --- */
+#define   ID_FE_VCENTER   8388608L   /* --- On scale ver centered --- */
+#define   ID_FE_BULLETS  16777216L   /* --- Show bullets if penUp --- */
+
+#define   ID_FE_ANY_SKIP     (ID_FE_SKIP | ID_FE_TEMP_SKIP)
+
+#define   ID_FE_DRAW_AT_OPEN  1L    /* --- Draw Picture in Open  --- */
+#define   ID_FE_TOUCHABLE     2L    /* --- Touchable pic         --- */
+#define   ID_FE_PPURGE       16L    /* --- Don't release it      --- */
+#define   ID_FE_CLIP         64L    /* --- Clip Picture To Rect  --- */
+
+#define   ID_FE_DOWN_ONLY     1L    /* --- for Icons             --- */
+#define   ID_FE_UP_ONLY       2L    /* --- for Icons             --- */
+// #define   ID_FE_ICN_FRAME     ID_FE_FRAME_FLD  /* for Icons frame       */
+#define   ID_FE_ICN_THK_FRAME ID_FE_EXTRA_LEN  /* for Icons thick frame */
+
+#define   ID_FE_DOUBLE_POP    4L    /* --- for PICT_PopUps       --- */
+
+#endif  //  _ID_FE_MODE_BITFIELDS_
+
+/* --------------------------------------- FORM FLAGS ----------------- */
+
+#define   ID_F_IN_CREATION      1      /* --- Win - invisible fields... */
+#define   ID_F_ALIAS_OF_ACTIVE  2      /* --- Alias, shares edit_def    */
+#define   ID_F_NEEDS_ACTIVATE   4      /* --- Mac - info, On Win invisible fields... */
+#define   ID_F_IN_ACTIVATION    8      /* --- Win - invisible fields... */
+#define   ID_F_NEEDS_UPDATE    16      /* --- Paint after Activate, not before... */
+#define   ID_F_STATUS_MARK     32      /* --- Win - Mark in status bar  */
+#define   ID_F_WINDOWSHADE     64      /* --- Win - WindowShade...      */
+#define   ID_F_CUST_BACKCOLOR 128      /* --- Win - BacColor()          */
+#define   ID_F_ERROR_STATE    256      /* --- Show error state in sbar  */
+#define   ID_F_FLD_CHANGED    512      /* --- Win - Fld changed, measeure it */
+#define   ID_F_SPEC_STATE    1024      /* --- Mac/Win - Application Specific */
+#define   ID_F_NO_MENUS      2048      /* --- Win - Need it for panels  */
+#define   ID_F_SORTABLE      4096      /* --- Mac/Win - Application specific */
+
+/* --------------------------------------- PEN DESCRIPTION ----------------- */
+
+#define   ID_PEN_DOWN           1      /* --- Pen is down                --- */
+#define   ID_PEN_SCDIRT         2      /* --- scrn is changed            --- */
+#define   ID_PEN_ENTAB          4      /* --- EnterKey as TabKey         --- */
+#define   ID_PEN_TOUCH          8      /* --- DownPen at mouseDown       --- */
+#define   ID_PEN_FLDIRT        16      /* --- fld TE is changed          --- */
+#define   ID_PEN_DIRTY        (ID_PEN_SCDIRT | ID_PEN_FLDIRT)
+#define   ID_PEN_NO_ESC        32      /* --- Can't press ESC            --- */
+#define   ID_PEN_OPTION        64      /* --- Visible HotSpots           --- */
+#define   ID_PEN_SEARCH       128      /* --- Search mode                --- */
+#define   ID_PEN_LOCKED       256      /* --- Can't Open plus more       --- */
+#define   ID_PEN_STD_KEYS     512      /* --- Arrows as if penSense      --- */
+#define   ID_PEN_RELOAD      1024      /* --- Must reload records        --- */
+#define   ID_PEN_INVERT      2048      /* --- Invert field colors        --- */
+#define   ID_PEN_ESC         4096      /* --- Close form ASAP            --- */
+#define   ID_PEN_IN_STAT     8192      /* --- report clicks in statField --- */
+#define   ID_PEN_DOWN_UNDER 16384      /* --- Show mws underlines on on pen down --- */
+
+/* --------------------------------------- UPDATE FUNCTIONS ----------- */
+
+#define   ID_BEGIN_OF_UPDATE    1      /* --- Start Updating        --- */
+#define   ID_END_OF_UPDATE      2      /* --- After all Updating    --- */
+#define   ID_BEGIN_OF_OPEN      3      /* --- Start Open Form       --- */
+#define   ID_END_OF_OPEN        4      /* --- After Open Form       --- */
+#define   ID_PEN_DOWN_UPDATE    5      /* --- On PenDown            --- */
+#define   ID_PEN_UP_UPDATE      6      /* --- On PenUp              --- */
+#define   ID_BEGIN_OF_ACTIVATE  7      /* --- Start Activ/deactiv > mode --- */
+#define   ID_END_OF_ACTIVATE    8      /* --- After Activ/deactiv > mode --- */
+
+/* ---------> UpdateFunction (FORM_REC *, EventRecord *, short, short); --- */
+
+/* --------------------------------------- USER DEFINED ITEMS --------- */
+
+#define   ID_UT_POP_UP         1   /* --- UserItem - PopUpMenu           --- */
+#define   ID_UT_SCROLL_BAR     2   /* --- UserItem - ScrollBar           --- */
+#define   ID_UT_ICON_ITEM      4   /* --- UserItem - Icon                --- */
+#define   ID_UT_LIST           8   /* --- UserItem - List                --- */
+#define   ID_UT_LIST_SB       10   /* --- UserItem - List + ScrollBar    --- */
+#define   ID_UT_PICTURE       16   /* --- UserItem - Picture             --- */
+#define   ID_UT_ARRAY         32   /* --- UserItem - Array of TEdits     --- */
+#define   ID_UT_AUTO          64   /* --- UserItem - Auto allocation     --- */
+
+#define   ID_UT_AUTO_LIST     72   /* --- UserItem - Array + Auto        --- */
+#define   ID_UT_AUTO_LIST_SB  74   /* --- UserItem - Array + Auto        --- */
+#define   ID_UT_AUTO_ARRAY    96   /* --- UserItem - Array + Auto        --- */
+
+#define   ID_UT_TEPOP        128   /* --- UserItem - PopUp for TEdit     --- */
+#define   ID_UT_TEPOP_PICT   ID_UT_TEPOP + ID_UT_PICTURE
+                 /* --- e_maxlen = PICT; e_precision = STR# ID; e_onscreen = Fldno --- */
+#define   ID_UT_ALT          256   /* --- Alternate normal behaviour     --- */
+#define   ID_UT_ALT_2        512   /* --- Alternate normal behaviour     --- */
+#define   ID_UT_CICN        1024   /* --- UserItem - Colour Icon         --- */
+#define   ID_UT_MODIFIER    2048   /* --- edit fld, modifier to find     --- */
+
+#ifdef _NIJE
+#define   ID_UT_CURRQUANT    256   /* --- TextEdit + KoliËine            --- */
+#define   ID_UT_CURRFIXED    512   /* --- TextEdit + Fixed (Dfltt) Crncy --- */
+#endif
+
+#define   ID_CR_CENTER      0   /* --- CenterRect - Midle  --- */
+#define   ID_CR_UP          1   /* --- CenterRect - Upper  --- */
+#define   ID_CR_DOWN        2   /* --- CenterRect - Lower  --- */
+
+#define   ID_ENTRY_FLAG   0     /* --- Mode for validation -- */
+#define   ID_EXIT_FLAG    1     /* --- Mode for validation -- */
+#define   ID_MOUSE_FLAG   2     /* --- Mode for validation -- */
+#define   ID_EXTRA_FLAG   4     /* --- Mode for validation -- */
+#define   ID_SCROLL_FLAG  8     /* --- Mode for validation -- */
+
+// ---------------------------------------------------- id_frame_edge  styles
+
+#define   ID_FRAME_DEFAULT  0   // normal black frame
+#define   ID_FRAME_SHADOW   1   // black frame w/ shadow right+bottom
+
+// ---------------------------------------------------- inRec Types
+
+#define   ID_IRT_TEXT       0   // normal text, char array
+#define   ID_IRT_CHAR       1   // single char
+#define   ID_IRT_CHAR_FLAG  2   // Yes/No
+#define   ID_IRT_SHORT      4   // short int
+#define   ID_IRT_LONG       8   // long int
+#define   ID_IRT_DOUBLE    16   // double
+
+
 #pragma mark TB
 
 /* --------------------------------------------------------------- Menu IDs ---------- */
@@ -589,3 +743,7 @@ typedef struct _IDStatusbar  {
    char         sbCharCountMsg[16];
    
 } IDStatusbarRecord, *IDStatusbarPtr, **IDStatusbarHandle;
+
+#define MacRect  Rect
+
+#define SetMacRect(m,r)  SetRect(m, (r)->left, (r)->top, (r)->right, (r)->bottom)

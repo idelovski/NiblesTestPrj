@@ -6,6 +6,8 @@
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
+#define _MAIN_LOOP_SRC_
+
 #import  "MainLoop.h"
 
 #import  "DTOverlayView.h"
@@ -2306,9 +2308,95 @@ void  id_GetClientRect (FORM_REC *form, Rect *rect)
    // }
 }
 
+/* .......................................................... id_inpossible_item .... */
+
+int  id_inpossible_item (/*form, index*/
+ FORM_REC *form,
+ short     index
+)
+{
+   char  tmpStr[256];
+   
+   // if (index == 82 - 1)
+   //    con_printf ("FIELD 82!");
+   
+   if (!(form->my_window) || index<0 || index>form->last_fldno)  {
+      // sprintf (tmpStr, "%s %hd", form->my_window ? "Field" : "Form window is NULL", index+1);  // ] Field 0
+      // id_LogFileLineWithForm (form, tmpStr);
+      return (-1);
+   }
+   return (0);
+}
+
+/* .......................................................... id_MulDivRect ......... */
+
+void  id_MulDivRect (Rect *theRect, int mul, int div)
+{
+   short  rHeight = RectHeight (theRect);
+   short  rWidth  = RectWidth (theRect);
+   
+   theRect->left = MulDiv (theRect->left, mul, div);
+   theRect->top  = MulDiv (theRect->top,  mul, div);
+
+   theRect->right  = theRect->left + MulDiv (rWidth, mul, div);
+   theRect->bottom = theRect->top  + MulDiv (rHeight,  mul, div);
+}
+
+/* .......................................................... id_Copy2MacRect ....... */
+
+// form may be NULL
+
+void  id_CopyMac2Rect (FORM_REC *form, Rect *dstRect, MacRect *srcRect)
+{
+   // int  leftOffset, topOffset, rightOffset, bottomOffset;
+
+   dstRect->left   = srcRect->left;
+   dstRect->top    = srcRect->top;
+   dstRect->right  = srcRect->right;
+   dstRect->bottom = srcRect->bottom;
+   
+   if (form)
+      OffsetRect (dstRect, -form->hOrigin, -form->vOrigin);
+   
+   if (form && form->scaleRatio != 100)  {
+      // id_CoreClientOffsets (form, &leftOffset, &topOffset, &rightOffset, &bottomOffset);
+
+      // OffsetRect (dstRect, -leftOffset, -topOffset);
+      id_MulDivRect (dstRect, form->scaleRatio, 100);
+      // OffsetRect (dstRect, leftOffset, topOffset);
+   }
+
+   if (form && form->toolBarHandle)
+      OffsetRect (dstRect, 0, dtGData->toolBarHeight);
+}
+
 /* ....................................................... id_itemsRect ............. */
 
-int id_itemsRect (FORM_REC *form, NSControl *field, Rect *fldRect)
+int id_itemsRect (FORM_REC *form, short index, Rect *fldRect)
+{
+   short  scalePercent = 0;
+   
+   if (id_inpossible_item (form, index))  {
+      SetRect (fldRect, 0, 0, 0, 0);
+      return (-1);
+   }
+
+   // *fldRect = form->ditl_def[index]->i_rect;
+   
+   id_CopyMac2Rect (form, fldRect, &form->ditl_def[index]->i_rect);
+   
+   if (form->edit_def[index]->e_fld_edits & ID_FE_VCENTER)  {
+      scalePercent = form->scaleRatio - 100;
+      if (scalePercent > 0)
+         OffsetRect (fldRect, -(scalePercent/10), 1+scalePercent/20);
+   }
+
+   return (0);
+}
+
+/* ....................................................... id_controlsRect .......... */
+
+int id_controlsRect (FORM_REC *form, NSControl *field, Rect *fldRect)
 {
    // short  scalePercent = 0;
    
@@ -2350,8 +2438,8 @@ int  id_frame_fields (
    // if (id_inpossible_item (form, index_1) || id_inpossible_item (form, index_2))
    //    return (-1);
    
-   id_itemsRect (form, fldno_1, &fldRect1);
-   id_itemsRect (form, fldno_2, &fldRect2);
+   id_controlsRect (form, fldno_1, &fldRect1);
+   id_controlsRect (form, fldno_2, &fldRect2);
    
    SetRect (&frameBounds, fldRect1.left,  fldRect1.top,     /* LT */
                           fldRect2.right, fldRect2.bottom); /* RB */
@@ -2478,6 +2566,31 @@ static void  id_PlotCIcon (Rect *macRect, NSImage *iconImage)
    CGRect  icnRect = id_Rect2CGRect (macRect);
    
    [MainLoop drawImage:iconImage inFrame:icnRect form:NULL];
+}
+
+void  id_draw_Picture (FORM_REC *form, short index)
+{
+   Rect      tmpRect;
+   NSImage  *iconImage;
+   
+   if (id_itemsRect (form, index, &tmpRect))
+      return;
+
+   CGRect  imgRect = id_Rect2CGRect (&tmpRect);
+   
+   if (form->drawRectCtx || [form->overlayView canDraw])  {
+      
+      if (!form->drawRectCtx)
+         [form->overlayView lockFocus];
+
+      NSString  *imgName = [NSString stringWithFormat:@"PICT%04hd", form->edit_def[index]->e_elems];
+      NSImage   *theImage = [NSImage imageNamed:imgName];
+
+      [MainLoop drawImage:theImage inFrame:imgRect form:NULL];
+
+      if (!form->drawRectCtx)
+         [form->overlayView unlockFocus];
+   }
 }
 
 static int  id_InitStatusbarIcons (void)

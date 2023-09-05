@@ -808,7 +808,7 @@ int  pr_CreateDitlWindow (
       for (index=0; index<=form->last_fldno; index++)  {
          
          f_ditl_def = form->ditl_def[index];
-         // f_edit_def = form->edit_def[index];
+         f_edit_def = form->edit_def[index];
          
          macRect = f_ditl_def->i_rect;
          
@@ -864,39 +864,38 @@ int  pr_CreateDitlWindow (
                itsaControl = FALSE;
             CFRelease (buttonTitle);
          }
-#ifdef _NIJE_
          else  if ((f_ditl_def->i_type & 127) == userItem)  {
             
             //- id_itemsRect (form, index, &tmpRect);
             
             if (f_edit_def && f_edit_def->e_type == ID_UT_POP_UP)  {
                
-               id_create_popUp (form, index, savedPort);
+               // id_create_popUp (form, index, savedPort);
                form->usedETypes |= ID_UT_POP_UP;
             }
             
             else  if (f_edit_def->e_type & ID_UT_LIST)  {
                
-               id_create_list (form, index, savedPort);
+               // id_create_list (form, index, savedPort);
                form->usedETypes |= ID_UT_LIST;
             }
             
             else  if (f_edit_def->e_type == ID_UT_SCROLL_BAR)  {
-               id_create_scrollBar (form, index, savedPort);
+               // id_create_scrollBar (form, index, savedPort);
                form->usedETypes |= ID_UT_SCROLL_BAR;
             }
             
             else  if (f_edit_def->e_type == ID_UT_PICTURE)  {
-               id_create_picture (form, index, savedPort);
+               id_draw_Picture (form, index);
+               // id_create_picture (form, index, savedPort);
                form->usedETypes |= ID_UT_PICTURE;
             }
             
             else  if (f_edit_def->e_type == ID_UT_TEPOP_PICT)  {
-               id_create_tePop (form, index, savedPort);
+               // id_create_tePop (form, index, savedPort);
                form->usedETypes |= ID_UT_TEPOP_PICT;
             }
          }
-#endif
       } /* end of for */
       
       [MainLoop finalizeFormWindow:form];
