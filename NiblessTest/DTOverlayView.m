@@ -200,6 +200,39 @@ extern FORM_REC  *dtMainForm;
    }
    
    id_DrawStatusbar (form, TRUE);
+   
+   // Draw fields
+   
+   if (form->ditl_def)  {
+      short        index;
+      Rect         macRect;
+      CGRect       tmpRect;
+      CFStringRef  winTitleRef;
+
+      DITL_item  *f_ditl_def;
+      EDIT_item  *f_edit_def;
+
+      for (index=0; index<=form->last_fldno; index++)  {
+         
+         f_ditl_def = form->ditl_def[index];
+         f_edit_def = form->edit_def[index];
+         
+         macRect = f_ditl_def->i_rect;
+         
+         tmpRect = NSMakeRect (macRect.left, macRect.top, macRect.right-macRect.left, macRect.bottom-macRect.top);
+         
+         tmpRect = NSOffsetRect (tmpRect, 0., dtGData->toolBarHeight);
+         
+         if ((f_ditl_def->i_type & 127) == userItem)  {
+            
+            if (f_edit_def->e_type == ID_UT_PICTURE)  {
+               id_draw_Picture (form, index);
+               // id_create_picture (form, index, savedPort);
+               form->usedETypes |= ID_UT_PICTURE;
+            }
+         }
+      } /* end of for */
+   }
 
    form->drawRectCtx = NULL;
 }

@@ -145,8 +145,9 @@ static FORM_REC  newForm;
    
 
    if (!newForm.my_window && menuIndex > 3)  {
-      id_SetBlockToZeros (&newForm, sizeof(FORM_REC));
-      pr_CreateDitlWindow (&newForm, 601, tmpRect, "Bravo majstore", NULL);
+      // id_SetBlockToZeros (, sizeof(FORM_REC));
+      id_init_form (&newForm);
+      pr_CreateDitlWindow (&newForm, 601, tmpRect, "Bravo majstore", &kupdob_edit_items[0]);
    }
 } 
 

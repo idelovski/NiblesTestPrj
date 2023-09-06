@@ -741,7 +741,7 @@ int  pr_CreateDitlWindow (
    
    NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    
-   id_SetBlockToZeros (form, sizeof (FORM_REC));
+   // id_SetBlockToZeros (form, sizeof (FORM_REC));
    
    /*if (!id_GetApplicationExeFSRef(&appParentFolderFSRef))  {
     if (FSRefMakePath(&appParentFolderFSRef, (UInt8 *)pathStr, 256))
@@ -818,8 +818,8 @@ int  pr_CreateDitlWindow (
          
          if (f_ditl_def->i_type & editText)  {              /* If TE field */
             
-            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
-                                                                                                inForm:form];
+            f_ditl_def->i_handle = (Handle) [[appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
+                                                                                                inForm:form] retain];
             
             // id_create_edit (form, index, savedPort);
          }
@@ -827,11 +827,11 @@ int  pr_CreateDitlWindow (
             
             tmpRect = NSOffsetRect (tmpRect, 0., 2.);
 
-            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
-                                                                                             inForm:form];
+            f_ditl_def->i_handle = (Handle) [[appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
+                                                                                             inForm:form] retain];
             CFStringRef  labelText = id_Mac2CFString (f_ditl_def->i_data.d_text, &labelText, f_ditl_def->i_data_size);
             
-            [((NSTextField *)f_ditl_def->i_handle).cell setFont:[NSFont fontWithName:@"Lucida Grande" size:9.5]];
+            [((NSTextField *)f_ditl_def->i_handle).cell setFont:[NSFont fontWithName:@"Lucida Grande" size:10]];
             
             [(NSTextField *)f_ditl_def->i_handle setStringValue:(NSString *)labelText];
 
@@ -845,20 +845,20 @@ int  pr_CreateDitlWindow (
             CFStringRef  buttonTitle = id_Mac2CFString (f_ditl_def->i_data.d_text, &buttonTitle, f_ditl_def->i_data_size);
             
             if (pureIType == (ctrlItem+btnCtrl))  {       /* Simple Button */
-               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateButtonWithFrame:CGRectInset(tmpRect, -3, -3)
+               f_ditl_def->i_handle = (Handle) [[appDelegate.firstFormHandler coreCreateButtonWithFrame:CGRectInset(tmpRect, -3, -3)
                                                                                                 inForm:form
-                                                                                                 title:(NSString *)buttonTitle];
+                                                                                                 title:(NSString *)buttonTitle] retain];
             }
             else  if (pureIType == (ctrlItem+chkCtrl))  {  /* Check Box */
                
-               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateCheckBoxWithFrame:tmpRect
+               f_ditl_def->i_handle = (Handle) [[appDelegate.firstFormHandler coreCreateCheckBoxWithFrame:tmpRect
                                                                  inForm:form
-                                                                  title:(NSString *)buttonTitle];
+                                                                  title:(NSString *)buttonTitle] retain];
             }
             else  if (pureIType == (ctrlItem+radCtrl))  {  /* Radio Control */
-               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateRadioButtonWithFrame:tmpRect
+               f_ditl_def->i_handle = (Handle) [[appDelegate.firstFormHandler coreCreateRadioButtonWithFrame:tmpRect
                                                                     inForm:form
-                                                                     title:(NSString *)buttonTitle];
+                                                                     title:(NSString *)buttonTitle] retain];
             }
             else
                itsaControl = FALSE;

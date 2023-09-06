@@ -296,6 +296,86 @@ EDIT_item  kupdob_edit_items[] = {
                 NULL, NULL, NULL,
                 NULL, NULL },
 
+ { K_PICT_MID+1,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+2,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+3,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+4,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+5,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+6,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+7,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+8,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+9,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+10,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+11,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+12,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+13,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+14,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+15,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+16,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+17,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+18,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+19,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+20,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
  { K_PICT_DN,   ID_UT_PICTURE, 0, 0, 604, 0, 0, ID_FE_CLIP,
                 NULL, NULL, NULL,
                 NULL, NULL },

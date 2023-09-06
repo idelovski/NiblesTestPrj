@@ -42,7 +42,7 @@
       style |= NSTitledWindowMask;
 
    // if ([isTextured state] == NSOnState)
-      style |= NSTexturedBackgroundWindowMask;
+   //   style |= NSTexturedBackgroundWindowMask;
 
    // NSRect frame = [[sender window] frame];
    
@@ -55,6 +55,7 @@
                                                     defer:NO];
    [win setOpaque:YES];  // Default is NO
    [win setAlphaValue:1.];
+   [win setBackgroundColor:[NSColor whiteColor]];
    
    [win setHasShadow:NSOnState];
    
