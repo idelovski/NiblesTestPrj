@@ -23,3 +23,5 @@
 - (void)resizeContentInForm:(FORM_REC *)form toNewRatio:(short)ratio;
 
 @end
+
+void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly);

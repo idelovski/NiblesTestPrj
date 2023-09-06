@@ -89,6 +89,7 @@ void  pr_ListFonts (void);
 void  pr_ListEncodings (void);
 
 CGRect  id_CocoaRect (NSWindow *window, CGRect nmlRect);
+CGRect  id_CarbonRect (CGRect cocoaRect);
 
 #pragma mark printing
 
@@ -254,6 +255,13 @@ char  *id_get_day_name (unsigned short dateShort);
 int  id_inpossible_item (FORM_REC *form, short index);
 
 #define  MulDiv(val,numerator,denominator)  ((int)((double)val*numerator/denominator))
+
+Rect  *GetWindowRect (WindowPtr win, Rect *rect);  // my own shit!
+
+void  id_WinRect2FormRectEx (FORM_REC *form, Rect *winRect, Rect *formRect, short scaleRatio);
+void  id_WinRect2FormRect (FORM_REC *form, Rect *winRect, Rect *formRect);
+void  id_FormRect2WinRectEx (FORM_REC *form, Rect *formRect, Rect *winRect, short scaleratio);
+void  id_FormRect2WinRect (FORM_REC *form, Rect *formRect, Rect *winRect);
 
 void id_MulDivRect (Rect *theRect, int mul, int div);
 void id_CopyMac2Rect (FORM_REC *form, Rect *dstRect, MacRect *srcRect);
@@ -583,3 +591,6 @@ EDIT_item  kupdob_edit_items[] = {
 };
 #endif
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
+void  SetRect (Rect *rect, short l, short t, short r, short b);
+#endif

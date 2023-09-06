@@ -60,6 +60,7 @@ static FORM_REC  newForm;
    NSLog (@"Menu bar height: %.0f", menuBarHeight);
    NSLog (@"Screen Frame orig: %@", NSStringFromRect (availableFrame));
    NSLog (@"Screen Frame normal: %@", NSStringFromRect (id_CocoaRect(nil, availableFrame)));
+   NSLog (@"Back to orig Frame: %@", NSStringFromRect (id_CarbonRect(id_CocoaRect(nil, availableFrame))));
    
    
    NSRect  winFrame = NSMakeRect (100, 64, 640, 390);
@@ -68,6 +69,7 @@ static FORM_REC  newForm;
                                                styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
                                                  backing:NSBackingStoreBuffered
                                                    defer:NO] autorelease];
+   
    dtMainForm = form;
    
    form->my_window = aWindow;
@@ -124,7 +126,9 @@ static FORM_REC  newForm;
    NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    NSDictionary            *menuDict = appDelegate.menuDict;
 
-   CGRect  tmpRect = CGRectMake(1+32, 39+32, 1+484, 39+244+72+64+8+54 - 28);
+   Rect  tmpRect;
+   
+   SetRect (&tmpRect, 32+1, 32+39, 32+484, 32+244+72+64+8+54 /*- 28*/);
    
    NSLog (@"%@", sender);
    
@@ -147,7 +151,7 @@ static FORM_REC  newForm;
    if (!newForm.my_window && menuIndex > 3)  {
       // id_SetBlockToZeros (, sizeof(FORM_REC));
       id_init_form (&newForm);
-      pr_CreateDitlWindow (&newForm, 601, tmpRect, "Bravo majstore", &kupdob_edit_items[0]);
+      pr_CreateDitlWindow (&newForm, 601, &tmpRect, "Bravo majstore", &kupdob_edit_items[0]);
    }
 } 
 
@@ -1390,6 +1394,16 @@ CGRect  id_CocoaRect (NSWindow *window, CGRect nmlRect)
    return (cocoaRect);
 }
 
+CGRect  id_CarbonRect (CGRect cocoaRect)
+{
+   CGRect   contentRect = [[NSScreen mainScreen] frame];
+   CGRect   nmlRect = cocoaRect;
+   
+   nmlRect.origin.y = contentRect.size.height - nmlRect.size.height - cocoaRect.origin.y;
+   
+   return (nmlRect);
+}
+
 #pragma mark printing
 
 int  idp_OpenPrintSession (ID_PR_DATA *prd)
@@ -2327,6 +2341,88 @@ int  id_inpossible_item (/*form, index*/
       return (-1);
    }
    return (0);
+}
+
+Rect  *GetWindowRect (WindowPtr winPtr, Rect *rect)  // my own shit!
+{
+   NSWindow  *win = (NSWindow *)winPtr;
+   NSRect     winFrame = win.frame;
+   NSRect     contentFrame = [win contentRectForFrameRect:winFrame];
+   NSRect     carbonRect = id_CarbonRect (contentFrame);
+   
+   // GetPortBounds (GetWindowPort(win), rect);
+      
+   return (id_CGRect2Rect(carbonRect, rect));
+}
+
+/* .......................................................... id_FormRect2WinRect ... */
+
+void  id_FormRect2WinRectEx (FORM_REC *form, Rect *formRect, Rect *winRect, short scaleratio)
+{
+   // seems like:
+   // - on Mac we define window with inner rect
+   // - on Win we define window with outer rect
+
+   long  rHeight, rWidth;  // must not be short
+   
+   BlockMove (formRect, winRect, sizeof(Rect));
+   
+   if (scaleratio != 100)  {
+      rWidth  = RectWidth (winRect);
+      rHeight = RectHeight (winRect);
+
+      SetRect (winRect, winRect->left,
+                        winRect->top,
+                        winRect->left + rWidth * scaleratio / 100,
+                        winRect->top + rHeight * scaleratio / 100);
+   }
+
+   if (form->w_procID == documentProc)  {// used even before form->toolBarHandle created!
+      winRect->bottom += dtGData->toolBarHeight;
+      winRect->bottom += dtGData->statusBarHeight;
+   }
+}
+
+/* .......................................................... id_FormRect2WinRect ... */
+
+void  id_FormRect2WinRect (FORM_REC *form, Rect *formRect, Rect *winRect)
+{
+   id_FormRect2WinRectEx (form, formRect, winRect, form->scaleRatio);
+}
+
+/* .......................................................... id_WinRect2FormRect ... */
+
+void  id_WinRect2FormRectEx (FORM_REC *form, Rect *winRect, Rect *formRect, short scaleRatio)
+{
+   // seems like:
+   // - on Mac we define window with inner rect
+   // - on Win we define window with outer rect
+   
+   long  rHeight, rWidth;
+
+   BlockMove (winRect, formRect, sizeof(Rect));
+   
+   if (form->w_procID == documentProc)  {  // used even before form->toolBarHandle created!
+      formRect->bottom -= dtGData->toolBarHeight;
+      formRect->bottom -= dtGData->statusBarHeight;
+   }
+
+   if (scaleRatio != 100)  {
+      rWidth  = RectWidth (formRect);
+      rHeight = RectHeight (formRect);
+
+      SetRect (formRect, formRect->left,
+                         formRect->top,
+                         formRect->left + rWidth*100 / scaleRatio,
+                         formRect->top + rHeight*100 / scaleRatio);
+   }
+}
+
+/* .......................................................... id_WinRect2FormRect ... */
+
+void  id_WinRect2FormRect (FORM_REC *form, Rect *winRect, Rect *formRect)
+{
+   id_WinRect2FormRectEx (form, winRect, formRect, form->scaleRatio);
 }
 
 /* .......................................................... id_MulDivRect ......... */

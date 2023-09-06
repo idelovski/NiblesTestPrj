@@ -83,22 +83,26 @@
    NSLog (@"Toolbar PopUp Button: %d: %d %%", (int)btn.tag, (int)[btn.selectedItem.title intValue]);
    
    short  oldRatio = form->scaleRatio;
-   
-   CGRect   origRect = CGRectMake (winRect.origin.x, winRect.origin.y, winRect.size.width * 100 / oldRatio, winRect.size.height * 100 / oldRatio);
-
    short  ratio = 100 + 10 * btn.indexOfSelectedItem;
    
-   CGRect  newRect = CGRectMake (origRect.origin.x, origRect.origin.y, origRect.size.width * ratio / 100, origRect.size.height * ratio / 100);
+   if (!form->ditl_def)  {
    
-   // win.frame = newRect;
-   
-   newRect.origin.y -= newRect.size.height - winRect.size.height;
-   
-   [win setFrame:newRect display:YES animate:YES];
-   
-   form->overlayView.frame = ((NSView *)[self.window contentView]).frame;
-   
-   [self resizeContentInForm:form toNewRatio:ratio];
+      CGRect  origRect = CGRectMake (winRect.origin.x, winRect.origin.y, winRect.size.width * 100 / oldRatio, winRect.size.height * 100 / oldRatio);
+      CGRect  newRect = CGRectMake (origRect.origin.x, origRect.origin.y, origRect.size.width * ratio / 100, origRect.size.height * ratio / 100);
+      
+      // win.frame = newRect;
+      
+      newRect.origin.y -= newRect.size.height - winRect.size.height;
+      
+      [win setFrame:newRect display:YES animate:YES];
+      
+      form->overlayView.frame = ((NSView *)[win contentView]).frame;
+      
+      [self resizeContentInForm:form toNewRatio:ratio];
+   }
+   else  {
+      id_scale_form (form, ratio, FALSE);
+   }
    
    form->scaleRatio = ratio;
 }
@@ -132,4 +136,92 @@
 
 @end
 
+void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
+{
+   short      index;
+   Rect       tmpRect, winRect, newRect;
+   WindowPtr  savedPort;
+   // ID_LAYOUT *theLayout = NULL;
+   
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   if (!form->my_window || (form->scaleRatio == newScaleRatio))  return;
+   
+   // Need top-left position, the rest is recalculated later
+   GetWindowRect ((WindowPtr)form->my_window, &winRect);
+   id_WinRect2FormRect (form, &winRect, &tmpRect);
+   SetRect (&winRect, tmpRect.left, tmpRect.top,
+            tmpRect.left + RectWidth(&form->w_rect), tmpRect.top + RectHeight(&form->w_rect));
+   
+   form->scaleRatio = newScaleRatio;
+   
+   id_FormRect2WinRect (form, &winRect, &newRect);
+   
+   CGRect  newFrame = id_CocoaRect(nil, id_Rect2CGRect(&newRect));
+   
+   newFrame = [form->my_window frameRectForContentRect:newFrame];
+   
+   // newFrame.origin.y -= newFrame.size.height - form->my_window.frame.size.height;
+   
+   [form->my_window setFrame:newFrame display:YES animate:YES];
+   
+   form->overlayView.frame = ((NSView *)[form->my_window contentView]).frame;
+   
+   // a) maybe one day have these 2
+   
+   // GetWinPort (&savedPort);
+   // SetWinPort (form->my_window);
+   
+   // b) if I need to erase the background, if setNeedsDisplay is not enough
+   
+   // id_get_form_rect (&tmpRect, form, TRUE);  // client rect
+   
+   // if (form->w_procID == documentProc)  // useful even before form->toolBarHandle created!
+   //    tmpRect.bottom += dtGData->statusBarHeight;
+   
+   // EraseRect (&tmpRect);
+   
+   [(NSView *)form->my_window.contentView setNeedsDisplay:YES];
+   
+   for (index=0; index<=form->last_fldno; index++)  {
+      
+      f_ditl_def = form->ditl_def[index];
+      f_edit_def = form->edit_def[index];
+      
+      // if (!form->ditl_def[index]->i_handle)   continue;
+      
+      id_CopyMac2Rect (form, &tmpRect, &form->ditl_def[index]->i_rect);
+      
+      CGRect  origRect = id_Rect2CGRect (&tmpRect);
+      
+      CGRect  newCtlRect = CGRectMake (origRect.origin.x, origRect.origin.y, origRect.size.width * newScaleRatio / 100, origRect.size.height * newScaleRatio / 100);
+      
+      // newCtlRect = NSOffsetRect (newCtlRect, 0., dtGData->toolBarHeight);
+      
+      if (f_ditl_def->i_type & editText)
+         newCtlRect = CGRectInset (newCtlRect, -3, -3);
+      else  if (f_ditl_def->i_type & statText)
+         newCtlRect = CGRectInset (newCtlRect, -3, -3);
+      else  if (f_ditl_def->i_type & ctrlItem)  {
+         short  pureIType = f_ditl_def->i_type & 127, itsaControl = TRUE;
+         
+         if (pureIType == (ctrlItem+btnCtrl))  {       /* Simple Button */
+            newCtlRect = CGRectInset (newCtlRect, -3, -3);
+         }
+      }
+      
+      if (f_ditl_def->i_handle)  {
+         [(NSControl *)f_ditl_def->i_handle setFrame:newCtlRect];
+      }
+   } /* end of for */
+   
+   // if (!controlsOnly)
+   //    SizeWindow (form->my_window, RectWidth(&newRect), RectHeight(&newRect), FALSE);
+   
+   // GetWindowRect (form->my_window, &winRect);
+   // InvalWinRect (form->my_window, &winRect);
+   
+   // SetWinPort (savedPort);
+}
 
