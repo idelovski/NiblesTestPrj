@@ -1,7 +1,7 @@
 # NiblessTestPrj:
 Experiments with Carbon/Cocoa mix
 
-A bit chaotic code but it should contain all the UI components I need for my real application.
+A bit chaotic code but it should contain all the Cocoa/Core Foundation components I need for my real application.
 
 So, this should be an experiment with the older Carbon code that will have to change from 32 bit Carbon to 64 bit Cocoa.
 
