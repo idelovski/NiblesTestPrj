@@ -834,7 +834,7 @@ int  pr_CreateDitlWindow (
             
             f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
                                                                                                 inForm:form];
-            
+            TExSetAlignment ((NSTextField *)f_ditl_def->i_handle, form->edit_def[index]->e_justify);
             // id_create_edit (form, index, savedPort);
          }
          else  if (f_ditl_def->i_type & statText)  {              /* If static text / label */
@@ -843,6 +843,8 @@ int  pr_CreateDitlWindow (
 
             f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
                                                                                              inForm:form];
+            TExSetAlignment ((NSTextField *)f_ditl_def->i_handle, form->edit_def[index]->e_justify);
+
             CFStringRef  labelText = id_Mac2CFString (f_ditl_def->i_data.d_text, &labelText, f_ditl_def->i_data_size);
             
             [((NSTextField *)f_ditl_def->i_handle).cell setFont:[NSFont fontWithName:@"Lucida Grande" size:10]];

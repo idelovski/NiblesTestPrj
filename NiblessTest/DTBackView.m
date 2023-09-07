@@ -193,9 +193,10 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
       
       id_CopyMac2Rect (form, &tmpRect, &form->ditl_def[index]->i_rect);
       
-      CGRect  origRect = id_Rect2CGRect (&tmpRect);
+      CGRect  newCtlRect = id_Rect2CGRect (&tmpRect);
       
-      CGRect  newCtlRect = CGRectMake (origRect.origin.x, origRect.origin.y, origRect.size.width * newScaleRatio / 100, origRect.size.height * newScaleRatio / 100);
+      // CGRect  newCtlRect = CGRectMake (origRect.origin.x * newScaleRatio / 100, origRect.origin.y * newScaleRatio / 100,
+      //                                  origRect.size.width * newScaleRatio / 100, origRect.size.height * newScaleRatio / 100);
       
       // newCtlRect = NSOffsetRect (newCtlRect, 0., dtGData->toolBarHeight);
       

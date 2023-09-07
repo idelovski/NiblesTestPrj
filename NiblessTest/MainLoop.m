@@ -1350,6 +1350,34 @@ int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight)
    return (resultSize.width < 1. ? -1 : 0);
 }
 
+/* .......................................................... TExSetAlignment ....... */
+
+int  TExSetAlignment (NSTextField *theCtl, short teJust)
+{
+   NSTextAlignment  justificationToSet;
+   
+   if (!theCtl)
+      return (paramErr);
+
+   switch (teJust)  {
+      case  teJustRight:
+         justificationToSet = NSRightTextAlignment;
+         break;
+      case  teJustCenter:
+         justificationToSet = NSCenterTextAlignment;
+         break;
+      case  teJustLeft:
+      // there are kTXNFullJust & kTXNForceFullJust but...
+      default:
+         justificationToSet = NSLeftTextAlignment;
+         break;
+   }
+
+   [theCtl setAlignment:justificationToSet];
+   
+   return (theCtl.alignment == justificationToSet ? 0 :  -1);
+}
+
 /* ----------------------------------------------------- id_TextWidth ---------------- */
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
@@ -2323,6 +2351,62 @@ void  id_GetClientRect (FORM_REC *form, Rect *rect)
    // }
 }
 
+/* ----------------------------------------------------------- id_get_form_rect ------ */
+
+void  id_get_form_rect (  // in local/client coordinates
+ Rect       *rect,
+ FORM_REC   *form,
+ short       clientFlag  // used on both Mac & Win
+)
+{
+   Rect  bounds;
+   
+   if (clientFlag)
+      id_GetClientRect (form, rect);
+   else  {
+      // (*rect) = form->my_window->portRect;
+      GetWindowRect ((WindowPtr)form->my_window, &bounds);
+      id_WinRect2FormRect (form, &bounds, rect);
+   }
+}
+
+/* ----------------------------------------------------------- id_get_fld_rect ------ */
+
+int  id_get_fld_rect (
+ FORM_REC   *form,
+ short       fldno,
+ Rect       *fldRect
+)
+{
+   short  index = fldno-1;
+   
+   return (id_itemsRect(form, index, fldRect));
+}
+
+/* ----------------------------------------------------------- id_isHighField ------- */
+
+Boolean  id_isHighField (
+ FORM_REC   *form,
+ short       fldno
+)
+{
+   short  index = fldno-1;
+   Rect   fldRect;
+   
+   // checks if field is multiline
+
+   if (id_inpossible_item (form, index))  {
+      return (FALSE);
+   }
+
+   fldRect = form->ditl_def[index]->i_rect;  // Need original rect!
+   
+   if (fldRect.bottom - fldRect.top > 20)
+      return (TRUE);
+     
+   return (FALSE);
+}
+
 /* .......................................................... id_inpossible_item .... */
 
 int  id_inpossible_item (/*form, index*/
@@ -2555,6 +2639,8 @@ int  id_frame_fields (
 	CGPathAddRect (path, NULL, frameRect);
    
    CFArrayAppendValue (form->pathsArray, path);
+   
+   CGPathRelease (path);
    
    // PDF
    

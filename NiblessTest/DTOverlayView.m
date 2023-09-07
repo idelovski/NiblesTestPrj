@@ -8,7 +8,8 @@
 
 #import  "DTOverlayView.h"
 
-extern FORM_REC  *dtMainForm;
+extern  FORM_REC  *dtMainForm;
+extern  FORM_REC  *dtRenderedForm;
 
 @implementation DTOverlayView
 
@@ -82,6 +83,9 @@ extern FORM_REC  *dtMainForm;
       
    form->drawRectCtx = [NSGraphicsContext currentContext].graphicsPort;
    
+   CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor blackColor].toCGColor);
+   CGContextSetLineWidth (form->drawRectCtx, 1.);
+   
 #ifdef _NIJE_
    CGMutablePathRef  path = CGPathCreateMutable ();
    
@@ -95,7 +99,9 @@ extern FORM_REC  *dtMainForm;
    CGPathRelease (path);
 #endif
    
-#ifdef _NIJE_
+   if (form == dtRenderedForm)
+      id_FrameCard (form, 12);
+   
    if (form->pathsArray)  {
       CFIndex  count = CFArrayGetCount (form->pathsArray);
       
@@ -107,12 +113,11 @@ extern FORM_REC  *dtMainForm;
          CGContextAddPath (form->drawRectCtx, path);
          CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
          
-         CGPathRelease (path);
+         // CGPathRelease (path); -> release it where you create it
       }
       
       CFArrayRemoveAllValues (form->pathsArray);
    }      
-#endif
 
    if (form->pdfsArray)  {
       CFIndex  count = CFArrayGetCount (form->pdfsArray);
@@ -259,3 +264,110 @@ extern FORM_REC  *dtMainForm;
 }
 
 @end
+
+/* ::::::::::::::::::::::::::::::::::::::::::::::::::::: Mac 2 Win Graph Ports ::::::: */
+
+/* ----------------------------------------------------- id_GetPort ------------------ */
+
+// Idea is to have this use existing ctx inside drawRect and create new one otherwise
+
+int id_GetPort (FORM_REC *form, WindowPtr *savedPort)
+{
+   // GetWinPort (savedPort);
+   
+   if (form->drawRectCtx)
+      *savedPort = (WindowPtr)NULL;
+   else  if ([form->overlayView canDraw])  {
+      [form->overlayView lockFocus];
+      form->drawRectCtx = [NSGraphicsContext currentContext].graphicsPort;
+      *savedPort = (WindowPtr)form->overlayView;
+   }      
+   else
+      return (-1);
+   
+   return (0);
+}
+
+/* ----------------------------------------------------- id_SetPort ------------------ */
+
+// The game: on win if port == form->my_win, do nothing, else release DC
+
+int id_SetPort (FORM_REC *form, WindowPtr whichPort)
+{
+   if (whichPort)  {
+      if (whichPort == (WindowPtr)form->my_window)  // Do nothing
+         return (0);
+      else  if (whichPort == (WindowPtr)form->overlayView)  // unlock it
+         [form->overlayView unlockFocus];
+      else
+         return (-1);
+   }
+   
+   return (0);
+}
+
+/* ----------------------------------------------------- id_FrameRect ---------------- */
+
+void  id_FrameRect (FORM_REC *form, Rect *theRect)
+{
+   CGRect  cgRect = id_Rect2CGRect (theRect);
+   // FrameRect (theRect);
+   CGMutablePathRef  path = CGPathCreateMutable ();
+   
+	CGPathAddRect (path, NULL, cgRect);
+   
+   // This part repeats - make it a function
+   
+   if (form->drawRectCtx)  {
+      CGContextAddPath (form->drawRectCtx, path);
+      
+      CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor blueColor].toCGColor);
+      CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+   }
+   else
+      CFArrayAppendValue (form->pathsArray, path);
+   
+   CGPathRelease (path);   
+}
+
+/* ----------------------------------------------------- id_FrameCard ---------------- */
+
+int  id_FrameCard (FORM_REC *form, short fromLeft)
+{
+   Rect  tmpRect;
+   
+   id_get_form_rect (&tmpRect, form, TRUE);
+   
+   InsetRect (&tmpRect, 3, 3);
+   
+   tmpRect.left += fromLeft;
+   tmpRect.bottom -= 2;
+   tmpRect.right  -= 2;
+   
+   CGMutablePathRef  path = CGPathCreateMutable ();
+   
+   CGPathMoveToPoint (path, NULL, tmpRect.left, tmpRect.top);  // MoveTo (tmpRect.left, tmpRect.top);
+
+   CGPathAddLineToPoint (path, NULL, tmpRect.right, tmpRect.top);   // LineTo (tmpRect.right, tmpRect.top);
+   CGPathAddLineToPoint (path, NULL, tmpRect.right, tmpRect.bottom);   // LineTo (tmpRect.right, tmpRect.bottom);
+   CGPathAddLineToPoint (path, NULL, tmpRect.left, tmpRect.bottom);   // LineTo (tmpRect.left, tmpRect.bottom);
+
+   CGPathMoveToPoint (path, NULL, tmpRect.right+2, tmpRect.top+2);  // MoveTo (tmpRect.right+2, tmpRect.top+2);
+   
+   CGPathAddLineToPoint (path, NULL, tmpRect.right+2, tmpRect.bottom+2);   // LineTo (tmpRect.right+2, tmpRect.bottom+2);
+   CGPathAddLineToPoint (path, NULL, tmpRect.left+2, tmpRect.bottom+2);   // LineTo (tmpRect.left+2, tmpRect.bottom+2);
+   
+   // This part repeats - make it a function
+
+   if (form->drawRectCtx)  {
+      CGContextAddPath (form->drawRectCtx, path);
+      
+      // CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor blackColor].toCGColor);
+      CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+   }
+   else
+      CFArrayAppendValue (form->pathsArray, path);
+   
+   return (0);
+}
+

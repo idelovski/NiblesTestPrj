@@ -88,6 +88,17 @@ void  TestVersion (void);
 void  pr_ListFonts (void);
 void  pr_ListEncodings (void);
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
+void  SetRect (Rect *rect, short l, short t, short r, short b);
+void  InsetRect (Rect *rect, short h, short v);
+#endif
+
+int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight);
+int  TExSetAlignment (NSTextField *theCtl, short teJust);
+
+int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len);
+
+
 CGRect  id_CocoaRect (NSWindow *window, CGRect nmlRect);
 CGRect  id_CarbonRect (CGRect cocoaRect);
 
@@ -252,6 +263,15 @@ char  *id_monthName (unsigned short idxMonth);  // one based
 char  *id_get_month_name (unsigned short dateShort);
 char  *id_get_day_name (unsigned short dateShort);
 
+CGRect  id_Rect2CGRect (Rect *rect);
+Rect   *id_CGRect2Rect (CGRect cgRect, Rect *rect);
+
+void id_GetClientRect (FORM_REC *form, Rect *rect);
+void id_get_form_rect (Rect *rect, FORM_REC *form, short clientFlag);
+int  id_get_fld_rect (FORM_REC *form, short fldno, Rect *fldRect);
+
+Boolean  id_isHighField (FORM_REC *form, short fldno);
+
 int  id_inpossible_item (FORM_REC *form, short index);
 
 #define  MulDiv(val,numerator,denominator)  ((int)((double)val*numerator/denominator))
@@ -268,9 +288,6 @@ void id_CopyMac2Rect (FORM_REC *form, Rect *dstRect, MacRect *srcRect);
 int  id_itemsRect (FORM_REC *form, short index, Rect *fldRect);
 int  id_controlsRect (FORM_REC *form, NSControl *field, Rect *fldRect);
 int  id_frame_fields (FORM_REC *form, NSControl *fldno_1, NSControl *fldno_2, short distance, PatPtr frPatPtr);
-
-CGRect  id_Rect2CGRect (Rect *rect);
-Rect   *id_CGRect2Rect (CGRect cgRect, Rect *rect);
 
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 
@@ -591,6 +608,3 @@ EDIT_item  kupdob_edit_items[] = {
 };
 #endif
 
-#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
-void  SetRect (Rect *rect, short l, short t, short r, short b);
-#endif
