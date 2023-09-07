@@ -839,7 +839,7 @@ int  pr_CreateDitlWindow (
          }
          else  if (f_ditl_def->i_type & statText)  {              /* If static text / label */
             
-            tmpRect = NSOffsetRect (tmpRect, 0., 2.);
+            tmpRect = NSOffsetRect (tmpRect, 2., 2.);
 
             f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
                                                                                              inForm:form];
