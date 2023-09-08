@@ -11,8 +11,8 @@ There is no NIB/XIB file and everything is created in code except  for the thing
 
 There are these two lines:
 
-GetResource ('MENU', theMenuID);
-GetResource ('DITL', ditl_id);
+    GetResource ('MENU', theMenuID);
+    GetResource ('DITL', ditl_id);
 
 CarbonCore lets you to read these resources but then you are on your own, parsing them requres information from old Inside Macintosh volumes from the eighties and this project contains an example how to do exactly that. Menus and windows are recreated from these two resource types.
 
@@ -28,13 +28,15 @@ Then, there's another thing related to classic resources. Xcode has this 'Build 
 
 The script:
 
-RESOURCE_DIR="${PROJECT_DIR}/Rsrc" 
-APP_BUNDLE="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app" 
+    RESOURCE_DIR="${PROJECT_DIR}/Rsrc"
+    APP_BUNDLE="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app" 
 
-/usr/bin/ResMerger -srcIs RSRC "${RESOURCE_DIR}/Appl_KnjigeNT.rsrc" -o "${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc" 
+    /usr/bin/ResMerger -srcIs RSRC "${RESOURCE_DIR}/Appl_KnjigeNT.rsrc" -o "${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc" 
 
-cd $BUILT_PRODUCTS_DIR 
-rm -f ${TARGET_NAME}.zip 
-zip -r ${TARGET_NAME} ${TARGET_NAME}.app
+    cd $BUILT_PRODUCTS_DIR
+
+    rm -f ${TARGET_NAME}.zip
+
+    zip -r ${TARGET_NAME} ${TARGET_NAME}.app
 
 More information related to nibless applications: https://github.com/hammackj/niblesscocoa
