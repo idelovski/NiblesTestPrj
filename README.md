@@ -39,5 +39,5 @@ The script:
 
     zip -r ${TARGET_NAME} ${TARGET_NAME}.app
 
-
+.
 More information related to nibless applications: https://github.com/hammackj/niblesscocoa
