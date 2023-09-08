@@ -836,6 +836,10 @@ int  pr_CreateDitlWindow (
                                                                                                 inForm:form];
             TExSetAlignment ((NSTextField *)f_ditl_def->i_handle, form->edit_def[index]->e_justify);
             // id_create_edit (form, index, savedPort);
+            if (f_edit_def->e_fld_edits & ID_FE_LINE_UNDER)  {
+               [((NSTextField *)f_ditl_def->i_handle).cell setBordered:NO];
+               [((NSTextField *)f_ditl_def->i_handle).cell setBezeled:NO];
+            }
          }
          else  if (f_ditl_def->i_type & statText)  {              /* If static text / label */
             

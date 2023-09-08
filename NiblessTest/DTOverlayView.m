@@ -228,7 +228,10 @@ extern  FORM_REC  *dtRenderedForm;
          
          tmpRect = NSOffsetRect (tmpRect, 0., dtGData->toolBarHeight);
          
-         if ((f_ditl_def->i_type & 127) == userItem)  {
+         if (f_ditl_def->i_type & editText)  {  /* If TE field */
+            id_frame_editText (form, index);
+         }
+         else  if ((f_ditl_def->i_type & 127) == userItem)  {
             
             if (f_edit_def->e_type == ID_UT_PICTURE)  {
                id_draw_Picture (form, index);

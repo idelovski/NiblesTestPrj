@@ -690,6 +690,11 @@ int  id_InitDTool (   // rev. 13.04.05
    return (0);
 }
 
+void  id_SysBeep (short numb)
+{
+   NSBeep ();
+}
+
 /* ................................................... id_init_form ................. */
 
 FORM_REC  *id_init_form (FORM_REC *form)
@@ -1537,7 +1542,7 @@ void id_attach_EDIT_info (                     /*- Just attaching the pointers -
          edit_def[i] = &default_edit_item/*NULL*/;
    }
    if (edit_def && edit_array && edit_array->e_fldno)
-      NSBeep ();  //    id_SysBeep (10);
+      id_SysBeep (10);
 }
 
 static int  pr_InspectMenu (short theMenuID)  // 129 is File menu
@@ -2551,6 +2556,114 @@ void  id_CopyMac2Rect (FORM_REC *form, Rect *dstRect, MacRect *srcRect)
       OffsetRect (dstRect, 0, dtGData->toolBarHeight);
 }
 
+/* ........................................................ id_AdjustScaledRight ... */
+
+int  id_AdjustScaledRight (FORM_REC *form, short index, Rect *fldRect)
+{
+   short   i, normalDistance, scaledDistance;
+   Rect    testRect;
+   
+   // try i=index+1...
+
+   for (i=0; i<=form->last_fldno; i++)  {
+      if ((i==index) || !(form->ditl_def[i]->i_type & editText))
+         continue;
+      if ((form->ditl_def[i]->i_rect.top    != form->ditl_def[index]->i_rect.top) &&
+          (form->ditl_def[i]->i_rect.right  != form->ditl_def[index]->i_rect.right) &&
+          (form->ditl_def[i]->i_rect.bottom != form->ditl_def[index]->i_rect.bottom))
+         continue;
+
+      id_CopyMac2Rect (form, &testRect, &form->ditl_def[i]->i_rect);
+      // Ak su inace skupa, a skaled nisu...
+      // Rijesavamo 3, 4, 5 i 6 pixels cases
+      normalDistance = form->ditl_def[i]->i_rect.left - form->ditl_def[index]->i_rect.right;
+      if (normalDistance > 0)  {
+         scaledDistance = testRect.left - fldRect->right;
+         if (scaledDistance != normalDistance)  {
+            switch (normalDistance)  {
+               case  3:
+               case  4:
+               case  5:
+               case  6:
+                  return (testRect.left - normalDistance);
+            }
+         }
+      }
+      if (form->edit_def[index]->e_type & ID_UT_ARRAY)  continue;
+      
+      if ((index - i > 0) && (index - i < 12))  {
+         if (form->ditl_def[i]->i_rect.right == form->ditl_def[index]->i_rect.right)
+            return (testRect.right);
+      }
+   }
+   return (fldRect->right);
+}
+
+int  id_AdjustScaledBottom (FORM_REC *form, short index, Rect *fldRect)
+{
+   short   i, normalDistance, scaledDistance;
+   Rect    testRect;
+   
+   // try i=index+1...
+
+   for (i=0; i<=form->last_fldno; i++)  {
+      if ((i==index) || !(form->ditl_def[i]->i_type & editText))
+         continue;
+      if ((form->ditl_def[i]->i_rect.top    != form->ditl_def[index]->i_rect.top) &&
+          (form->ditl_def[i]->i_rect.right  != form->ditl_def[index]->i_rect.right) &&
+          (form->ditl_def[i]->i_rect.bottom != form->ditl_def[index]->i_rect.bottom))
+         continue;
+
+      id_CopyMac2Rect (form, &testRect, &form->ditl_def[i]->i_rect);
+      // Ak su inace skupa, a skaled nisu...
+      // Rijesavamo 3, 4, 5 i 6 pixels casove
+      normalDistance = form->ditl_def[i]->i_rect.top - form->ditl_def[index]->i_rect.bottom;
+      if (normalDistance > 0)  {
+         scaledDistance = testRect.top - fldRect->bottom;
+         if (scaledDistance != normalDistance)  {
+            switch (normalDistance)  {
+               case  3:
+               case  4:
+               case  5:
+               case  6:
+                  return (testRect.top - normalDistance);
+            }
+         }
+      }
+#ifdef _NIJE_
+      if (form->edit_def[index]->e_type & ID_UT_ARRAY)  continue;
+      
+      if ((index - i > 0) && (index - i < 12))  {
+         if (form->ditl_def[i]->i_rect.bottom == form->ditl_def[index]->i_rect.bottom)
+            return (testRect.bottom);
+      }
+#endif
+   }
+   return (fldRect->bottom);
+}
+
+/* ................................................... id_AdjustScaledPictBottom ... */
+
+int  id_AdjustScaledPictBottom (FORM_REC *form, short index, Rect *fldRect)
+{
+   // short   i, normalDistance, scaledDistance;
+   Rect    testRect;
+   
+   if ((index < form->last_fldno) &&
+       ((form->ditl_def[index+1]->i_type & 127) == userItem) &&
+       (form->edit_def[index+1]->e_type == ID_UT_PICTURE))  {
+      // Ako je nas bottom jednak sljedecem top...
+      if (form->ditl_def[index]->i_rect.bottom == form->ditl_def[index+1]->i_rect.top)  {
+         id_CopyMac2Rect (form, &testRect, &form->ditl_def[index+1]->i_rect);
+         
+         if (fldRect->bottom < testRect.top)
+            return (testRect.top);
+      }
+   }
+
+   return (fldRect->bottom);
+}
+
 /* ....................................................... id_itemsRect ............. */
 
 int id_itemsRect (FORM_REC *form, short index, Rect *fldRect)
@@ -2675,6 +2788,88 @@ int  id_frame_fields (
    return (0);
 }
 
+/* ----------------------------------------------------------- id_frame_editText ---- */
+
+int  id_frame_editText (          /* Maybe To Change for all Fields */
+ FORM_REC  *form,
+ short      index
+)
+{
+   static PicHandle  picHandle = NULL;
+
+   Rect   tmpRect, picRect;
+
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+   
+   if (f_edit_def->e_fld_edits & ID_FE_NO_FRAME)
+      return (0);
+   
+   id_CopyMac2Rect (form, &tmpRect, &f_ditl_def->i_rect);
+   
+   if (form->scaleRatio != 100)  {
+      tmpRect.right  = id_AdjustScaledRight (form, index, &tmpRect);
+      tmpRect.bottom = id_AdjustScaledBottom (form, index, &tmpRect);
+   }
+   
+   // GetPenState (&penState);
+
+   if (f_edit_def->e_fld_edits & ID_FE_LINE_UNDER)  {
+      if (f_edit_def->e_fld_edits & ID_FE_OUTGRAY)  {
+         RgnHandle  savedClipHandle;
+         Rect       underRect;
+         
+         if (!picHandle)
+            picHandle = id_GetPicture (form, 132);    /* Pict RSRC ID */
+
+         id_GetPictRect (picHandle, &picRect);
+
+         SetRect (&underRect, tmpRect.left-1, tmpRect.bottom+1, tmpRect.right, tmpRect.bottom+3);
+         OffsetRect (&picRect, underRect.left, underRect.top);
+
+         savedClipHandle = id_ClipRect (form, &underRect);
+         id_DrawPicture (form, picHandle, &picRect);  // maybe Transparent?
+         id_RestoreClip (form, savedClipHandle);
+      }
+      else  {
+         /*
+         InsetRect (&tmpRect, -2, -2);
+         tmpRect.top = tmpRect.bottom - 3;
+         DrawThemeSeparator (&tmpRect, kThemeStateActive);
+          */
+      }
+      // SetPenState (&penState);
+      
+      return (0);
+   }
+#ifdef _NIJE_
+   if ((f_edit_def->e_fld_edits & ID_FE_OUTGRAY) || (f_ditl_def->i_type & itemDisable))  {
+      // frState = kThemeStateInactive;
+      InsetRect (&tmpRect, -3, -3);
+      PenPat (QD_Gray());
+      FrameRect (&tmpRect);
+
+      // tmpRect.right  -= 1;
+      // tmpRect.bottom -= 1;
+   }
+   else  {
+      InsetRect (&tmpRect, -2, -2);
+      frState = kThemeStateActive;
+      // tmpRect.right  -= 1;
+      // tmpRect.bottom -= 1;
+      DrawThemeEditTextFrame (&tmpRect,  kThemeStateActive);
+   }
+  
+   SetPenState (&penState);
+#endif  
+   
+   return (0);
+}
+
+
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData)
 {
    CGContextRef  pdfCtx = 0;
@@ -2751,13 +2946,85 @@ static void  id_PlotCIcon (Rect *macRect, NSImage *iconImage)
    [MainLoop drawImage:iconImage inFrame:icnRect form:NULL];
 }
 
+/* ----------------------------------------------------- id_GetPictRect -------------- */
+
+int id_GetPictRect (PicHandle picHandle, Rect *picRect)
+{
+   NSImage  *theImage = (NSImage *)picHandle;
+   CGRect    imgRect = { { 0, 0 }, .size = theImage.size };
+   
+   id_CGRect2Rect (imgRect, picRect);
+   
+   return (0);
+}
+
+/* ----------------------------------------------------- id_GetPicture --------------- */
+
+PicHandle  id_GetPicture (FORM_REC *form, short picID)
+{
+   NSString  *imgName = [NSString stringWithFormat:@"PICT%04hd", picID];
+   NSImage   *theImage = [NSImage imageNamed:imgName];
+   
+   return ((PicHandle)[theImage retain]);
+}
+
+/* ----------------------------------------------------- id_DrawPicture -------------- */
+
+int id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect)
+{
+   CGRect  imgRect = id_Rect2CGRect (picRect);
+   
+   if (form->drawRectCtx || [form->overlayView canDraw])  {
+      
+      if (!form->drawRectCtx)
+         [form->overlayView lockFocus];
+      
+      NSImage   *theImage = (NSImage *)picHandle;
+      
+      [MainLoop drawImage:theImage inFrame:imgRect form:NULL];
+      
+      if (!form->drawRectCtx)
+         [form->overlayView unlockFocus];
+   }
+   
+   return (0);
+}
+
+/* ................................................... id_ReleasePicture ........... */
+
+void  id_ReleasePicture (PicHandle picHandle)
+{
+   NSImage  *theImage = (NSImage *)picHandle;
+   
+   [theImage release];
+}
+
+/* ................................................... id_draw_Picture ............. */
+
 void  id_draw_Picture (FORM_REC *form, short index)
 {
+   short     scalingError = 0;
    Rect      tmpRect;
    NSImage  *iconImage;
    
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+
+   if (form->scaleRatio != 100)  {
+      id_CopyMac2Rect (form, &tmpRect, &f_ditl_def->i_rect);
+      scalingError = tmpRect.bottom;
+      tmpRect.bottom = id_AdjustScaledPictBottom (form, index, &tmpRect);
+
+      scalingError = tmpRect.bottom - scalingError;
+   }
+
    if (id_itemsRect (form, index, &tmpRect))
       return;
+
+   tmpRect.bottom += scalingError;
 
    CGRect  imgRect = id_Rect2CGRect (&tmpRect);
    
@@ -2766,15 +3033,53 @@ void  id_draw_Picture (FORM_REC *form, short index)
       if (!form->drawRectCtx)
          [form->overlayView lockFocus];
 
-      NSString  *imgName = [NSString stringWithFormat:@"PICT%04hd", form->edit_def[index]->e_elems];
-      NSImage   *theImage = [NSImage imageNamed:imgName];
+      PicHandle  theImage = id_GetPicture (form, form->edit_def[index]->e_elems);
 
-      [MainLoop drawImage:theImage inFrame:imgRect form:NULL];
+      [MainLoop drawImage:(NSImage *)theImage inFrame:imgRect form:NULL];
+      
+      id_ReleasePicture (theImage);
 
       if (!form->drawRectCtx)
          [form->overlayView unlockFocus];
    }
 }
+
+/* ----------------------------------------------------- id_ClipRect ----------------- */
+
+RgnHandle  id_ClipRect (FORM_REC *form, Rect *clipRect)
+{
+   if (!form->drawRectCtx)  {
+      id_SysBeep (10);
+      return (NULL);
+   }
+   
+   CGRect  rClip = CGRectInset(id_Rect2CGRect(clipRect), -1, -1);
+   
+   CGContextSaveGState (form->drawRectCtx);
+   
+   CGContextClipToRect (form->drawRectCtx, rClip);
+   
+   return ((RgnHandle)0xFFFFFFFF);
+}
+
+/* ----------------------------------------------------- id_RestoreClip -------------- */
+
+int id_RestoreClip (FORM_REC *form, RgnHandle savedClipRgn)
+{
+   if (!form->drawRectCtx)  {
+      id_SysBeep (10);
+      return (-1);
+   }
+   
+   if (savedClipRgn != (RgnHandle)0xFFFFFFFF)
+      return (-1);
+   
+   CGContextRestoreGState (form->drawRectCtx);
+   
+   return (0);
+}
+
+#pragma mark <#label#>
 
 static int  id_InitStatusbarIcons (void)
 {
