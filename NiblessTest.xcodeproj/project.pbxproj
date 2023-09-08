@@ -14,6 +14,8 @@
 		EB1643962AA64255009446E6 /* PICT0604.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643932AA64255009446E6 /* PICT0604.jpg */; };
 		EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643942AA64255009446E6 /* PICT0602.jpg */; };
 		EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */ = {isa = PBXBuildFile; fileRef = EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */; };
+		EB3921052AAB5FB4003EBFBC /* PICT0132.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB3921032AAB5FB4003EBFBC /* PICT0132.jpg */; };
+		EB3921062AAB5FB4003EBFBC /* PICT0131.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */; };
 		EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */; };
 		EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */; };
 		EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */; };
@@ -52,6 +54,8 @@
 		EB1643932AA64255009446E6 /* PICT0604.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0604.jpg; path = PICT/PICT0604.jpg; sourceTree = "<group>"; };
 		EB1643942AA64255009446E6 /* PICT0602.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0602.jpg; path = PICT/PICT0602.jpg; sourceTree = "<group>"; };
 		EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Appl_KnjigeNT.rsrc.zip; sourceTree = "<group>"; };
+		EB3921032AAB5FB4003EBFBC /* PICT0132.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0132.jpg; path = PICT/PICT0132.jpg; sourceTree = "<group>"; };
+		EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0131.jpg; path = PICT/PICT0131.jpg; sourceTree = "<group>"; };
 		EB53864A2A8FE9AC00040808 /* Temp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Temp.m; sourceTree = "<group>"; };
 		EB53864B2A8FE9AC00040808 /* Console-Output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Console-Output.h"; sourceTree = "<group>"; };
 		EB53864C2A8FE9AC00040808 /* Search-Results.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Search-Results.h"; sourceTree = "<group>"; };
@@ -189,6 +193,8 @@
 		EB1643912AA64244009446E6 /* PICT */ = {
 			isa = PBXGroup;
 			children = (
+				EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */,
+				EB3921032AAB5FB4003EBFBC /* PICT0132.jpg */,
 				EB1643942AA64255009446E6 /* PICT0602.jpg */,
 				EB1643922AA64255009446E6 /* PICT0603.jpg */,
 				EB1643932AA64255009446E6 /* PICT0604.jpg */,
@@ -334,6 +340,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				EB3921062AAB5FB4003EBFBC /* PICT0131.jpg in Resources */,
 				EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */,
 				EB1643952AA64255009446E6 /* PICT0603.jpg in Resources */,
 				EBF568322A9E63CF0062D320 /* CICN0820.jpg in Resources */,
@@ -350,6 +357,7 @@
 				EBF568302A9E63CF0062D320 /* CICN0821.jpg in Resources */,
 				EBF5682D2A9E63CF0062D320 /* CICN0817.jpg in Resources */,
 				EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */,
+				EB3921052AAB5FB4003EBFBC /* PICT0132.jpg in Resources */,
 				EBF5682B2A9E63CF0062D320 /* CICN0815.jpg in Resources */,
 				EBF336992A8FA04600069683 /* Bouquet512.png in Resources */,
 			);
