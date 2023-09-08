@@ -306,6 +306,21 @@ int id_SetPort (FORM_REC *form, WindowPtr whichPort)
    return (0);
 }
 
+static void  id_DrawOrSavePathInForm (FORM_REC *form, CGPathRef path)
+{
+   if (form->drawRectCtx)  {
+      CGContextSaveGState (form->drawRectCtx);
+      CGContextSetShouldAntialias (form->drawRectCtx, NO);
+      CGContextAddPath (form->drawRectCtx, path);
+      
+      // CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor blackColor].toCGColor);
+      CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+      CGContextRestoreGState (form->drawRectCtx);
+   }
+   else
+      CFArrayAppendValue (form->pathsArray, path);
+}
+
 /* ----------------------------------------------------- id_FrameRect ---------------- */
 
 void  id_FrameRect (FORM_REC *form, Rect *theRect)
@@ -316,16 +331,7 @@ void  id_FrameRect (FORM_REC *form, Rect *theRect)
    
 	CGPathAddRect (path, NULL, cgRect);
    
-   // This part repeats - make it a function
-   
-   if (form->drawRectCtx)  {
-      CGContextAddPath (form->drawRectCtx, path);
-      
-      CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor blueColor].toCGColor);
-      CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
-   }
-   else
-      CFArrayAppendValue (form->pathsArray, path);
+   id_DrawOrSavePathInForm (form, path);
    
    CGPathRelease (path);   
 }
@@ -357,16 +363,7 @@ int  id_FrameCard (FORM_REC *form, short fromLeft)
    CGPathAddLineToPoint (path, NULL, tmpRect.right+2, tmpRect.bottom+2);   // LineTo (tmpRect.right+2, tmpRect.bottom+2);
    CGPathAddLineToPoint (path, NULL, tmpRect.left+2, tmpRect.bottom+2);   // LineTo (tmpRect.left+2, tmpRect.bottom+2);
    
-   // This part repeats - make it a function
-
-   if (form->drawRectCtx)  {
-      CGContextAddPath (form->drawRectCtx, path);
-      
-      // CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor blackColor].toCGColor);
-      CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
-   }
-   else
-      CFArrayAppendValue (form->pathsArray, path);
+   id_DrawOrSavePathInForm (form, path);
    
    return (0);
 }
