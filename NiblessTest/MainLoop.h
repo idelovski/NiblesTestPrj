@@ -42,6 +42,8 @@ BOOL  id_MainLoop (FORM_REC *form);
 
 int   id_InitDTool (short idApple, short idFile, short idEdit, int (*errLogSaver) (char *, char *, char, char));
 
+void  id_SysBeep (short numb);
+
 NSWindow  *FrontWindow (void);
 FORM_REC  *id_FindForm (NSWindow *nsWindow);
 FORM_REC  *id_init_form (FORM_REC *form);
@@ -289,6 +291,13 @@ int  id_itemsRect (FORM_REC *form, short index, Rect *fldRect);
 int  id_controlsRect (FORM_REC *form, NSControl *field, Rect *fldRect);
 int  id_frame_fields (FORM_REC *form, NSControl *fldno_1, NSControl *fldno_2, short distance, PatPtr frPatPtr);
 
+int  id_AdjustScaledRight (FORM_REC *form, short index, Rect *fldRect);
+int  id_AdjustScaledBottom (FORM_REC *form, short index, Rect *fldRect);
+int  id_AdjustScaledPictBottom (FORM_REC *form, short index, Rect *fldRect);
+
+int  id_frame_editText (FORM_REC *form, short index);
+
+
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 
 #define  kSBAR_BACKGROUND 701
@@ -298,7 +307,16 @@ CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 #define  kSBAR_ICN_WIDTH   64
 #define  kSBAR_SEP_WIDTH   12
 
+int   id_GetPictRect (PicHandle picHandle, Rect *picRect);
+
+PicHandle  id_GetPicture (FORM_REC *form, short picID);
+
+int   id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect);
+void  id_ReleasePicture (PicHandle picHandle);
 void  id_draw_Picture (FORM_REC *form, short index);
+
+RgnHandle  id_ClipRect (FORM_REC *form, Rect *clipRect);
+int        id_RestoreClip (FORM_REC *form, RgnHandle savedClipRgn);
 
 int  id_DrawStatusbar (FORM_REC *form, short drawNow);
 
@@ -309,6 +327,9 @@ int  id_DrawTBPadding (FORM_REC *form);
 #define K_PICT_UP       1
 #define K_PICT_MID      2  // till 22
 #define K_PICT_DN      23
+
+#define  K_KUPDOB      25
+#define  K_KUPDOB_CD   27
 
 #ifdef _MAIN_LOOP_SRC_
 
@@ -405,15 +426,15 @@ EDIT_item  kupdob_edit_items[] = {
                 NULL, NULL, NULL,
                 NULL, NULL },
 
-#ifdef _NIJE_
  { K_KUPDOB,    0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DATA_REQ,
                 NULL, NULL, NULL,
-                NULL, attach_kd_kupdob, finda_kd_kupdob },
+                NULL, NULL /*attach_kd_kupdob, finda_kd_kupdob*/ },
 
  { K_KUPDOB_CD, 0, 5, 0, 0, 0, teJustLeft, ID_FE_DIGITS | ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DATA_REQ,
                 NULL, NULL, NULL,
-                generate_kupdob_cd, generate_kupdob_cd },
+                NULL, NULL /*generate_kupdob_cd, generate_kupdob_cd*/ },
 
+#ifdef _NIJE_
  { K_ADRESA_1,  0, 31, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
                 attach_kd_addresa_1, NULL },
