@@ -20,7 +20,7 @@ App starts without a NIB file - therefore, it's a so called nibless application.
 
 I don't think this rsrc file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file.
 
-# So, before running, code signing identity may be a problem, so add or remove "-" identity and then expand the zip archive in Rsrc folder after removing downloaded zero-length rsrc file.
+**So, before running, code signing identity may be a problem, so add or remove "-" identity and then expand the zip archive in Rsrc folder after removing downloaded zero-length rsrc file.**
 
 Project includes NSFont+CFTraits NSFont cat from the gist by Eric Methot: https://gist.github.com/macprog-guy/156d33bfefef570a7efb
 
