@@ -2970,7 +2970,7 @@ PicHandle  id_GetPicture (FORM_REC *form, short picID)
 
 /* ----------------------------------------------------- id_DrawPicture -------------- */
 
-int id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect)
+int  id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect)
 {
    CGRect  imgRect = id_Rect2CGRect (picRect);
    
