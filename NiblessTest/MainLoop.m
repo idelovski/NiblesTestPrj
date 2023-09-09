@@ -2860,8 +2860,8 @@ int  id_frame_editText (          /* Maybe To Change for all Fields */
       // tmpRect.bottom -= 1;
    }
    else  {
-      NSColor  *borderColor = [NSColor colorWithCalibratedRed:.3 green:.1 blue:.4 alpha:1];
-      CGContextSetStrokeColorWithColor (form->drawRectCtx, borderColor.toCGColor);
+      // NSColor  *borderColor = [NSColor colorWithCalibratedRed:.3 green:.1 blue:.4 alpha:1];
+      CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor lightGrayColor].toCGColor);
       InsetRect (&tmpRect, -2, -2);
       // frState = kThemeStateActive;
       // tmpRect.right  -= 1;

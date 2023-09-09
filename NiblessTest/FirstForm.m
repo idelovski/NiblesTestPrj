@@ -498,7 +498,21 @@ static double  gYOffset = 30.;
    [edit setTag:++form->creationIndex];
 
    [edit setDelegate:self.windowFactory];
-   
+
+#ifdef _USE_LAYER_   
+   edit.wantsLayer = TRUE;
+    
+   CALayer  *layer = [CALayer new];
+   edit.layer = layer;
+   [layer release];
+    
+   // edit.backgroundColor = [NSColor selectedTextBackgroundColor];
+    
+   layer.borderColor = [NSColor lightGrayColor].toCGColor;
+   layer.backgroundColor = [NSColor textBackgroundColor].toCGColor;
+   layer.borderWidth = 1;
+   layer.cornerRadius = 5;
+#endif
    /*
     
     This din't help on field change
