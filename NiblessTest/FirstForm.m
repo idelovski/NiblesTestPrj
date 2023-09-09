@@ -512,10 +512,12 @@ static double  gYOffset = 30.;
    
    [cell setEditable:YES];
    [cell setSelectable:YES];
-   [cell setBordered:YES];
-   [cell setBezeled:YES];
+   [cell setBordered:NO];
+   [cell setBezeled:NO];
    [cell setDrawsBackground:YES];
    [cell setStringValue:@""];
+   
+   // edit.textContainer cell.textContainerInset = NSMakeSize (0, 2);
    
    [cell setFont:[NSFont fontWithName:@"Lucida Grande" size:9.]];
    // [cell setAlignment:_oscontrol_text_alignment(ekLEFT)];
@@ -832,7 +834,7 @@ int  pr_CreateDitlWindow (
          
          if (f_ditl_def->i_type & editText)  {              /* If TE field */
             
-            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
+            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -1, -2))
                                                                                                 inForm:form];
             TExSetAlignment ((NSTextField *)f_ditl_def->i_handle, form->edit_def[index]->e_justify);
             // id_create_edit (form, index, savedPort);
@@ -845,7 +847,7 @@ int  pr_CreateDitlWindow (
             
             tmpRect = NSOffsetRect (tmpRect, 2., 2.);  // I need adjust_stat_Rect() or something like that
 
-            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -3))
+            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -2))
                                                                                              inForm:form];
             TExSetAlignment ((NSTextField *)f_ditl_def->i_handle, form->edit_def[index]->e_justify);
 

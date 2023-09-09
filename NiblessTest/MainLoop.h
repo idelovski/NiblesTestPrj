@@ -331,6 +331,16 @@ int  id_DrawTBPadding (FORM_REC *form);
 #define  K_KUPDOB      25
 #define  K_KUPDOB_CD   27
 
+#define  K_ADRESA_1   29
+#define  K_ADRESA_2   30
+#define  K_ADRESA_3   31
+#define  K_ADRESA_4   32
+#define  K_TEL_1      34
+#define  K_TEL_2      36
+#define  K_TEL_3      38
+#define  K_FAX        41
+
+
 #ifdef _MAIN_LOOP_SRC_
 
 EDIT_item  kupdob_edit_items[] = {
@@ -434,10 +444,9 @@ EDIT_item  kupdob_edit_items[] = {
                 NULL, NULL, NULL,
                 NULL, NULL /*generate_kupdob_cd, generate_kupdob_cd*/ },
 
-#ifdef _NIJE_
  { K_ADRESA_1,  0, 31, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
-                attach_kd_addresa_1, NULL },
+                NULL/*attach_kd_addresa_1*/, NULL },
 
  { K_ADRESA_2,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
@@ -449,7 +458,7 @@ EDIT_item  kupdob_edit_items[] = {
 
  { K_ADRESA_4,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
-                NULL, attach_kd_addresa_3 },
+                NULL, NULL/*attach_kd_addresa_3*/ },
 
  { K_TEL_1,     0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
@@ -468,6 +477,7 @@ EDIT_item  kupdob_edit_items[] = {
                 NULL, NULL, NULL,
                 NULL, NULL },
 
+#ifdef _NIJE_
  { K_DRZAVA,    0, 24, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
                 attach_kd_drzava, attach_kd_drzava },

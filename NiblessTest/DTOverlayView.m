@@ -333,6 +333,22 @@ void  id_FrameRect (FORM_REC *form, Rect *theRect)
    CGMutablePathRef  path = CGPathCreateMutable ();
    
 	CGPathAddRect (path, NULL, cgRect);
+   // CGPathAddRoundedRect ();
+   
+#ifdef _NIJE_
+      CGFloat  cornerRadius = 3.9;
+      
+   CGPathMoveToPoint (path, NULL, cgRect.origin.x + cornerRadius, cgRect.origin.y ) ;
+      
+      CGFloat maxX = CGRectGetMaxX (cgRect) ;
+      CGFloat maxY = CGRectGetMaxY (cgRect) ;
+      
+      CGPathAddArcToPoint( path, NULL, maxX, cgRect.origin.y, maxX, cgRect.origin.y + cornerRadius, cornerRadius ) ;
+      CGPathAddArcToPoint( path, NULL, maxX, maxY, maxX - cornerRadius, maxY, cornerRadius ) ;
+      
+      CGPathAddArcToPoint( path, NULL, cgRect.origin.x, maxY, cgRect.origin.x, maxY - cornerRadius, cornerRadius ) ;
+      CGPathAddArcToPoint( path, NULL, cgRect.origin.x, cgRect.origin.y, cgRect.origin.x + cornerRadius, cgRect.origin.y, cornerRadius ) ;
+#endif
    
    id_DrawOrSavePathInForm (form, path);
    

@@ -2845,26 +2845,35 @@ int  id_frame_editText (          /* Maybe To Change for all Fields */
       
       return (0);
    }
-#ifdef _NIJE_
+   
+   CGContextSaveGState (form->drawRectCtx);
+   CGContextSetLineWidth (form->drawRectCtx, 1.);
+
    if ((f_edit_def->e_fld_edits & ID_FE_OUTGRAY) || (f_ditl_def->i_type & itemDisable))  {
       // frState = kThemeStateInactive;
       InsetRect (&tmpRect, -3, -3);
-      PenPat (QD_Gray());
-      FrameRect (&tmpRect);
+      // PenPat (QD_Gray());
+      CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor grayColor].toCGColor);
+      id_FrameRect (form, &tmpRect);
 
       // tmpRect.right  -= 1;
       // tmpRect.bottom -= 1;
    }
    else  {
+      NSColor  *borderColor = [NSColor colorWithCalibratedRed:.3 green:.1 blue:.4 alpha:1];
+      CGContextSetStrokeColorWithColor (form->drawRectCtx, borderColor.toCGColor);
       InsetRect (&tmpRect, -2, -2);
-      frState = kThemeStateActive;
+      // frState = kThemeStateActive;
       // tmpRect.right  -= 1;
       // tmpRect.bottom -= 1;
-      DrawThemeEditTextFrame (&tmpRect,  kThemeStateActive);
+      CGContextSetShouldAntialias (form->drawRectCtx, YES);
+      id_FrameRect (form, &tmpRect);
+      CGContextSetShouldAntialias (form->drawRectCtx, NO);  // ,... see CGPathAddArcToPoint()
+      // DrawThemeEditTextFrame (&tmpRect,  kThemeStateActive);
    }
+   CGContextRestoreGState (form->drawRectCtx);
   
-   SetPenState (&penState);
-#endif  
+   // SetPenState (&penState);
    
    return (0);
 }
@@ -2970,7 +2979,7 @@ PicHandle  id_GetPicture (FORM_REC *form, short picID)
 
 /* ----------------------------------------------------- id_DrawPicture -------------- */
 
-int  id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect)
+int id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect)
 {
    CGRect  imgRect = id_Rect2CGRect (picRect);
    
