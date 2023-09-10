@@ -531,6 +531,8 @@ static double  gYOffset = 30.;
    [cell setDrawsBackground:YES];
    [cell setStringValue:@""];
    
+   [cell setFocusRingType:NSFocusRingTypeNone];
+   
    // edit.textContainer cell.textContainerInset = NSMakeSize (0, 2);
    
    [cell setFont:[NSFont fontWithName:@"Lucida Grande" size:9.]];

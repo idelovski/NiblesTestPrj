@@ -2866,9 +2866,9 @@ int  id_frame_editText (          /* Maybe To Change for all Fields */
       // frState = kThemeStateActive;
       // tmpRect.right  -= 1;
       // tmpRect.bottom -= 1;
-      CGContextSetShouldAntialias (form->drawRectCtx, YES);
-      id_FrameRect (form, &tmpRect);
-      CGContextSetShouldAntialias (form->drawRectCtx, NO);  // ,... see CGPathAddArcToPoint()
+      // CGContextSetShouldAntialias (form->drawRectCtx, YES);
+      id_FrameEditRect (form, &tmpRect);
+      // CGContextSetShouldAntialias (form->drawRectCtx, NO);  // ,... see CGPathAddArcToPoint()
       // DrawThemeEditTextFrame (&tmpRect,  kThemeStateActive);
    }
    CGContextRestoreGState (form->drawRectCtx);

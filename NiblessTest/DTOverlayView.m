@@ -355,6 +355,50 @@ void  id_FrameRect (FORM_REC *form, Rect *theRect)
    CGPathRelease (path);   
 }
 
+/* ----------------------------------------------------- id_FrameEditRect ------------ */
+
+void  id_FrameEditRect (FORM_REC *form, Rect *theRect)  // context must be available
+{
+   CGRect  cgRect = id_Rect2CGRect (theRect);
+   // FrameRect (theRect);
+   // CGPathAddRect (path, NULL, cgRect);
+   // CGPathAddRoundedRect ();
+
+   CGFloat  maxX = CGRectGetMaxX (cgRect);
+   CGFloat  maxY = CGRectGetMaxY (cgRect);
+   
+   if (!form->drawRectCtx)
+      return;
+   
+   CGContextSaveGState (form->drawRectCtx);
+   CGContextSetShouldAntialias (form->drawRectCtx, YES);
+   
+   CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor blackColor].toCGColor);  // Top
+
+   CGContextMoveToPoint (form->drawRectCtx, cgRect.origin.x, cgRect.origin.y);
+   CGContextAddLineToPoint (form->drawRectCtx, maxX, cgRect.origin.y);
+   CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+   
+   CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor grayColor].toCGColor);  // Right
+   CGContextMoveToPoint (form->drawRectCtx, maxX, cgRect.origin.y);
+   CGContextAddLineToPoint (form->drawRectCtx, maxX, maxY) ;
+   CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+   
+   CGContextSetShouldAntialias (form->drawRectCtx, NO);
+   CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor lightGrayColor].toCGColor);  // Bottom
+   CGContextMoveToPoint (form->drawRectCtx, maxX, maxY) ;
+   CGContextAddLineToPoint (form->drawRectCtx, cgRect.origin.x, maxY) ;
+   CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+
+   CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor grayColor].toCGColor);  // Right
+   CGContextMoveToPoint (form->drawRectCtx, cgRect.origin.x, maxY) ;
+   CGContextAddLineToPoint (form->drawRectCtx, cgRect.origin.x, cgRect.origin.y);
+   CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+   
+   CGContextRestoreGState (form->drawRectCtx);
+
+}
+
 /* ----------------------------------------------------- id_FrameCard ---------------- */
 
 int  id_FrameCard (FORM_REC *form, short fromLeft)

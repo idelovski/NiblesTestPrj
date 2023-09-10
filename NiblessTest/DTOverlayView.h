@@ -29,3 +29,5 @@ int  id_SetPort (FORM_REC *form, WindowPtr whichPort);
 
 void id_FrameRect (FORM_REC *form, Rect *theRect);
 int  id_FrameCard (FORM_REC *form, short fromLeft);
+
+void  id_FrameEditRect (FORM_REC *form, Rect *theRect);  // context must be available
