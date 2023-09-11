@@ -99,6 +99,9 @@ extern  FORM_REC  *dtRenderedForm;
    CGPathRelease (path);
 #endif
    
+   if (form->update_func)
+      (*form->update_func)(form, NULL, ID_BEGIN_OF_UPDATE, 0);
+
    if (form == dtRenderedForm)
       id_FrameCard (form, 12);
    
@@ -241,6 +244,8 @@ extern  FORM_REC  *dtRenderedForm;
          }
       } /* end of for */
    }
+   if (form->update_func)
+      (*form->update_func)(form, NULL, ID_END_OF_UPDATE, 0);
 
    form->drawRectCtx = NULL;
 }
