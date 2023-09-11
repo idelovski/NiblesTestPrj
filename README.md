@@ -7,7 +7,7 @@ So, this should be an experiment with the older Carbon code that will have to ch
 
 General idea is to convert as little Carbon code to Cocoa and continue using CarbonCore for everything that is still possible with CarbonCore so it compiles on M1 and latest Xcode having the deprecations warnings off.
 
-App starts without a NIB file - therefore, it's a so called nibless application.
+App starts without a NIB file - therefore, it's a so called nibless application. More information related to nibless applications: https://github.com/hammackj/niblesscocoa
 
 There is no NIB/XIB file and everything is created in code except  for the things from an old Resource file in Classic Mac resorce format.
 
@@ -40,4 +40,8 @@ The script:
     zip -r ${TARGET_NAME} ${TARGET_NAME}.app
 
    
-More information related to nibless applications: https://github.com/hammackj/niblesscocoa
+Since the project may be compiled on different Xcode/clang versions, certain flags may be reqired or not. But then the clang will complain about unrecognized flags:
+
+    -Wall -Wno-unused-variable -Wno-parentheses -Wno-unused-but-set-variable -Wno-unknown-warning-option
+
+Adding -Wno-unknown-warning-option will silence it.
