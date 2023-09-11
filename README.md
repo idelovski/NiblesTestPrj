@@ -44,4 +44,4 @@ Since the project may be compiled on different Xcode/clang versions, certain fla
 
     -Wall -Wno-unused-variable -Wno-parentheses -Wno-unused-but-set-variable -Wno-unknown-warning-option
 
-Adding -Wno-unknown-warning-option will silence it.
+Adding *-Wno-unknown-warning-option* will silence it.
