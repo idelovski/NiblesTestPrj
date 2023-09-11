@@ -437,6 +437,7 @@
 					"-Wno-unused-variable",
 					"-Wno-parentheses",
 					"-Wno-unused-but-set-variable",
+					"-Wno-unknown-warning-option",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "hr.delovski.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = NiblessTest;
@@ -463,6 +464,7 @@
 					"-Wno-unused-variable",
 					"-Wno-parentheses",
 					"-Wno-unused-but-set-variable",
+					"-Wno-unknown-warning-option",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "hr.delovski.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = NiblessTest;
