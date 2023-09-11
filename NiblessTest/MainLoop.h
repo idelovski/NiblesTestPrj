@@ -93,14 +93,10 @@ void  pr_ListEncodings (void);
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
 void  SetRect (Rect *rect, short l, short t, short r, short b);
 void  InsetRect (Rect *rect, short h, short v);
-void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect);
 #endif
-
-NSTextAlignment  TExAlignment (short teJust);
 
 int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight);
 int  TExSetAlignment (NSTextField *theCtl, short teJust);
-void TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWrap, short eraseBackground);      // normal
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len);
 

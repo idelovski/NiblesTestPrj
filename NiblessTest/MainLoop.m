@@ -118,9 +118,6 @@ static FORM_REC  newForm;
    
    form->overlayView = foreView;
    
-   if (form->update_func)
-      (*form->update_func)(form, NULL, ID_END_OF_OPEN, 0);
-   
    [foreView release];
 }
 
@@ -746,6 +743,10 @@ int  id_release_form (FORM_REC *form)
 
    // id_init_form (<#FORM_REC *form#>);  -- HM, in the old world I call init at close so here I must be carefull as I allocate stuff in init -> therefore...allocations will happen in id_open_form()
    
+   [form->my_window release];
+   
+   form->my_window = nil;
+   
    return (0);
 }
 
@@ -1360,10 +1361,13 @@ int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight)
 
 /* .......................................................... TExSetAlignment ....... */
 
-NSTextAlignment  TExAlignment (short teJust)
+int  TExSetAlignment (NSTextField *theCtl, short teJust)
 {
    NSTextAlignment  justificationToSet;
    
+   if (!theCtl)
+      return (paramErr);
+
    switch (teJust)  {
       case  teJustRight:
          justificationToSet = NSRightTextAlignment;
@@ -1377,18 +1381,6 @@ NSTextAlignment  TExAlignment (short teJust)
          justificationToSet = NSLeftTextAlignment;
          break;
    }
-
-   return (justificationToSet);
-}
-
-/* .......................................................... TExSetAlignment ....... */
-
-int  TExSetAlignment (NSTextField *theCtl, short teJust)
-{
-   NSTextAlignment  justificationToSet = TExAlignment (teJust);
-   
-   if (!theCtl)
-      return (paramErr);
 
    [theCtl setAlignment:justificationToSet];
    
@@ -1421,36 +1413,6 @@ int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
       DisposePtr (buffPtr);
    
    return (retVal);
-}
-
-
-void   TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWrap, short eraseBackground)
-{
-   CFStringRef  cfStr;
-   
-   CGRect    strRect = id_Rect2CGRect (txtRect);
-   NSFont   *textFont = [NSFont messageFontOfSize:10];
-   NSColor  *theColor = [NSColor blackColor];
-   
-   id_Mac2CFString (str, &cfStr, len);
-   
-   NSMutableParagraphStyle  *textStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
-   
-   textStyle.lineBreakMode = NSLineBreakByWordWrapping;
-   textStyle.alignment = TExAlignment(teJust);  // NSTextAlignmentLeft;
-   
-   NSMutableDictionary  *attrs = [NSMutableDictionary dictionaryWithCapacity:3];
-   
-   [attrs setObject:textStyle forKey:NSParagraphStyleAttributeName];
-   [attrs setObject:textFont forKey:NSFontAttributeName];
-   [attrs setObject:theColor forKey:NSForegroundColorAttributeName];
-   
-   
-   [(NSString *)cfStr drawInRect:strRect withAttributes:attrs];
-   
-   [textStyle release];
-   
-   CFRelease (cfStr);
 }
 
 #pragma mark -
@@ -2345,7 +2307,7 @@ void  SetRect (Rect *rect, short l, short t, short r, short b)
    rect->top = t; 
    rect->right = r; 
    rect->bottom = b; 
-}
+} 
 
 void  InsetRect (Rect *rect, short h, short v)
 { 
@@ -2353,16 +2315,7 @@ void  InsetRect (Rect *rect, short h, short v)
    rect->top += v; 
    rect->right -= h; 
    rect->bottom -= v; 
-}
-
-void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect)
-{
-   targetRect->left = MIN (rect1->left, rect2->left);
-   targetRect->top  = MIN (rect1->top, rect2->top);
-   targetRect->right  = MAX (rect1->top, rect2->top);
-   targetRect->bottom  = MAX (rect1->bottom, rect2->bottom);
-}
-
+} 
 #endif
 
 CGRect  id_Rect2CGRect (Rect *rect)
@@ -2929,68 +2882,6 @@ int  id_frame_editText (          /* Maybe To Change for all Fields */
    return (0);
 }
 
-/* ----------------------------------------------------------- id_title_bounds ----- */
-
-int  id_title_bounds (
- FORM_REC  *form,
- short      fldno_1,
- short      fldno_2,
- PatPtr     frPatPtr,
- char      *title_str,
- ID_LAYOUT *specLayout
-)
-{
-   short       index_1 = fldno_1-1;
-   short       index_2 = fldno_2-1;
-   short       distance, tx_len, len;
-   WindowPtr   savedPort;
-   Rect        frame_bounds, tr1, tr2;
-   FontInfo    fntInfo;
-         
-   if (id_inpossible_item (form, index_1) || id_inpossible_item (form, index_2))
-      return (-1);
-   
-   id_GetPort (form, &savedPort);
-   id_SetPort (form, (WindowPtr)form->my_window);
-   
-   id_itemsRect (form, index_1, &tr1);
-   id_itemsRect (form, index_2, &tr2);
-
-   UnionRect (&tr1, &tr2, &frame_bounds);
-
-   // if (specLayout)
-   //    id_SetLayout (form, specLayout);
-   // else
-   //    id_my_stat_layout (form, index_1);
-   // GetFontInfo (&fntInfo);
-   // distance = fntInfo.ascent /*+ fntInfo.descent*/;
-   
-   distance = [[NSFont systemFontOfSize:12] ascender];
-   InsetRect (&frame_bounds, -distance, -distance);
-   frame_bounds.right -= 1;
-   
-   // DrawThemePrimaryGroup (&frame_bounds, kThemeStateActive);
-   CGContextSaveGState (form->drawRectCtx);
-   CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor grayColor].toCGColor);  // Right
-   id_FrameRect (form, &frame_bounds);
-   CGContextRestoreGState (form->drawRectCtx);
-   
-   if (title_str && (len = strlen(title_str)))  {
-      tx_len = id_TextWidth (form, title_str, 0, len);
-      tx_len += len;
-      SetRect (&tr1, frame_bounds.left + distance+1,  frame_bounds.top - distance/2 - 1,
-                     frame_bounds.left + distance+tx_len+3, frame_bounds.top + distance/2+2);
-      tr1.right += len;
-
-      TExTextBox (title_str, len, &tr1, teJustLeft, TRUE, TRUE);  // wrap, erase back
-   }
-   
-   id_SetPort (form, savedPort);
-   
-   return (0);
-}
-
-#pragma mark PDF
 
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData)
 {

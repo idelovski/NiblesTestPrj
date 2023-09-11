@@ -783,7 +783,7 @@ int  pr_CreateDitlWindow (
       NSLog (@".... last_fldno: %hd", form->last_fldno);
       
       if (!(form->ditl_def = (DITL_item **) id_malloc_array (form->last_fldno+1, sizeof (DITL_item))))  {
-         ReleaseResource (form->DITL_handle);
+         // ReleaseResource (form->DITL_handle);
          form->DITL_handle = NULL;
          form->ditl_def = NULL;
       }
@@ -836,9 +836,6 @@ int  pr_CreateDitlWindow (
       // self.otherWindow = newWin;
       
       dtRenderedForm = form;
-      
-      if (form->update_func)
-         (*form->update_func)(form, NULL, ID_BEGIN_OF_OPEN, 0);
       
       for (index=0; index<=form->last_fldno; index++)  {
          

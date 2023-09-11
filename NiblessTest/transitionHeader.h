@@ -298,7 +298,7 @@ typedef struct  {                /* -------------------- Edit data for an item -
 } EDIT_item;
 
 
-struct  FormRecord  {
+struct  _Form  {
    short         itemHit;
    short         creationIndex;
    short         cur_fldno;  // Tag Minus One
@@ -340,12 +340,6 @@ struct  FormRecord  {
    DITL_item     **ditl_def;
    EDIT_item     **edit_def;
    
-   int           (*update_func)(struct FormRecord *, EventRecord *, short, short);
-   int           (*edit_check_func)(struct FormRecord *, short fldNo, short txLen, short selStart, short selEnd, char ch);
-   int           (*exit_check_func)(struct FormRecord *, short fldNo);
-   void          (*hover_check_func)(struct FormRecord *, short fldNo, short mode, Point mousePt);
-
-   
    Handle          toolBarHandle;
    
    NSView         *overlayView;
@@ -356,7 +350,7 @@ struct  FormRecord  {
    CFMutableArrayRef  pdfsArray;   // = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
 
 };
-typedef struct  FormRecord  FORM_REC;
+typedef struct  _Form  FORM_REC;
 
 typedef struct  {
    // DTMBarInfo   mbi;
