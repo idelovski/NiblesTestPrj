@@ -743,7 +743,7 @@ int  id_release_form (FORM_REC *form)
 
    // id_init_form (<#FORM_REC *form#>);  -- HM, in the old world I call init at close so here I must be carefull as I allocate stuff in init -> therefore...allocations will happen in id_open_form()
    
-   [form->my_window release];
+   [form->my_window release]; 
    
    form->my_window = nil;
    
