@@ -634,21 +634,15 @@ static double  gYOffset = 30.;
 
 #pragma mark -
 
-- (NSPopUpButton *)createPopUpWithOffset:(CGFloat)offset
-                                   width:(CGFloat)width
+- (NSPopUpButton *)coreCreatePopUpWithFrame:(CGRect)frame
                                   inForm:(FORM_REC *)form
 {
-   int  x = gXOffset + offset;  //possition x
-   int  y = 200 + gYOffset;  //possition y
-   
-   NSInteger  /*width = offset ? 166 : 120,*/ height = 24;
-   
    NSPopUpButton      *popUp = nil;
    NSPopUpButtonCell  *cell = nil;
    
-   popUp = [[NSPopUpButton alloc] initWithFrame:id_CocoaRect(self.window, NSMakeRect(x, y, width, height))];
+   popUp = [[NSPopUpButton alloc] initWithFrame:id_CocoaRect(form->my_window, frame)];
    
-   [[self.window contentView] addSubview:popUp];
+   [[form->my_window contentView] addSubview:popUp];
    
    [popUp setTag:++form->creationIndex];
    
@@ -661,6 +655,29 @@ static double  gYOffset = 30.;
    [popUp setPullsDown:NO];
    [popUp setTarget:self];
    [popUp setAction:@selector(onSelectionChange:)];
+   
+   if (frame.size.height < 14)  {
+      [popUp setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize] - 1]];
+      cell.controlSize = NSMiniControlSize;  // NSSmallControlSize
+   }
+   
+   return (popUp);
+}
+
+- (NSPopUpButton *)createPopUpWithOffset:(CGFloat)offset
+                                   width:(CGFloat)width
+                                  inForm:(FORM_REC *)form
+{
+   int  x = gXOffset + offset;  //possition x
+   int  y = 200 + gYOffset;  //possition y
+   
+   NSInteger  /*width = offset ? 166 : 120,*/ height = 24;
+   
+   NSPopUpButton      *popUp = nil;
+   // NSPopUpButtonCell  *cell = nil;
+   
+   popUp = [self coreCreatePopUpWithFrame:NSMakeRect(x, y, width, height)
+                                   inForm:form];
    
    if (!offset)  {
    
@@ -749,7 +766,7 @@ int  pr_CreateDitlWindow (
  EDIT_item  *edit_items
 )
 {
-   short  index;
+   short  index, retVal;
    // char   tmpStr[256];
    // FSRef  parentFSRef, bundleParentFolderFSRef;
    // char   fileName[256], pathStr[256];
@@ -783,7 +800,7 @@ int  pr_CreateDitlWindow (
       NSLog (@".... last_fldno: %hd", form->last_fldno);
       
       if (!(form->ditl_def = (DITL_item **) id_malloc_array (form->last_fldno+1, sizeof (DITL_item))))  {
-         //  ReleaseResource (form->DITL_handle);
+         // ReleaseResource (form->DITL_handle);
          form->DITL_handle = NULL;
          form->ditl_def = NULL;
       }
@@ -844,7 +861,9 @@ int  pr_CreateDitlWindow (
          
          macRect = f_ditl_def->i_rect;
          
-         tmpRect = NSMakeRect (macRect.left, macRect.top, macRect.right-macRect.left, macRect.bottom-macRect.top);
+         // tmpRect = NSMakeRect (macRect.left, macRect.top, macRect.right-macRect.left, macRect.bottom-macRect.top);
+         
+         tmpRect = id_Rect2CGRect (&macRect);
          
          tmpRect = NSOffsetRect (tmpRect, 0., dtGData->toolBarHeight);
          
@@ -908,6 +927,15 @@ int  pr_CreateDitlWindow (
             
             if (f_edit_def && f_edit_def->e_type == ID_UT_POP_UP)  {
                
+               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreatePopUpWithFrame:tmpRect
+                                                                                                inForm:form];
+               if (f_edit_def->e_entry_func)  {
+                  retVal = (*f_edit_def->e_entry_func)(form, index+1, f_edit_def->e_occur, ID_ENTRY_FLAG);
+                  if (!retVal)
+                     id_resetPopUpMenu (form, index);
+               }
+               
+               
                // id_create_popUp (form, index, savedPort);
                form->usedETypes |= ID_UT_POP_UP;
             }
@@ -923,7 +951,7 @@ int  pr_CreateDitlWindow (
                form->usedETypes |= ID_UT_SCROLL_BAR;
             }
             
-            else  if (f_edit_def->e_type == ID_UT_PICTURE)  {
+            else  if (f_edit_def->e_type == ID_UT_PICTURE)  {  // Yes, it should be id_create_picture()
                id_draw_Picture (form, index);
                // id_create_picture (form, index, savedPort);
                form->usedETypes |= ID_UT_PICTURE;
@@ -943,3 +971,44 @@ int  pr_CreateDitlWindow (
    
    return (0);
 }
+
+int  attach_kd_12x_pop (
+ FORM_REC  *form,
+ int        fldno,
+ int        offset,
+ int        mode
+)
+{
+   static char *ktoPopList[2] = { "120", "121" };
+   short        index=fldno-1;
+   
+   // strcpy (ktoPopList[0], gGStr120);
+   // strcpy (ktoPopList[1], gGStr121);
+
+   if (mode==ID_ENTRY_FLAG)  {
+      form->edit_def[index]->e_array = ktoPopList;
+   }
+   return (0);
+}
+
+int  attach_kd_22x_pop (
+ FORM_REC  *form,
+ int        fldno,
+ int        offset,
+ int        mode
+)
+{
+   static char *ktoPopList[2] = { "220", "221" };
+   short        index=fldno-1;
+   
+   // strcpy (ktoPopList[0], gGStr220);
+   // strcpy (ktoPopList[1], gGStr221);
+   
+   if (mode==ID_ENTRY_FLAG)  {
+      form->edit_def[index]->e_array = ktoPopList;
+   }
+   
+   return (0);
+}
+
+

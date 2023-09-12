@@ -431,3 +431,19 @@ int  id_FrameCard (FORM_REC *form, short fromLeft)
    return (0);
 }
 
+void  id_InvalWinRect (FORM_REC *form, Rect *invalRect)
+{
+   NSView  *contentView = [form->my_window contentView];
+      
+   if (!invalRect)  {
+      [contentView setNeedsDisplay:YES];
+      [form->overlayView setNeedsDisplay:YES];
+   }
+   else  {
+      CGRect  cgRect = id_Rect2CGRect (invalRect);
+      
+      [contentView setNeedsDisplayInRect:cgRect];
+      [form->overlayView setNeedsDisplayInRect:cgRect];
+   }
+// [form->my_window.contentView setNeedsDisplayInRect:(NSRect)invalidRect; -> InvalWinRect (form->my_window, &tmpRect);
+}

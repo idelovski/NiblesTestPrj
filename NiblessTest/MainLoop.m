@@ -123,6 +123,9 @@ static FORM_REC  newForm;
 
 + (void)menuAction:(id)sender
 {
+   short  theMenu, theItem;
+   
+   
    NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    NSDictionary            *menuDict = appDelegate.menuDict;
 
@@ -147,11 +150,26 @@ static FORM_REC  newForm;
    else
       NSLog (@"Menu index: %d, itemIndex: %d", (int)menuIndex+128, (int)itemIndex);
    
+   theMenu = HiWord ((UInt32)menuItem.tag);
+   theItem = LoWord ((UInt32)menuItem.tag);
+   
+   NSLog (@"ALT MenuId: %hd, itemId: %hd", theMenu, theItem);
 
    if (!newForm.my_window && menuIndex > 3)  {
       // id_SetBlockToZeros (, sizeof(FORM_REC));
       id_init_form (&newForm);
       pr_CreateDitlWindow (&newForm, 601, &tmpRect, "Bravo majstore", &kupdob_edit_items[0]);
+      id_move_field (&newForm, K_12x_POP, 0, -303);
+      id_move_field (&newForm, K_22x_POP, 0, -303);
+
+      id_move_field (&newForm, K_KTO_12x, 24, 0);
+      id_move_field (&newForm, K_KTO_22x, 24, 0);
+   }
+   else  if (theMenu = File_MENU_ID)  {
+      FORM_REC  *form = id_FindForm (FrontWindow());
+      
+      if (form && (theItem == CLOSE_Command))
+         [form->my_window performClose:menuItem];
    }
 } 
 
@@ -743,7 +761,7 @@ int  id_release_form (FORM_REC *form)
 
    // id_init_form (<#FORM_REC *form#>);  -- HM, in the old world I call init at close so here I must be carefull as I allocate stuff in init -> therefore...allocations will happen in id_open_form()
    
-   [form->my_window release]; 
+   [form->my_window release];
    
    form->my_window = nil;
    
@@ -1636,7 +1654,7 @@ static int  pr_CreateMenu (NSMenu *menuBar, id target, short theMenuID)  // 129 
             tmpMenuItem = [theMenu addItemWithTitle:(NSString *)cfStr action:@selector(menuAction:) keyEquivalent:commandChar];
             [tmpMenuItem setTarget:target];
             [tmpMenuItem setEnabled:YES];
-            [tmpMenuItem setTag:i];
+            [tmpMenuItem setTag:MakeLong(i,theMenuID)];
             
             CFRelease (cfStr);
          }
@@ -2350,14 +2368,16 @@ void  id_GetClientRect (FORM_REC *form, Rect *rect)
 
    // GetWindowRect (form->my_window, rect);  // on Mac, client is the same as window rect
    
-   SetRect (rect,
-            viewFrame.origin.x, viewFrame.origin.y,
-            viewFrame.origin.x + viewFrame.size.width, viewFrame.origin.y + viewFrame.size.height);
+   id_CGRect2Rect (viewFrame, rect);
    
-   // if (form->w_procID == documentProc)  {
+   /*SetRect (rect,
+            viewFrame.origin.x, viewFrame.origin.y,
+            viewFrame.origin.x + viewFrame.size.width, viewFrame.origin.y + viewFrame.size.height);*/
+   
+   if (form->w_procID == documentProc)  {
       rect->top += dtGData->toolBarHeight;
       rect->bottom -= kSBAR_HEIGHT /*dtGData->statusBarHeight*/;
-   // }
+   }
 }
 
 /* ----------------------------------------------------------- id_get_form_rect ------ */
@@ -2433,6 +2453,77 @@ int  id_inpossible_item (/*form, index*/
       // id_LogFileLineWithForm (form, tmpStr);
       return (-1);
    }
+   return (0);
+}
+
+/* .......................................................... id_move_field ......... */
+
+int  id_move_field (
+ FORM_REC  *form,
+ short      fldno,
+ short      dh, 
+ short      dv
+)
+{
+   short      index = fldno-1;
+   Rect       tmpRect, savedRect, ctlRect;
+   WindowPtr  savedPort;
+   
+   if (id_inpossible_item (form, index))  return (-1);
+      
+   id_GetPort (form, &savedPort);
+   id_SetPort (form, (WindowPtr)form->my_window);
+
+   id_itemsRect (form, index, &savedRect);
+   id_itemsRect (form, index, &tmpRect);
+   
+   InsetRect (&tmpRect, -3, -3);
+
+   // EraseRect (&tmpRect);    /* Briπi staro uveÊano mjesto */
+   
+   id_InvalWinRect (form, &tmpRect);
+
+   OffsetRect (&form->ditl_def[index]->i_rect, dh, dv);  // Move original!
+
+   id_itemsRect (form, index, &tmpRect);
+   
+   if ((form->ditl_def[index]->i_type & ctrlItem) ||
+       (form->edit_def[index]->e_type == ID_UT_SCROLL_BAR))  {
+      /*dh = tmpRect.left - savedRect.left;
+      dv = tmpRect.top  - savedRect.top;
+
+      GetControlBounds ((ControlHandle)form->ditl_def[index]->i_handle, &ctlRect);
+      OffsetRect (&ctlRect, dh, dv);
+      SetControlBounds ((ControlHandle)form->ditl_def[index]->i_handle, &ctlRect);*/
+   }   
+   else  if ((form->ditl_def[index]->i_type & editText))  {
+      /*dh = tmpRect.left - savedRect.left;
+      dv = tmpRect.top  - savedRect.top;
+
+      TXNGetViewRect ((TXNObject)form->ditl_def[index]->i_handle, &ctlRect);
+      OffsetRect (&ctlRect, dh, dv);
+      TXNSetFrameBounds ((TXNObject)form->ditl_def[index]->i_handle,
+								 ctlRect.top, ctlRect.left, ctlRect.bottom, ctlRect.right,
+								 form->txnFrameID[index]);*/
+   }   
+   else  if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+      if ((form->edit_def[index]->e_type == ID_UT_POP_UP) /*&& !form->edit_def[index]->e_regular*/)  {
+         
+         CGRect  cgRect = id_Rect2CGRect (&tmpRect);
+         
+         NSPopUpButton  *popUp = (NSPopUpButton *)form->ditl_def[index]->i_handle;
+         
+         popUp.frame = cgRect;
+
+         // id_resetPopUpSize (form, index, &tmpRect);
+      }
+   }
+
+   InsetRect (&tmpRect, -3, -3);
+   id_InvalWinRect (form, &tmpRect);
+ 
+   id_SetPort (form, savedPort);
+
    return (0);
 }
 
@@ -3057,6 +3148,37 @@ void  id_draw_Picture (FORM_REC *form, short index)
    }
 }
 
+void  id_resetPopUpMenu (
+ FORM_REC  *form,
+ short      index
+)
+{
+   short  i;
+
+   NSPopUpButton   *popUp = nil;
+   CFStringRef      cfString = NULL;
+   OSStatus         status;
+
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+
+   popUp = (NSPopUpButton *)f_ditl_def->i_handle;
+   
+   [popUp removeAllItems];
+   
+   for (i=0; i<f_edit_def->e_elems; i++)  {
+      id_Mac2CFString (f_edit_def->e_array[i], &cfString, strlen(f_edit_def->e_array[i]));
+      
+      [popUp addItemWithTitle:(NSString *)cfString];  // insertItemWithTitle:(NSString *)title atIndex:(NSInteger)index;
+      // [popUp addItemWithTitle:@"Pero"];  // insertItemWithTitle:(NSString *)title atIndex:(NSInteger)index;
+
+      CFRelease (cfString);
+   }
+}
+
 /* ----------------------------------------------------- id_ClipRect ----------------- */
 
 RgnHandle  id_ClipRect (FORM_REC *form, Rect *clipRect)
@@ -3092,7 +3214,7 @@ int id_RestoreClip (FORM_REC *form, RgnHandle savedClipRgn)
    return (0);
 }
 
-#pragma mark <#label#>
+#pragma mark -
 
 static int  id_InitStatusbarIcons (void)
 {

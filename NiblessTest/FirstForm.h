@@ -72,6 +72,9 @@
 
 // PopUp Button
 
+- (NSPopUpButton *)coreCreatePopUpWithFrame:(CGRect)frame
+                                     inForm:(FORM_REC *)form;
+
 - (NSPopUpButton *)createPopUpWithOffset:(CGFloat)offset
                                    width:(CGFloat)width
                                   inForm:(FORM_REC *)form;

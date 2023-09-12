@@ -100,6 +100,10 @@ int  TExSetAlignment (NSTextField *theCtl, short teJust);
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len);
 
+#define  HiWord(x) ((short)((long)(x) >> 16))
+#define  LoWord(x) ((short)(x))
+
+#define  MakeLong(a, b) ((SInt32) (((short) (a)) | ((UInt32) ((short) (b))) << 16))
 
 CGRect  id_CocoaRect (NSWindow *window, CGRect nmlRect);
 CGRect  id_CarbonRect (CGRect cocoaRect);
@@ -275,6 +279,7 @@ int  id_get_fld_rect (FORM_REC *form, short fldno, Rect *fldRect);
 Boolean  id_isHighField (FORM_REC *form, short fldno);
 
 int  id_inpossible_item (FORM_REC *form, short index);
+int  id_move_field (FORM_REC *form, short fldno, short dh, short dv);
 
 #define  MulDiv(val,numerator,denominator)  ((int)((double)val*numerator/denominator))
 
@@ -315,6 +320,8 @@ int   id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect);
 void  id_ReleasePicture (PicHandle picHandle);
 void  id_draw_Picture (FORM_REC *form, short index);
 
+void  id_resetPopUpMenu (FORM_REC *form, short index);
+
 RgnHandle  id_ClipRect (FORM_REC *form, Rect *clipRect);
 int        id_RestoreClip (FORM_REC *form, RgnHandle savedClipRgn);
 
@@ -339,6 +346,15 @@ int  id_DrawTBPadding (FORM_REC *form);
 #define  K_TEL_2      36
 #define  K_TEL_3      38
 #define  K_FAX        41
+
+#define  K_KTO_12x    60
+#define  K_KTO_22x    63
+
+#define  K_12x_POP   92
+#define  K_22x_POP   93
+
+int  attach_kd_12x_pop (FORM_REC *form, int fldno, int offset, int mode);
+int  attach_kd_22x_pop (FORM_REC *form, int fldno, int offset, int mode);
 
 
 #ifdef _MAIN_LOOP_SRC_
@@ -601,7 +617,7 @@ EDIT_item  kupdob_edit_items[] = {
  { K_INFO_BOX,  0, 240, 0, 0, 0, teJustRight, 0,
                 NULL, NULL, NULL,
                 NULL, NULL },
-
+#endif
  { K_12x_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,  // Regular popUps
                 "Reg", NULL, NULL,
                 attach_kd_12x_pop, attach_kd_12x_pop },
@@ -609,7 +625,7 @@ EDIT_item  kupdob_edit_items[] = {
  { K_22x_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,
                 "Reg", NULL, NULL,
                 attach_kd_22x_pop, attach_kd_22x_pop },
-
+#ifdef _NIJE_
  { K_PLS_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,
                 "Reg", NULL, NULL,
                 attach_kd_pls_pop, attach_kd_pls_pop },
