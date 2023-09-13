@@ -52,6 +52,9 @@ int   id_release_form (FORM_REC *form);
 
 char *strNCpy (char *s1, const char *s2, long n);
 
+int  stricmp (char *s1, char *s2);
+int  strnicmp (char *s1, char *s2, short n);
+
 OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef);
 
 int   id_GetApplicationExeFSRef (FSRef *appParentFolderFSRef);  // out, exe folder
@@ -99,6 +102,9 @@ int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight);
 int  TExSetAlignment (NSTextField *theCtl, short teJust);
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len);
+
+int  GetFontNum (char *fontName, short *fontNum);
+int  GetFontName (short fontNum, char *fontName, short maxLen);
 
 #define  HiWord(x) ((short)((long)(x) >> 16))
 #define  LoWord(x) ((short)(x))

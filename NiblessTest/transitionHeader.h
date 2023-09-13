@@ -343,6 +343,7 @@ struct  _Form  {
    Handle          toolBarHandle;
    
    NSView         *overlayView;
+   NSFont         *currentFont;  // For direct drawing aside from controls
    
    CGContextRef    drawRectCtx;  // = [NSGraphicsContext currentContext];
    

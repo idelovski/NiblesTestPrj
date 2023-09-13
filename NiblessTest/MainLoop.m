@@ -724,6 +724,8 @@ FORM_REC  *id_init_form (FORM_REC *form)
    form->pathsArray = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
    form->pdfsArray = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
    
+   form->currentFont = [NSFont systemFontOfSize:9.];
+   
    return (form);
 }
 
@@ -988,6 +990,27 @@ char *strNCpy (char *s1, const char *s2, long n)
    *s1 = '\0';
    
    return (tar);
+}
+
+/* ................................................... stricmp ..................... */
+
+int  stricmp (char *s1, char *s2)
+{
+   for ( ; toupper(*s1) == toupper(*s2); s1++, s2++)
+      if (!*s1) break;
+
+   return (toupper(*s1) - toupper(*s2));
+}
+
+/* ................................................... strnicmp .................... */
+
+int  strnicmp (char *s1, char *s2, short n)  // see id_StrniCmpCro
+{
+   if (n <= 0) return ( 0 );
+   for ( ; --n && (toupper(*s1) == toupper(*s2)); s1++, s2++)
+      if (!*s1) break;
+		
+   return (toupper(*s1) - toupper(*s2));
 }
 
 /* .......................................................... id_String2Mac ......... */
@@ -1431,6 +1454,123 @@ int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
       DisposePtr (buffPtr);
    
    return (retVal);
+}
+
+/* ----------------------------------------------------- GetFontNum ------------------ */
+
+int  GetFontNum (char *fontName, short *fontNum)
+{
+   static NSArray  *fontFamilyNames = nil;
+   
+   *fontNum = 0;
+   
+   if (!stricmp(fontName, "NewYork"))
+      *fontNum = newYork;
+   else  if (!stricmp(fontName, "Geneva"))
+      *fontNum = geneva;
+   else  if (!stricmp(fontName, "Monaco"))
+      *fontNum = monaco;
+   else  if (!stricmp(fontName, "Times"))
+      *fontNum = times;
+   else  if (!stricmp(fontName, "Helvetica"))
+      *fontNum = helvetica;
+   else  if (!stricmp(fontName, "Courier"))
+      *fontNum = courier;
+   else  {
+      if (!fontFamilyNames)  {
+         NSFontManager  *fontManager = [NSFontManager sharedFontManager];
+         
+         fontFamilyNames = [fontManager availableFontFamilies];
+      }
+      if (fontFamilyNames && fontFamilyNames.count)  {
+         for (int i=0; i<fontFamilyNames.count; i++)  {  
+            NSString  *ffName = [fontFamilyNames objectAtIndex:i];
+            
+            if (!stricmp(fontName, (char *)[ffName UTF8String]))
+                *fontNum = i+100;
+         }
+      }
+   }
+   
+   if (!(*fontNum))
+      return (-1);
+
+   return (0);
+}
+
+int  GetFontName (short fontNum, char *fontName, short maxLen)
+{
+   static NSArray  *fontFamilyNames = nil;
+   
+   *fontName = '\0';
+   
+   switch (fontNum)  {
+      case  newYork:  strNCpy (fontName, "NewYork", maxLen);  break;
+      case  geneva:  strNCpy (fontName, "Geneva", maxLen);  break;
+      case  monaco:  strNCpy (fontName, "Monaco", maxLen);  break;
+      case  times:  strNCpy (fontName, "Times", maxLen);  break;
+      case  helvetica:  strNCpy (fontName, "Helvetica", maxLen);  break;
+      case  courier:  strNCpy (fontName, "Courier", maxLen);  break;
+      default:
+         if (fontNum >= 100)  {
+            if (!fontFamilyNames)  {
+               NSFontManager  *fontManager = [NSFontManager sharedFontManager];
+               
+               fontFamilyNames = [fontManager availableFontFamilies];
+            }
+         }
+         if (fontFamilyNames && fontFamilyNames.count)  {
+            fontNum -= 100;
+            if (fontNum >= 0 && fontNum<fontFamilyNames.count)  {  
+               NSString  *ffName = [fontFamilyNames objectAtIndex:fontNum];
+               
+               strNCpy (fontName, (char *)[ffName UTF8String], maxLen);  break;
+            }
+         }
+         break;
+   }   
+   
+   if (!(*fontName))
+      return (-1);
+
+   return (0);
+}
+
+/* ----------------------------------------------------- id_SetFont ------------------ */
+
+int  id_SetFont (FORM_REC *form, short txtFont, short txtSize, short txtFace)
+{
+   char  fontName[256];
+   
+   if (!GetFontName(txtFont, fontName, 255))  {
+      CFStringRef  cfStr;
+      NSFont      *font = nil;
+
+      id_Mac2CFString (fontName, &cfStr, strlen(fontName));
+
+      font = [NSFont fontWithName:(NSString *)cfStr size:txtSize];
+      
+      CFRelease (cfStr);
+      
+      if (font)  {
+         if (txtFace != normal)  {
+            NSFontTraitMask  mask = 0;
+            
+            if (txtFace & italic)
+               mask |= NSItalicFontMask;
+            if (txtFace & bold)
+               mask |= NSBoldFontMask;
+            if (txtFace & condense)
+               mask |= NSCondensedFontMask;
+            
+            font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:mask];
+         }
+         
+         form->currentFont = font;
+      }
+   }
+   
+   return (0);
 }
 
 #pragma mark -
