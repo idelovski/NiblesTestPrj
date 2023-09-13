@@ -854,6 +854,9 @@ int  pr_CreateDitlWindow (
       
       dtRenderedForm = form;
       
+      if (form->update_func)
+         (*form->update_func)(form, NULL, ID_BEGIN_OF_OPEN, 0);
+
       for (index=0; index<=form->last_fldno; index++)  {
          
          f_ditl_def = form->ditl_def[index];

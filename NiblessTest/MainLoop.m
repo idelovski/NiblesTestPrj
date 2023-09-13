@@ -119,6 +119,9 @@ static FORM_REC  newForm;
    form->overlayView = foreView;
    
    [foreView release];
+
+   if (form->update_func)
+      (*form->update_func)(form, NULL, ID_END_OF_OPEN, 0);
 }
 
 + (void)menuAction:(id)sender

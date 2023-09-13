@@ -271,7 +271,7 @@ typedef struct  {                /* -------------------- Data from ResorceDataFi
 
 #endif  // _DTOOL_COCOA_
 
-struct _Form;
+struct  FormRecord;
 
 typedef struct  {                /* -------------------- Edit data for an item ------- */
    short       e_fldno;
@@ -283,9 +283,9 @@ typedef struct  {                /* -------------------- Edit data for an item -
    char       *e_regular;         // reused by TePop
    char       *e_future_use;      // Used on titles
    char       *e_status_line;
-   int       (*e_entry_func)(struct _Form *, int, int, int),
-             (*e_exit_func)(struct _Form *, int, int, int),
-             (*e_find_func)(struct _Form *, int, int, int);
+   int       (*e_entry_func)(struct FormRecord *, int, int, int),
+             (*e_exit_func)(struct FormRecord *, int, int, int),
+             (*e_find_func)(struct FormRecord *, int, int, int);
    short       e_occur;         /* Internal use */
    short       e_next_field;    /* Internal use */
    short       e_inRecOffset;   // Internal use, negative value is sfRec
@@ -298,7 +298,7 @@ typedef struct  {                /* -------------------- Edit data for an item -
 } EDIT_item;
 
 
-struct  _Form  {
+struct  FormRecord  {
    short         itemHit;
    short         creationIndex;
    short         cur_fldno;  // Tag Minus One
@@ -345,6 +345,11 @@ struct  _Form  {
    DITL_item     **ditl_def;
    EDIT_item     **edit_def;
    
+   int           (*update_func)(struct FormRecord *, EventRecord *, short, short);
+   int           (*edit_check_func)(struct FormRecord *, short fldNo, short txLen, short selStart, short selEnd, char ch);
+   int           (*exit_check_func)(struct FormRecord *, short fldNo);
+   void          (*hover_check_func)(struct FormRecord *, short fldNo, short mode, Point mousePt);
+
    Handle          toolBarHandle;
    
    NSView         *overlayView;
@@ -356,7 +361,7 @@ struct  _Form  {
    CFMutableArrayRef  pdfsArray;   // = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
 
 };
-typedef struct  _Form  FORM_REC;
+typedef struct  FormRecord  FORM_REC;
 
 typedef struct  {
    // DTMBarInfo   mbi;
