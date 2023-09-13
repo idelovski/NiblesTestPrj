@@ -94,17 +94,44 @@ void  pr_ListFonts (void);
 void  pr_ListEncodings (void);
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
+enum {
+   systemFont                    = 0,
+   applFont                      = 1
+};
+
 void  SetRect (Rect *rect, short l, short t, short r, short b);
 void  InsetRect (Rect *rect, short h, short v);
+void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect);
+void  OffsetRect (Rect *rect, short h, short v);
+
 #endif
 
 int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight);
+void TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWrap, short eraseBackground);
 int  TExSetAlignment (NSTextField *theCtl, short teJust);
+
+NSTextAlignment  TExAlignment (short teJust);
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len);
 
 int  GetFontNum (char *fontName, short *fontNum);
 int  GetFontName (short fontNum, char *fontName, short maxLen);
+
+NSFont  *id_GetFont (short txtFont, short txtSize, short txtFace);
+int      id_SetFont (FORM_REC *form, short index, short txtFont, short txtSize, short txtFace);
+
+void  id_SetUpLayout (ID_LAYOUT *theLayout, short oFont, short oSize, short oFace);
+void  id_SetLayout (FORM_REC *form, short index, ID_LAYOUT *theLayout);
+
+void  id_set_edit_layout (FORM_REC *form, short index);
+void  id_my_edit_layout (FORM_REC *form, short index);
+void  id_set_stat_layout (FORM_REC *form, short index);
+void  id_my_stat_layout (FORM_REC *form, short index);
+void  id_set_comment_layout (FORM_REC *form);
+void  id_set_list_layout (FORM_REC *form, short index);
+void  id_my_list_layout (FORM_REC *form, short index);
+void  id_my_popUp_layout (FORM_REC *form, short index);
+void  id_set_system_layout (FORM_REC *form);
 
 #define  HiWord(x) ((short)((long)(x) >> 16))
 #define  LoWord(x) ((short)(x))

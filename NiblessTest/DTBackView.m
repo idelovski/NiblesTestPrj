@@ -136,6 +136,134 @@
 
 @end
 
+/* .................................................................................. */
+/* ....................................................... SCALING .................. */
+/* .................................................................................. */
+
+/* ----------------------------------------------------------- id_get_max_rect ------- */
+
+int  id_get_max_rect (Rect *rect)
+{
+   Rect     screenBounds;
+
+   id_CGRect2Rect ([[NSScreen mainScreen] frame], &screenBounds);
+   // GetQDGlobalsScreenBounds (&screenBounds);
+
+   rect->top  = 20;
+   rect->left = 0;
+   
+   // rect->bottom = qd.screenBits.bounds.bottom;
+   // rect->right  = qd.screenBits.bounds.right;
+   rect->bottom = screenBounds.bottom;
+   rect->right  = screenBounds.right;
+   
+   return (0);
+}
+
+/* ....................................................... id_adjust_button_rect .... */
+
+void  id_adjust_button_rect (
+ FORM_REC  *form,
+ short      index,
+ Rect      *ctlRect
+)
+{
+   short   pureIType = form->ditl_def[index]->i_type & 127;
+   short   overSize, normalSize = RectHeight(&form->ditl_def[index]->i_rect);
+
+   if (pureIType == (ctrlItem+btnCtrl))  {  /* Simple Button */
+      if (RectHeight(ctlRect) > (normalSize + 2))  {
+         overSize = RectHeight (ctlRect) - normalSize - 2;
+         ctlRect->top += overSize/2;
+         ctlRect->bottom -= overSize/2;
+      }
+   }
+#ifdef _NIJE_
+   else  if (pureIType == (ctrlItem+chkCtrl))  {  /* Check Box */
+      ctlRect->left += 2;  // Mac adjusting
+      ctlRect->top += 1;  // Mac adjusting
+      ctlRect->bottom += 1;  // Mac adjusting
+   }
+   else  if (pureIType == (ctrlItem+radCtrl))  {  /* Radio Control */
+      ctlRect->left += 2;  // Mac adjusting
+   }
+#endif
+}
+
+/* ....................................................... id_adjust_pict_rect ...... */
+
+void  id_adjust_pict_rect (
+ FORM_REC  *form,
+ short      index,
+ Rect      *ctlRect
+)
+{
+   int  diff;
+   
+   ctlRect->bottom = id_AdjustScaledPictBottom (form, index, ctlRect);
+}
+
+/* ....................................................... id_adjust_popUp_rect ..... */
+
+void  id_adjust_popUp_rect (
+ FORM_REC  *form,
+ short      index,  // may be -1!!!
+ Rect      *ctlRect
+)
+{
+#ifdef _DTOOL_OSX_
+   InsetRect (ctlRect, -1, -1);  // MacOS X adjusting
+   ctlRect->left -= 2;
+   OffsetRect (ctlRect, 0, -1);
+#endif
+}
+
+/* ....................................................... id_adjust_popUp_rect ..... */
+
+void  id_adjust_tePop_rect (
+ FORM_REC  *form,
+ short      index,  // may be -1!!!
+ Rect      *ctlRect
+)
+{
+   short   overSize, normalSize = RectHeight(&form->ditl_def[index]->i_rect);
+   
+   if (RectHeight(ctlRect) > normalSize)  {
+      overSize = RectHeight (ctlRect) - normalSize;
+      ctlRect->bottom -= overSize;
+      ctlRect->right -= overSize;
+      OffsetRect (ctlRect, overSize / 2, overSize / 2);
+   }
+}
+
+/* ....................................................... id_get_max_scaled_rect ... */
+
+int  id_get_max_scaled_rect (FORM_REC *form, Rect *retMaxRect)
+{
+   short      newScaleLevel = 0;
+   short      maxLevel;  // calculation only
+   Rect       tmpRect, minRect, maxRect;
+   Rect       scrnRect;  // whole screen, minus sys stuff
+   
+   maxLevel = kScaleLevels - 1;
+   
+   id_get_max_rect (&scrnRect);
+   
+   id_FormRect2WinRectEx (form, &form->w_rect, retMaxRect, 100);
+   
+   for (newScaleLevel=1; newScaleLevel<kScaleLevels; newScaleLevel++)  {
+      id_FormRect2WinRectEx (form, &form->w_rect, &tmpRect, id_Level2ScaleRatio(newScaleLevel));
+      
+      if (RectWidth(&tmpRect) > RectWidth(&scrnRect) || RectHeight(&tmpRect) > RectHeight(&scrnRect))
+         return (newScaleLevel-1);
+      id_FormRect2WinRectEx (form, &form->w_rect, retMaxRect, id_Level2ScaleRatio(newScaleLevel));
+   }
+   
+   return (maxLevel);
+}
+
+/* ....................................................... id_scale_form ............ */
+
 void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
 {
    short      index;
@@ -226,3 +354,24 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
    // SetWinPort (savedPort);
 }
 
+int  gGScaleValues[kScaleLevels]  = { 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200 };
+
+int  id_ScaleRatio2Level (short scaleRatio)
+{
+   short  i;
+   
+   for (i=0; i<kScaleLevels; i++)  {
+      if (scaleRatio == gGScaleValues[i])
+         return (i);
+   }
+   return (0);
+}
+
+// This can recieve non-legal values and handle them correctly
+
+int  id_Level2ScaleRatio (short sLevel)
+{
+   if (sLevel >=0 && sLevel < kScaleLevels)
+      return (gGScaleValues[sLevel]);
+   return (sLevel < 0 ? gGScaleValues[0] : gGScaleValues[kScaleLevels-1]);
+}

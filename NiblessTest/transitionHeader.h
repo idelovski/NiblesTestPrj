@@ -331,6 +331,11 @@ struct  _Form  {
    Rect            w_rect;      // win first, since 27/10/2008 on Mac
    short           w_procID;
 
+   ID_LAYOUT      *edit_layout,
+                  *stat_layout, 
+                  *list_layout,
+                  *popUp_layout;
+
    Handle          DITL_handle; /* Resorce handle */ 
    short           last_fldno;  /* Copied from DITL */
    short           usedETypes;

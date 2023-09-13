@@ -505,6 +505,11 @@ int  id_InitDTool (   // rev. 13.04.05
    
    dtGData->statusBarHeight = 20;  // On Win98...
    dtGData->toolBarHeight   = kTB_ICN_HEIGHT;
+   
+   id_SetUpLayout (&dtGData->layStat, 0, 0, 0);
+   id_SetUpLayout (&dtGData->layEdit, geneva, 9, bold);
+   id_SetUpLayout (&dtGData->layComm, geneva, 9, 0);
+   id_SetUpLayout (&dtGData->layList, systemFont, 12, 0);   
 
 #ifdef _ONE_DAY_
    short   applResRef, resErr;
@@ -1400,15 +1405,41 @@ int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight)
    return (resultSize.width < 1. ? -1 : 0);
 }
 
+void   TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWrap, short eraseBackground)
+{
+   CFStringRef  cfStr;
+   
+   CGRect    strRect = id_Rect2CGRect (txtRect);
+   NSFont   *textFont = [NSFont messageFontOfSize:10];
+   NSColor  *theColor = [NSColor blackColor];
+   
+   id_Mac2CFString (str, &cfStr, len);
+   
+   NSMutableParagraphStyle  *textStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
+   
+   textStyle.lineBreakMode = NSLineBreakByWordWrapping;
+   textStyle.alignment = TExAlignment (teJust);  // NSTextAlignmentLeft;
+   
+   NSMutableDictionary  *attrs = [NSMutableDictionary dictionaryWithCapacity:3];
+   
+   [attrs setObject:textStyle forKey:NSParagraphStyleAttributeName];
+   [attrs setObject:textFont forKey:NSFontAttributeName];
+   [attrs setObject:theColor forKey:NSForegroundColorAttributeName];
+   
+   
+   [(NSString *)cfStr drawInRect:strRect withAttributes:attrs];
+   
+   [textStyle release];
+   
+   CFRelease (cfStr);
+}
+
 /* .......................................................... TExSetAlignment ....... */
 
-int  TExSetAlignment (NSTextField *theCtl, short teJust)
+NSTextAlignment  TExAlignment (short teJust)
 {
    NSTextAlignment  justificationToSet;
    
-   if (!theCtl)
-      return (paramErr);
-
    switch (teJust)  {
       case  teJustRight:
          justificationToSet = NSRightTextAlignment;
@@ -1423,6 +1454,18 @@ int  TExSetAlignment (NSTextField *theCtl, short teJust)
          break;
    }
 
+   return (justificationToSet);
+}
+
+/* .......................................................... TExSetAlignment ....... */
+
+int  TExSetAlignment (NSTextField *theCtl, short teJust)
+{
+   NSTextAlignment  justificationToSet = TExAlignment (teJust);
+   
+   if (!theCtl)
+      return (paramErr);
+   
    [theCtl setAlignment:justificationToSet];
    
    return (theCtl.alignment == justificationToSet ? 0 :  -1);
@@ -1455,6 +1498,8 @@ int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
    
    return (retVal);
 }
+
+#pragma mark -
 
 /* ----------------------------------------------------- GetFontNum ------------------ */
 
@@ -1538,7 +1583,7 @@ int  GetFontName (short fontNum, char *fontName, short maxLen)
 
 /* ----------------------------------------------------- id_SetFont ------------------ */
 
-int  id_SetFont (FORM_REC *form, short txtFont, short txtSize, short txtFace)
+NSFont  *id_GetFont (short txtFont, short txtSize, short txtFace)
 {
    char  fontName[256];
    
@@ -1566,11 +1611,165 @@ int  id_SetFont (FORM_REC *form, short txtFont, short txtSize, short txtFace)
             font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:mask];
          }
          
-         form->currentFont = font;
+         return (font);
       }
    }
    
+   return (nil);
+}
+
+/* ----------------------------------------------------- id_SetFont ------------------ */
+
+int  id_SetFont (FORM_REC *form, short index, short txtFont, short txtSize, short txtFace)
+{
+   NSFont  *font = id_GetFont (txtFont, txtSize, txtFace);
+      
+   if (font)  {
+      if ((index >= 0) && (index <= form->last_fldno) && form->ditl_def[index]->i_handle)  {
+         NSControl  *theCtl = (NSControl *)form->ditl_def[index]->i_handle;
+         
+         theCtl.font = font;
+      }
+      else
+         form->currentFont = font;
+   }
+   
    return (0);
+}
+
+int  id_GetScaledFontSize (FORM_REC *form, short oSize)
+{
+   if (form)  switch (form->scaleRatio)  {
+      case  100:
+      case  110:
+         return (oSize ? oSize : 12);
+      default:
+         if (oSize)
+            return (oSize + (form->scaleRatio - 110) / 10);
+         else  if (form->scaleRatio == 120)
+            return (13);
+         else  if (form->scaleRatio > 120)
+            return (14);
+   }
+   
+   return (oSize);
+}
+
+void  id_SetUpLayout (
+ ID_LAYOUT  *theLayout,
+ short       oFont,
+ short       oSize,
+ short       oFace
+)
+{
+   theLayout->oFont = oFont;
+   theLayout->oSize = oSize;
+   theLayout->oFace = oFace;
+}
+
+/* ----------------------------------------------------------- id_SetLayout ---------- */
+
+void  id_SetLayout (
+ FORM_REC   *form,
+ short       index,
+ ID_LAYOUT  *theLayout
+)
+{
+   NSFont  *font = id_GetFont (theLayout->oFont,
+                               form ? id_GetScaledFontSize(form, theLayout->oSize) : theLayout->oSize,
+                               theLayout->oFace);
+   
+   if ((index >= 0) && (index <= form->last_fldno) && form->ditl_def[index]->i_handle)  {
+      NSControl  *theCtl = (NSControl *)form->ditl_def[index]->i_handle;
+      
+      theCtl.font = font;
+   }
+}
+
+/* ----------------------------------------------------------- id_set_edit_layout ---- */
+
+void  id_set_edit_layout (FORM_REC *form, short index)  // Used only down there
+{
+   id_SetLayout (form, index, &dtGData->layEdit);
+}
+
+void  id_my_edit_layout (
+ FORM_REC  *form,
+ short      index
+)
+{
+   if ((index >= 0) && (index <= form->last_fldno) && form->edit_def[index]->e_fld_layout)  {
+      id_SetLayout (form, index, form->edit_def[index]->e_fld_layout);
+   }
+   else  if (form->edit_layout)  {
+      id_SetLayout (form, index, form->edit_layout);
+   }
+   else
+      id_set_edit_layout (form, index);
+}
+
+void  id_set_stat_layout (FORM_REC *form, short index)
+{
+   id_SetLayout (form, index, &dtGData->layStat);
+}
+ 
+void  id_my_stat_layout (
+ FORM_REC  *form,
+ short      index
+)
+{
+   if ((index >= 0) && (index <= form->last_fldno) && form->edit_def[index]->e_fld_layout)  {
+      id_SetLayout (form, index, form->edit_def[index]->e_fld_layout);
+   }
+   else  if (form->stat_layout)  {
+      id_SetLayout (form, index, form->stat_layout);
+   }
+   else
+      id_set_stat_layout (form, index);
+}
+
+void id_set_comment_layout (FORM_REC *form)
+{
+   id_SetLayout (form, -1, &dtGData->layComm);
+}
+
+void  id_set_list_layout (FORM_REC *form, short index)
+{
+   id_SetLayout (form, index, &dtGData->layList);
+}
+
+void  id_my_list_layout (
+ FORM_REC  *form,
+ short      index
+)
+{
+   if ((index >= 0) && (index <= form->last_fldno) && form->edit_def[index]->e_fld_layout)  {
+      id_SetLayout (form, index, form->edit_def[index]->e_fld_layout);
+   }
+   else  if (form->list_layout)  {
+      id_SetLayout (form, index, form->list_layout);
+   }
+   else
+      id_set_list_layout (form, index);
+}
+
+void  id_my_popUp_layout (
+ FORM_REC  *form,
+ short      index
+)
+{
+   if (form->popUp_layout)  {
+      id_SetLayout (form, index, form->popUp_layout);
+   }
+   else
+      id_SetFont (form, index, geneva, form ? id_GetScaledFontSize(form, 12) : 12, normal);
+}
+
+void  id_set_system_layout (FORM_REC *form)
+{
+   /*TextFont (0);
+   TextSize (0);
+   TextFace (0);*/
 }
 
 #pragma mark -
@@ -2457,8 +2656,6 @@ static char  *id_text_date_fmt2 (unsigned short dateShort, char *txtBuff)
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1090
 
-void  OffsetRect (Rect *rect, short h, short v);
-
 void  SetRect (Rect *rect, short l, short t, short r, short b)
 { 
    rect->left = l; 
@@ -2474,6 +2671,23 @@ void  InsetRect (Rect *rect, short h, short v)
    rect->right -= h; 
    rect->bottom -= v; 
 } 
+
+void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect)
+{
+   targetRect->left = MIN (rect1->left, rect2->left);
+   targetRect->top  = MIN (rect1->top, rect2->top);
+   targetRect->right  = MAX (rect1->top, rect2->top);
+   targetRect->bottom  = MAX (rect1->bottom, rect2->bottom);
+}
+
+void  OffsetRect (Rect *rect, short h, short v)
+{
+   rect->left += h; 
+   rect->top += v; 
+   rect->right += h; 
+   rect->bottom += v; 
+}
+
 #endif
 
 CGRect  id_Rect2CGRect (Rect *rect)
@@ -3113,6 +3327,68 @@ int  id_frame_editText (          /* Maybe To Change for all Fields */
    return (0);
 }
 
+/* ----------------------------------------------------------- id_title_bounds ----- */
+
+int  id_title_bounds (
+ FORM_REC  *form,
+ short      fldno_1,
+ short      fldno_2,
+ PatPtr     frPatPtr,
+ char      *title_str,
+ ID_LAYOUT *specLayout
+)
+{
+   short       index_1 = fldno_1-1;
+   short       index_2 = fldno_2-1;
+   short       distance, tx_len, len;
+   WindowPtr   savedPort;
+   Rect        frame_bounds, tr1, tr2;
+   FontInfo    fntInfo;
+         
+   if (id_inpossible_item (form, index_1) || id_inpossible_item (form, index_2))
+      return (-1);
+   
+   id_GetPort (form, &savedPort);
+   id_SetPort (form, (WindowPtr)form->my_window);
+   
+   id_itemsRect (form, index_1, &tr1);
+   id_itemsRect (form, index_2, &tr2);
+
+   UnionRect (&tr1, &tr2, &frame_bounds);
+
+   // if (specLayout)
+   //    id_SetLayout (form, specLayout);
+   // else
+   //    id_my_stat_layout (form, index_1);
+   // GetFontInfo (&fntInfo);
+   // distance = fntInfo.ascent /*+ fntInfo.descent*/;
+   
+   distance = [[NSFont systemFontOfSize:12] ascender];
+   InsetRect (&frame_bounds, -distance, -distance);
+   frame_bounds.right -= 1;
+   
+   // DrawThemePrimaryGroup (&frame_bounds, kThemeStateActive);
+   CGContextSaveGState (form->drawRectCtx);
+   CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor grayColor].toCGColor);  // Right
+   id_FrameRect (form, &frame_bounds);
+   CGContextRestoreGState (form->drawRectCtx);
+   
+   if (title_str && (len = strlen(title_str)))  {
+      tx_len = id_TextWidth (form, title_str, 0, len);
+      tx_len += len;
+      SetRect (&tr1, frame_bounds.left + distance+1,  frame_bounds.top - distance/2 - 1,
+                     frame_bounds.left + distance+tx_len+3, frame_bounds.top + distance/2+2);
+      tr1.right += len;
+
+      TExTextBox (title_str, len, &tr1, teJustLeft, TRUE, TRUE);  // wrap, erase back
+   }
+   
+   id_SetPort (form, savedPort);
+   
+   return (0);
+}
+
+#pragma mark PDF
 
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData)
 {
@@ -3902,6 +4178,8 @@ int  id_CalcTBPopRect (
 
 /* ....................................................... id_DrawTBPopUp ........... */
 
+extern  int  gGScaleValues[kScaleLevels];
+
 static int  id_DrawTBPopUp (
  FORM_REC  *form
 )
@@ -3944,8 +4222,11 @@ static int  id_DrawTBPopUp (
    [popUp setTarget:[form->my_window contentView]];
    [popUp setAction:@selector(onScaleSelectionChange:)];
    
-   for (int i=100; i<=200; i+=10)
-      [popUp addItemWithTitle:[NSString stringWithFormat:@"%d %%", i]];
+   for (int i=0; i<kScaleLevels; i++)
+      [popUp addItemWithTitle:[NSString stringWithFormat:@"%d %%", gGScaleValues[i]]];
+
+   /*for (int i=100; i<=200; i+=10)
+      [popUp addItemWithTitle:[NSString stringWithFormat:@"%d %%", i]];*/
 
    HUnlock ((Handle)tbHandle);
    
