@@ -162,6 +162,26 @@ int  id_get_max_rect (Rect *rect)
 
 /* ....................................................... id_adjust_button_rect .... */
 
+void  id_adjust_edit_rect (
+ FORM_REC  *form,
+ short      index,
+ Rect      *ctlRect
+)
+{
+   InsetRect (ctlRect, -1, -1);
+}
+
+void  id_adjust_stat_rect (
+ FORM_REC  *form,
+ short      index,
+ Rect      *ctlRect
+)
+{
+   InsetRect (ctlRect, -1, -1);
+}
+
+/* ....................................................... id_adjust_button_rect .... */
+
 void  id_adjust_button_rect (
  FORM_REC  *form,
  short      index,
@@ -169,7 +189,7 @@ void  id_adjust_button_rect (
 )
 {
    short   pureIType = form->ditl_def[index]->i_type & 127;
-   short   overSize, normalSize = RectHeight(&form->ditl_def[index]->i_rect);
+   short   overSize, normalSize = RectHeight (&form->ditl_def[index]->i_rect);
 
    if (pureIType == (ctrlItem+btnCtrl))  {  /* Simple Button */
       if (RectHeight(ctlRect) > (normalSize + 2))  {
@@ -178,16 +198,6 @@ void  id_adjust_button_rect (
          ctlRect->bottom -= overSize/2;
       }
    }
-#ifdef _NIJE_
-   else  if (pureIType == (ctrlItem+chkCtrl))  {  /* Check Box */
-      ctlRect->left += 2;  // Mac adjusting
-      ctlRect->top += 1;  // Mac adjusting
-      ctlRect->bottom += 1;  // Mac adjusting
-   }
-   else  if (pureIType == (ctrlItem+radCtrl))  {  /* Radio Control */
-      ctlRect->left += 2;  // Mac adjusting
-   }
-#endif
 }
 
 /* ....................................................... id_adjust_pict_rect ...... */
@@ -211,11 +221,9 @@ void  id_adjust_popUp_rect (
  Rect      *ctlRect
 )
 {
-#ifdef _DTOOL_OSX_
-   InsetRect (ctlRect, -1, -1);  // MacOS X adjusting
+   InsetRect (ctlRect, -2, -1);  // MacOS X adjusting
    ctlRect->left -= 2;
    OffsetRect (ctlRect, 0, -1);
-#endif
 }
 
 /* ....................................................... id_adjust_popUp_rect ..... */
@@ -321,25 +329,22 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
       
       id_CopyMac2Rect (form, &tmpRect, &form->ditl_def[index]->i_rect);
       
-      CGRect  newCtlRect = id_Rect2CGRect (&tmpRect);
-      
       // CGRect  newCtlRect = CGRectMake (origRect.origin.x * newScaleRatio / 100, origRect.origin.y * newScaleRatio / 100,
       //                                  origRect.size.width * newScaleRatio / 100, origRect.size.height * newScaleRatio / 100);
       
       // newCtlRect = NSOffsetRect (newCtlRect, 0., dtGData->toolBarHeight);
       
       if (f_ditl_def->i_type & editText)
-         newCtlRect = CGRectInset (newCtlRect, -3, -3);
-      else  if (f_ditl_def->i_type & statText)
-         newCtlRect = CGRectInset (newCtlRect, -3, -3);
+         id_adjust_edit_rect (form, index, &tmpRect);
+      else  if (f_ditl_def->i_type & statText)  {
+         id_adjust_stat_rect (form, index, &tmpRect);
+      }
       else  if (f_ditl_def->i_type & ctrlItem)  {
-         short  pureIType = f_ditl_def->i_type & 127, itsaControl = TRUE;
-         
-         if (pureIType == (ctrlItem+btnCtrl))  {       /* Simple Button */
-            newCtlRect = CGRectInset (newCtlRect, -3, -3);
-         }
+         id_adjust_button_rect (form, index, &tmpRect);
       }
       
+      CGRect  newCtlRect = id_Rect2CGRect (&tmpRect);
+
       if (f_ditl_def->i_handle)  {
          [(NSControl *)f_ditl_def->i_handle setFrame:newCtlRect];
       }

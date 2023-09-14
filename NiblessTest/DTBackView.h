@@ -25,6 +25,9 @@
 @end
 
 int   id_get_max_rect (Rect *rect);
+
+void  id_adjust_edit_rect (FORM_REC *form, short index, Rect *ctlRect);
+void  id_adjust_stat_rect (FORM_REC *form, short index, Rect *ctlRect);
 void  id_adjust_button_rect (FORM_REC *form, short index, Rect *ctlRect);
 void  id_adjust_pict_rect (FORM_REC *form, short index, Rect *ctlRect);
 void  id_adjust_popUp_rect (FORM_REC *form, short index, Rect *ctlRect);

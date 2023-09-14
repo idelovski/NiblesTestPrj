@@ -656,7 +656,7 @@ static double  gYOffset = 30.;
    [popUp setTarget:self];
    [popUp setAction:@selector(onSelectionChange:)];
    
-   if (frame.size.height < 14)  {
+   if (frame.size.height < 16)  {
       [popUp setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize] - 1]];
       cell.controlSize = NSMiniControlSize;  // NSSmallControlSize
    }
@@ -825,8 +825,8 @@ int  pr_CreateDitlWindow (
    // Now, lets build our window
    
    if (form->DITL_handle && form->ditl_def)  {
-      Rect         macRect;
-      CGRect       tmpRect;
+      Rect         tmpRect;
+      CGRect       cgRect;
       CFStringRef  winTitleRef;
       
       id_Mac2CFString (windowTitle, &winTitleRef, strlen(windowTitle));
@@ -862,17 +862,17 @@ int  pr_CreateDitlWindow (
          f_ditl_def = form->ditl_def[index];
          f_edit_def = form->edit_def[index];
          
-         macRect = f_ditl_def->i_rect;
+         id_CopyMac2Rect (form, &tmpRect, &form->ditl_def[index]->i_rect);
          
          // tmpRect = NSMakeRect (macRect.left, macRect.top, macRect.right-macRect.left, macRect.bottom-macRect.top);
          
-         tmpRect = id_Rect2CGRect (&macRect);
-         
-         tmpRect = NSOffsetRect (tmpRect, 0., dtGData->toolBarHeight);
+         // tmpRect = NSOffsetRect (tmpRect, 0., dtGData->toolBarHeight);
          
          if (f_ditl_def->i_type & editText)  {              /* If TE field */
             
-            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -1, -2))
+            id_adjust_edit_rect (form, index, &tmpRect);
+            
+            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateEditFieldWithFrame:id_Rect2CGRect(&tmpRect)
                                                                                                 inForm:form];
             TExSetAlignment ((NSTextField *)f_ditl_def->i_handle, form->edit_def[index]->e_justify);
             // id_create_edit (form, index, savedPort);
@@ -883,9 +883,11 @@ int  pr_CreateDitlWindow (
          }
          else  if (f_ditl_def->i_type & statText)  {              /* If static text / label */
             
-            tmpRect = NSOffsetRect (tmpRect, 2., 2.);  // I need adjust_stat_Rect() or something like that
+            id_adjust_stat_rect (form, index, &tmpRect);
 
-            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_CocoaRect(newWin, CGRectInset(tmpRect, -3, -2))
+            // tmpRect = NSOffsetRect (tmpRect, 2., 2.);  // I need adjust_stat_Rect() or something like that
+
+            f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateLabelWithFrame:id_Rect2CGRect(&tmpRect)
                                                                                              inForm:form];
             TExSetAlignment ((NSTextField *)f_ditl_def->i_handle, form->edit_def[index]->e_justify);
 
@@ -902,21 +904,23 @@ int  pr_CreateDitlWindow (
             
             short  pureIType = f_ditl_def->i_type & 127, itsaControl = TRUE;
             
+            id_adjust_button_rect (form, index, &tmpRect);
+
             CFStringRef  buttonTitle = id_Mac2CFString (f_ditl_def->i_data.d_text, &buttonTitle, f_ditl_def->i_data_size);
             
             if (pureIType == (ctrlItem+btnCtrl))  {       /* Simple Button */
-               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateButtonWithFrame:CGRectInset(tmpRect, -3, -3)
+               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateButtonWithFrame:id_Rect2CGRect(&tmpRect)
                                                                                                 inForm:form
                                                                                                  title:(NSString *)buttonTitle];
             }
             else  if (pureIType == (ctrlItem+chkCtrl))  {  /* Check Box */
                
-               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateCheckBoxWithFrame:tmpRect
+               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateCheckBoxWithFrame:id_Rect2CGRect(&tmpRect)
                                                                  inForm:form
                                                                   title:(NSString *)buttonTitle];
             }
             else  if (pureIType == (ctrlItem+radCtrl))  {  /* Radio Control */
-               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateRadioButtonWithFrame:tmpRect
+               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateRadioButtonWithFrame:id_Rect2CGRect(&tmpRect)
                                                                     inForm:form
                                                                      title:(NSString *)buttonTitle];
             }
@@ -926,11 +930,11 @@ int  pr_CreateDitlWindow (
          }
          else  if ((f_ditl_def->i_type & 127) == userItem)  {
             
-            //- id_itemsRect (form, index, &tmpRect);
+            id_adjust_popUp_rect (form, index, &tmpRect);
             
             if (f_edit_def && f_edit_def->e_type == ID_UT_POP_UP)  {
                
-               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreatePopUpWithFrame:tmpRect
+               f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreatePopUpWithFrame:id_Rect2CGRect(&tmpRect)
                                                                                                 inForm:form];
                if (f_edit_def->e_entry_func)  {
                   retVal = (*f_edit_def->e_entry_func)(form, index+1, f_edit_def->e_occur, ID_ENTRY_FLAG);
@@ -1009,6 +1013,26 @@ int  attach_kd_22x_pop (
    
    if (mode==ID_ENTRY_FLAG)  {
       form->edit_def[index]->e_array = ktoPopList;
+   }
+   
+   return (0);
+}
+
+/* ................................................. attach_pr_r1r2_pop ............. */
+
+int  attach_pr_r1r2_pop (
+ FORM_REC  *form,
+ int        fldno,
+ int        offset,
+ int        mode
+)
+{
+   static char *r12PopList[4] = { "NPO", "R-1", "R-2", "OPN" };
+   short  index=fldno-1;
+   
+   if (mode==ID_ENTRY_FLAG)  {
+      form->edit_def[index]->e_array = r12PopList;
+      form->edit_def[index]->e_elems = 4;
    }
    
    return (0);

@@ -165,6 +165,9 @@ static FORM_REC  newForm;
       id_move_field (&newForm, K_12x_POP, 0, -303);
       id_move_field (&newForm, K_22x_POP, 0, -303);
 
+      id_move_field (&newForm, K_TXT_12x, 0,  303);
+      id_move_field (&newForm, K_TXT_22x, 0,  303);
+
       id_move_field (&newForm, K_KTO_12x, 24, 0);
       id_move_field (&newForm, K_KTO_22x, 24, 0);
    }
@@ -2667,6 +2670,14 @@ void  SetRect (Rect *rect, short l, short t, short r, short b)
    rect->bottom = b; 
 } 
 
+void  OffsetRect (Rect *rect, short h, short v)
+{
+   rect->left += h; 
+   rect->top += v; 
+   rect->right += h; 
+   rect->bottom += v; 
+}
+
 void  InsetRect (Rect *rect, short h, short v)
 { 
    rect->left += h; 
@@ -2681,14 +2692,6 @@ void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect)
    targetRect->top  = MIN (rect1->top, rect2->top);
    targetRect->right  = MAX (rect1->top, rect2->top);
    targetRect->bottom  = MAX (rect1->bottom, rect2->bottom);
-}
-
-void  OffsetRect (Rect *rect, short h, short v)
-{
-   rect->left += h; 
-   rect->top += v; 
-   rect->right += h; 
-   rect->bottom += v; 
 }
 
 #endif
@@ -3004,7 +3007,7 @@ void  id_CopyMac2Rect (FORM_REC *form, Rect *dstRect, MacRect *srcRect)
       // OffsetRect (dstRect, leftOffset, topOffset);
    }
 
-   if (form && form->toolBarHandle)
+   if (form && (form->w_procID == documentProc))
       OffsetRect (dstRect, 0, dtGData->toolBarHeight);
 }
 

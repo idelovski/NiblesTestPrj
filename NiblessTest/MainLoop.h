@@ -100,9 +100,9 @@ enum {
 };
 
 void  SetRect (Rect *rect, short l, short t, short r, short b);
+void  OffsetRect (Rect *rect, short h, short v);
 void  InsetRect (Rect *rect, short h, short v);
 void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect);
-void  OffsetRect (Rect *rect, short h, short v);
 
 #endif
 
@@ -383,11 +383,17 @@ int  id_DrawTBPadding (FORM_REC *form);
 #define  K_KTO_12x    60
 #define  K_KTO_22x    63
 
-#define  K_12x_POP   92
-#define  K_22x_POP   93
+#define  K_12x_POP    92
+#define  K_22x_POP    93
+#define  K_R1R2_POP   95
+
+#define  K_TXT_12x   124
+#define  K_TXT_22x   125
+
 
 int  attach_kd_12x_pop (FORM_REC *form, int fldno, int offset, int mode);
 int  attach_kd_22x_pop (FORM_REC *form, int fldno, int offset, int mode);
+int  attach_pr_r1r2_pop (FORM_REC *form, int fldno, int offset, int mode);
 
 
 #ifdef _MAIN_LOOP_SRC_
@@ -662,19 +668,25 @@ EDIT_item  kupdob_edit_items[] = {
  { K_PLS_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,
                 "Reg", NULL, NULL,
                 attach_kd_pls_pop, attach_kd_pls_pop },
-
+#endif
  { K_R1R2_POP,   ID_UT_POP_UP, 0, 0, 4, 0, teJustLeft, 0,
                 NULL, NULL, NULL,
                 attach_pr_r1r2_pop, attach_pr_r1r2_pop },
 
+#ifdef _NIJE_
  { K_SMALL_9,   0, 31, 0, 0, 0, teJustCenter, 0,
                 NULL, NULL, NULL, 
                 NULL, NULL },   
-
+#endif
  { K_TXT_12x,   0, 3, 0, 0, 0, teJustRight, 0,
                 NULL, NULL, NULL,
                 NULL, NULL },
 
+ { K_TXT_22x,   0, 3, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+#ifdef _NIJE_
  { K_STICKY,    0, 127, 0, 0, 0, teJustLeft, 0,
                 NULL, NULL, NULL, 
                 NULL, NULL },   
