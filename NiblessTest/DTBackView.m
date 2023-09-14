@@ -226,6 +226,9 @@ void  id_adjust_popUp_rect (
    ctlRect->right += 1;
    ctlRect->bottom += 1;
    OffsetRect (ctlRect, 0, -1);
+   
+   if (RectHeight(ctlRect) % 2)
+      ctlRect->bottom += 1;
 }
 
 /* ....................................................... id_adjust_popUp_rect ..... */
@@ -368,11 +371,10 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
       CGRect  newCtlRect = id_Rect2CGRect (&tmpRect);
 
       if (f_ditl_def->i_handle)  {
-       // Or clipsToBouns
          [(NSControl *)f_ditl_def->i_handle setFrame:newCtlRect];
-         /* if ((form->edit_def[index]->e_type == ID_UT_POP_UP))  {
-             NSView      *popUp = (NSView *)form->ditl_def[index]->i_handle;
-             popUp.visibleRect = CGRectInset (popUp.visibleRect, -1, -1);
+         /*if ((form->edit_def[index]->e_type == ID_UT_POP_UP))  {
+            NSView      *popUp = (NSView *)form->ditl_def[index]->i_handle;
+            popUp.visibleRect = CGRectInset (popUp.visibleRect, -1, -1);
          }*/
             
       }

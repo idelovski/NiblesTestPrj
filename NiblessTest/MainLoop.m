@@ -3276,7 +3276,10 @@ int  id_frame_editText (          /* Maybe To Change for all Fields */
       tmpRect.right  = id_AdjustScaledRight (form, index, &tmpRect);
       tmpRect.bottom = id_AdjustScaledBottom (form, index, &tmpRect);
    }
-   
+
+   InsetRect (&tmpRect, -2, -2);
+   OffsetRect (&tmpRect, 0, -1);
+
    // GetPenState (&penState);
 
    if (f_edit_def->e_fld_edits & ID_FE_LINE_UNDER)  {
@@ -3324,7 +3327,6 @@ int  id_frame_editText (          /* Maybe To Change for all Fields */
    else  {
       // NSColor  *borderColor = [NSColor colorWithCalibratedRed:.3 green:.1 blue:.4 alpha:1];
       CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor lightGrayColor].toCGColor);
-      InsetRect (&tmpRect, -2, -2);
       // frState = kThemeStateActive;
       // tmpRect.right  -= 1;
       // tmpRect.bottom -= 1;

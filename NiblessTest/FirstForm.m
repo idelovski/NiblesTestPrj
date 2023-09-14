@@ -656,7 +656,7 @@ static double  gYOffset = 30.;
    [popUp setTarget:self];
    [popUp setAction:@selector(onSelectionChange:)];
    
-   if (frame.size.height < 16)  {
+   if (frame.size.height < 20)  {
       [popUp setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize] - 1]];
       cell.controlSize = NSMiniControlSize;  // NSSmallControlSize
    }
