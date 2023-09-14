@@ -2849,6 +2849,7 @@ int  id_move_field (
    
    if ((form->ditl_def[index]->i_type & ctrlItem) ||
        (form->edit_def[index]->e_type == ID_UT_SCROLL_BAR))  {
+      id_adjust_button_rect (form, index, &tmpRect);
       /*dh = tmpRect.left - savedRect.left;
       dv = tmpRect.top  - savedRect.top;
 
@@ -2857,6 +2858,7 @@ int  id_move_field (
       SetControlBounds ((ControlHandle)form->ditl_def[index]->i_handle, &ctlRect);*/
    }   
    else  if ((form->ditl_def[index]->i_type & editText))  {
+      id_adjust_edit_rect (form, index, &tmpRect);
       /*dh = tmpRect.left - savedRect.left;
       dv = tmpRect.top  - savedRect.top;
 
@@ -2866,19 +2868,24 @@ int  id_move_field (
 								 ctlRect.top, ctlRect.left, ctlRect.bottom, ctlRect.right,
 								 form->txnFrameID[index]);*/
    }   
+   else  if ((form->ditl_def[index]->i_type & statText))  {
+      id_adjust_stat_rect (form, index, &tmpRect);
+   }   
    else  if ((form->ditl_def[index]->i_type & 127) == userItem)  {
       if ((form->edit_def[index]->e_type == ID_UT_POP_UP) /*&& !form->edit_def[index]->e_regular*/)  {
          
-         CGRect  cgRect = id_Rect2CGRect (&tmpRect);
-         
-         NSPopUpButton  *popUp = (NSPopUpButton *)form->ditl_def[index]->i_handle;
-         
-         popUp.frame = cgRect;
+         id_adjust_popUp_rect (form, index, &tmpRect);
 
          // id_resetPopUpSize (form, index, &tmpRect);
       }
    }
 
+   if (form->ditl_def[index]->i_handle)  {
+      NSControl  *control = (NSControl *)form->ditl_def[index]->i_handle;
+      
+      [control setFrame:id_Rect2CGRect(&tmpRect)];
+   }
+   
    InsetRect (&tmpRect, -3, -3);
    id_InvalWinRect (form, &tmpRect);
  

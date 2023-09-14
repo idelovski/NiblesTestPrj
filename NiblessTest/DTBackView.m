@@ -223,6 +223,8 @@ void  id_adjust_popUp_rect (
 {
    InsetRect (ctlRect, -2, -1);  // MacOS X adjusting
    ctlRect->left -= 2;
+   ctlRect->right += 1;
+   ctlRect->bottom += 1;
    OffsetRect (ctlRect, 0, -1);
 }
 
@@ -269,6 +271,8 @@ int  id_get_max_scaled_rect (FORM_REC *form, Rect *retMaxRect)
    
    return (maxLevel);
 }
+
+#pragma mark -
 
 /* ....................................................... id_scale_form ............ */
 
@@ -342,11 +346,35 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
       else  if (f_ditl_def->i_type & ctrlItem)  {
          id_adjust_button_rect (form, index, &tmpRect);
       }
+      else  if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+         if ((form->edit_def[index]->e_type == ID_UT_POP_UP) /*&& !form->edit_def[index]->e_regular*/)  {
+            
+            NSPopUpButton      *popUp = (NSPopUpButton *)form->ditl_def[index]->i_handle;
+            NSPopUpButtonCell  *cell = popUp.cell;
+            
+            if (RectHeight(&tmpRect) < 16)  {
+               [popUp setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize] - 1]];
+               cell.controlSize = NSMiniControlSize;  // NSSmallControlSize
+            }
+            else
+               cell.controlSize = NSRegularControlSize;  // NSSmallControlSize
+
+            id_adjust_popUp_rect (form, index, &tmpRect);
+            
+            // id_resetPopUpSize (form, index, &tmpRect);
+         }
+      }
       
       CGRect  newCtlRect = id_Rect2CGRect (&tmpRect);
 
       if (f_ditl_def->i_handle)  {
+       // Or clipsToBouns
          [(NSControl *)f_ditl_def->i_handle setFrame:newCtlRect];
+         /* if ((form->edit_def[index]->e_type == ID_UT_POP_UP))  {
+             NSView      *popUp = (NSView *)form->ditl_def[index]->i_handle;
+             popUp.visibleRect = CGRectInset (popUp.visibleRect, -1, -1);
+         }*/
+            
       }
    } /* end of for */
    
