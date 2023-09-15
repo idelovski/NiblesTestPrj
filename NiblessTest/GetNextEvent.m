@@ -18,6 +18,8 @@
 
 static BOOL  id_handleRightMouse (NSEvent *event);
 
+/*extern*/ EventRecord  gGSavedEventRecord = { 0 };
+
 @implementation GetNextEvent
 
 @end
@@ -33,8 +35,15 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
                                            inMode:NSDefaultRunLoopMode
                                           dequeue:YES];
    
-   if (!event)
+   if (!event)  {
+      if (gGSavedEventRecord.what)  {
+         BlockMove (&gGSavedEventRecord, evtRec, sizeof(EventRecord));
+         id_SetBlockToZeros (&gGSavedEventRecord, sizeof(EventRecord));
+         return (YES);
+      }
+
       return (NO);
+   }
 
    if (event.type == NSKeyDown)  {
       evtRec->what = keyDown;
@@ -169,7 +178,7 @@ EventRecord  *id_GetFreeEventRecord (void)
    return (NULL);
 }
 
-EventRecord *id_GetUsedEventRecord (void)
+EventRecord  *id_GetUsedEventRecord (void)
 {
    short  i;
    
@@ -196,8 +205,6 @@ int  id_EventRecordScarcity (void)
    return (eventsCount < (kEVENTS_STACK/2) ? FALSE : TRUE);
 }
 
-#ifdef  _NOT_YET_
-
 int  id_AvailableUsedEvent (short eventMask, FORM_REC *form)
 {
    short  i;
@@ -205,11 +212,11 @@ int  id_AvailableUsedEvent (short eventMask, FORM_REC *form)
    for (i=0; i<kEVENTS_STACK; i++)  {
       if (dtGData->eventsUsed[i])  {
          if ((eventMask & activMask) && dtGData->eventRecord[i].what == activateEvt)  {
-            if (!form || dtGData->eventRecord[i].nswindow == form->my_window)
+            if (!form || (NSWindow *)dtGData->eventRecord[i].message == form->my_window)
                return (TRUE);
          }
          if ((eventMask & updateMask) && dtGData->eventRecord[i].what == updateEvt)  {
-            if (!form || dtGData->eventRecord[i].nswindow == form->my_window)
+            if (!form || (NSWindow *)dtGData->eventRecord[i].message == form->my_window)
                return (TRUE);
          }
       }
@@ -241,7 +248,7 @@ void  id_FlushUsedEvents (FORM_REC *form)
       for (i=0; i<kEVENTS_STACK; i++)  {
          if (dtGData->eventsUsed[i] &&
              dtGData->eventRecord[i].what != nullEvent &&
-             dtGData->eventRecord[i].nswindow == form->my_window)  {
+             (NSWindow *)dtGData->eventRecord[i].message == form->my_window)  {
 #ifdef _MAYBE_
             id_PrintUsedEvent (NULL, i, tmpStr);
             sprintf (msgStr, "%s 2nd > %s", "id_FlushUsedEvents", tmpStr);
@@ -265,7 +272,7 @@ void  id_FlushParentActivations (FORM_REC *form)
          if (dtGData->eventsUsed[i] &&
              dtGData->eventRecord[i].what == activateEvt &&
              dtGData->eventRecord[i].modifiers == activeFlag &&
-             dtGData->eventRecord[i].nswindow == form->my_window)  {
+             (NSWindow *)dtGData->eventRecord[i].message == form->my_window)  {
 #ifdef _MAYBE_
             id_PrintUsedEvent (NULL, i, tmpStr);
             sprintf (msgStr, "%s > %s", "id_FlushParentActivations", tmpStr);
@@ -276,12 +283,9 @@ void  id_FlushParentActivations (FORM_REC *form)
       }
    }
 }
-#endif  // _NOT_YET_
-
-/*extern*/ EventRecord  gGSavedEventRecord;
 
 void  id_BuildKeyDownEvent (
- FORM_REC *form,       // may be NULL
+ FORM_REC *form,       // must not be NULL
  short     charCode,
  short     keyCode,
  short     modifiers,
@@ -295,7 +299,7 @@ void  id_BuildKeyDownEvent (
    
    if (!evtPtr)  return;   // handle this better!
    
-   // evtPtr->hwnd = form->my_window;
+   // evtPtr->message = (unsigned long )form->my_window;
 
    evtPtr->what = keyDown;
    if (evtRef)
@@ -336,3 +340,33 @@ void  id_BuildKeyDownEvent (
       
    evtPtr->modifiers = modifiers;
 }
+
+void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window, find one day the real position of the mouse
+ FORM_REC  *form,       // must not be NULL
+ EventRef   evtRef      // may be NULL
+)
+{
+   long   loWord;
+   Point  where = { 0, 0 };
+   
+   EventRecord  *evtPtr =  &gGSavedEventRecord; // &dtGData->eventRecord;  // id_GetFreeEventRecord()
+
+   id_SetBlockToZeros (evtPtr, sizeof(EventRecord));
+   
+   if (!evtPtr)  return;   // handle this better!
+   
+   evtPtr->message = (unsigned long )form->my_window;
+
+   evtPtr->what = mouseDown;
+   if (evtRef)
+      evtPtr->when = GetEventTime (evtRef);
+   else
+      evtPtr->when = TickCount ();
+   
+   evtPtr->where = where;
+   
+   // SetPt (&evtPtr->where, dtGData->mousePos.x, dtGData->mousePos.y);  //  Jesus!
+   
+   evtPtr->modifiers = 1 << (activeFlagBit+1);  // This flag is unused by OS - hope so
+}
+

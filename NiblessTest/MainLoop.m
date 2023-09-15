@@ -38,6 +38,8 @@ static int  id_InitStatusbarIcons (void);
 static int  id_DrawStatusbarText (FORM_REC *form, short statPart, char *statusText);
 static int  id_DrawTBPopUp (FORM_REC  *form);
 
+extern EventRecord  gGSavedEventRecord;
+
 @implementation MainLoop
 
 #pragma mark Menu
@@ -161,7 +163,7 @@ static FORM_REC  newForm;
    if (!newForm.my_window && menuIndex > 3)  {
       // id_SetBlockToZeros (, sizeof(FORM_REC));
       id_init_form (&newForm);
-      pr_CreateDitlWindow (&newForm, 601, &tmpRect, "Bravo majstore", &kupdob_edit_items[0]);
+      pr_CreateDitlWindow (&newForm, 601, &tmpRect, "Adresar", &kupdob_edit_items[0]);
       id_move_field (&newForm, K_12x_POP, 0, -303);
       id_move_field (&newForm, K_22x_POP, 0, -303);
 
@@ -1347,8 +1349,11 @@ void TestVersion (void)
 {
    OSErr   err;
    SInt32  response;
+
+   EventRecord  evt;
    
-   NSLog (@"Sizeof long: %ld;  Sizeof int: %ld; Sizeof SInt32: %ld;  Sizeof longlong: %ld\n", sizeof(long), sizeof(int), sizeof(SInt32), sizeof(long long));
+   NSLog (@"Sizeof long: %ld;  Sizeof int: %ld; Sizeof SInt32: %ld;  Sizeof longlong: %ld;  Sizeof evt->message: %ld\n",
+          sizeof(long), sizeof(int), sizeof(SInt32), sizeof(long long), sizeof(evt.message));
    
    err = Gestalt (gestaltSystemVersion, &response);
    
@@ -1511,7 +1516,7 @@ int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
 
 int  GetFontNum (char *fontName, short *fontNum)
 {
-   static NSArray  *fontFamilyNames = nil;
+   static NSArray  *fontFamilyNames = nil;  // One day to dtGData
    
    *fontNum = 0;
    
@@ -1551,7 +1556,7 @@ int  GetFontNum (char *fontName, short *fontNum)
 
 int  GetFontName (short fontNum, char *fontName, short maxLen)
 {
-   static NSArray  *fontFamilyNames = nil;
+   static NSArray  *fontFamilyNames = nil;  // One day to dtGData
    
    *fontName = '\0';
    
@@ -3464,7 +3469,7 @@ CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData)
 static NSImage  *gGStatusBarBackground = NULL;     // was CIconHandle
 static NSImage  *gGStatusBarSeparator = NULL;     // was CIconHandle
 
-static NSImage  *id_GetCIcon (short rsrc_id)
+NSImage  *id_GetCIcon (short rsrc_id)
 {
    NSString  *iconName = [NSString stringWithFormat:@"CICN%04hd", rsrc_id];
    
@@ -3473,12 +3478,26 @@ static NSImage  *id_GetCIcon (short rsrc_id)
    return (iconImage);
 }
 
-static void  id_PlotCIcon (Rect *macRect, NSImage *iconImage)
+void  id_PlotCIcon (Rect *macRect, NSImage *iconImage)
 {
    // CGRect  icnRect = CGRectMake (macRect->left, macRect->top, macRect->right - macRect->left, macRect->bottom - macRect->top);
    CGRect  icnRect = id_Rect2CGRect (macRect);
    
    [MainLoop drawImage:iconImage inFrame:icnRect form:NULL];
+}
+
+NSImage  *id_GetIcon (short rsrc_id)
+{
+   NSString  *iconName = [NSString stringWithFormat:@"ICON%04hd", rsrc_id];
+   
+   NSImage  *iconImage = [NSImage imageNamed:iconName];
+   
+   return (iconImage);
+}
+
+void  id_PlotIcon (Rect *macRect, NSImage *iconImage)
+{
+   id_PlotCIcon (macRect, iconImage);
 }
 
 /* ----------------------------------------------------- id_GetPictRect -------------- */
@@ -3577,6 +3596,51 @@ void  id_draw_Picture (FORM_REC *form, short index)
       if (!form->drawRectCtx)
          [form->overlayView unlockFocus];
    }
+}
+
+/* ................................................... id_create_iconItem .......... */
+
+void  id_create_iconItem (FORM_REC *form, short index, WindowPtr savedPort)
+{
+   Rect    tmpRect;
+   // CGRect  cgRect;
+
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+
+   NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
+
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+
+   id_CopyMac2Rect (form, &tmpRect, &form->ditl_def[index]->i_rect);
+
+   NSButton  *myButton = [appDelegate.firstFormHandler coreCreateButtonWithFrame:id_Rect2CGRect(&tmpRect)
+                                                  inForm:form
+                                                   title:nil];
+   
+   f_ditl_def->i_handle = (Handle) myButton;
+
+   [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
+   // [myButton setBezelStyle:NSRegularSquareBezelStyle]; //Set what style You want
+   
+   [myButton setBordered:NO];
+
+   // Load images from the app's resources
+   NSImage  *image = id_GetIcon (form->edit_def[index]->e_precision);  // e_precision is active icon
+   
+   // Set images for the buttons
+   [myButton setImage:image];
+   
+   [myButton setTarget:appDelegate.firstFormHandler];
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+#endif
+   [myButton setAction:@selector(ditlButtonPressed:)];
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 }
 
 void  id_resetPopUpMenu (

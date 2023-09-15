@@ -32,3 +32,12 @@ BOOL  id_GetNextEvent (EventRecord *evtRec, long timeout);
 // -------------------
 
 EventRecord  *id_GetFreeEventRecord (void);
+EventRecord  *id_GetUsedEventRecord (void);
+
+int  id_EventRecordScarcity (void);
+int  id_AvailableUsedEvent (short eventMask, FORM_REC *form);
+void id_FlushUsedEvents (FORM_REC *form);
+void id_FlushParentActivations (FORM_REC *form);
+
+void  id_BuildKeyDownEvent (FORM_REC *form, short charCode, short keyCode, short modifiers, EventRef evtRef);
+void  id_BuildCloseWindowEvent (FORM_REC *form, EventRef evtRef);

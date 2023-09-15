@@ -18,6 +18,12 @@
 		EB3921062AAB5FB4003EBFBC /* PICT0131.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */; };
 		EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */; };
 		EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */; };
+		EB8D15912AB4D7EB00B7EA5B /* ICON0145.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158B2AB4D7EB00B7EA5B /* ICON0145.jpg */; };
+		EB8D15922AB4D7EB00B7EA5B /* ICON0147.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158C2AB4D7EB00B7EA5B /* ICON0147.jpg */; };
+		EB8D15932AB4D7EB00B7EA5B /* ICON0305.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158D2AB4D7EB00B7EA5B /* ICON0305.jpg */; };
+		EB8D15942AB4D7EB00B7EA5B /* ICON0306.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158E2AB4D7EB00B7EA5B /* ICON0306.jpg */; };
+		EB8D15952AB4D7EB00B7EA5B /* ICON0146.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158F2AB4D7EB00B7EA5B /* ICON0146.jpg */; };
+		EB8D15962AB4D7EB00B7EA5B /* ICON0307.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D15902AB4D7EB00B7EA5B /* ICON0307.jpg */; };
 		EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */; };
 		EBE7FE862A8D4635001CD6A9 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE7FE852A8D4635001CD6A9 /* Carbon.framework */; };
 		EBEB57302AA61A5000A55FE3 /* NiblessTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB572F2AA61A5000A55FE3 /* NiblessTestAppDelegate.m */; };
@@ -64,6 +70,12 @@
 		EB60FC7F2A90FB9C00445F13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0701.jpg; path = CICN/CICN0701.jpg; sourceTree = "<group>"; };
 		EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0702.jpg; path = CICN/CICN0702.jpg; sourceTree = "<group>"; };
+		EB8D158B2AB4D7EB00B7EA5B /* ICON0145.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0145.jpg; path = ICON/ICON0145.jpg; sourceTree = "<group>"; };
+		EB8D158C2AB4D7EB00B7EA5B /* ICON0147.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0147.jpg; path = ICON/ICON0147.jpg; sourceTree = "<group>"; };
+		EB8D158D2AB4D7EB00B7EA5B /* ICON0305.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0305.jpg; path = ICON/ICON0305.jpg; sourceTree = "<group>"; };
+		EB8D158E2AB4D7EB00B7EA5B /* ICON0306.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0306.jpg; path = ICON/ICON0306.jpg; sourceTree = "<group>"; };
+		EB8D158F2AB4D7EB00B7EA5B /* ICON0146.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0146.jpg; path = ICON/ICON0146.jpg; sourceTree = "<group>"; };
+		EB8D15902AB4D7EB00B7EA5B /* ICON0307.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0307.jpg; path = ICON/ICON0307.jpg; sourceTree = "<group>"; };
 		EBD283FA2AA238BE0021BAEE /* NSFont+CFTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSFont+CFTraits.h"; path = "NiblessTest/NSFont+CFTraits.h"; sourceTree = "<group>"; };
 		EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSFont+CFTraits.m"; path = "NiblessTest/NSFont+CFTraits.m"; sourceTree = "<group>"; };
 		EBE7FE852A8D4635001CD6A9 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
@@ -235,6 +247,19 @@
 			name = CICN;
 			sourceTree = "<group>";
 		};
+		EB8D158A2AB4D7DC00B7EA5B /* ICON */ = {
+			isa = PBXGroup;
+			children = (
+				EB8D158B2AB4D7EB00B7EA5B /* ICON0145.jpg */,
+				EB8D158F2AB4D7EB00B7EA5B /* ICON0146.jpg */,
+				EB8D158C2AB4D7EB00B7EA5B /* ICON0147.jpg */,
+				EB8D158D2AB4D7EB00B7EA5B /* ICON0305.jpg */,
+				EB8D158E2AB4D7EB00B7EA5B /* ICON0306.jpg */,
+				EB8D15902AB4D7EB00B7EA5B /* ICON0307.jpg */,
+			);
+			name = ICON;
+			sourceTree = "<group>";
+		};
 		EBD283F92AA2389A0021BAEE /* Extra */ = {
 			isa = PBXGroup;
 			children = (
@@ -247,6 +272,7 @@
 		EBF336972A8FA04600069683 /* Rsrc */ = {
 			isa = PBXGroup;
 			children = (
+				EB8D158A2AB4D7DC00B7EA5B /* ICON */,
 				EB1643912AA64244009446E6 /* PICT */,
 				EB6B95A02A9D21C50013DC1D /* CICN */,
 				EBF336982A8FA04600069683 /* Bouquet512.png */,
@@ -340,9 +366,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				EB8D15952AB4D7EB00B7EA5B /* ICON0146.jpg in Resources */,
 				EB3921062AAB5FB4003EBFBC /* PICT0131.jpg in Resources */,
 				EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */,
 				EB1643952AA64255009446E6 /* PICT0603.jpg in Resources */,
+				EB8D15922AB4D7EB00B7EA5B /* ICON0147.jpg in Resources */,
 				EBF568322A9E63CF0062D320 /* CICN0820.jpg in Resources */,
 				EBF5682F2A9E63CF0062D320 /* CICN0818.jpg in Resources */,
 				EBF5682C2A9E63CF0062D320 /* CICN0813.jpg in Resources */,
@@ -351,15 +379,19 @@
 				EB1643962AA64255009446E6 /* PICT0604.jpg in Resources */,
 				EBF568282A9E63CF0062D320 /* CICN0822.jpg in Resources */,
 				EBF568312A9E63CF0062D320 /* CICN0812.jpg in Resources */,
+				EB8D15962AB4D7EB00B7EA5B /* ICON0307.jpg in Resources */,
+				EB8D15912AB4D7EB00B7EA5B /* ICON0145.jpg in Resources */,
 				EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */,
 				EBF5682A2A9E63CF0062D320 /* CICN0814.jpg in Resources */,
 				EBF568332A9E63CF0062D320 /* CICN0819.jpg in Resources */,
 				EBF568302A9E63CF0062D320 /* CICN0821.jpg in Resources */,
 				EBF5682D2A9E63CF0062D320 /* CICN0817.jpg in Resources */,
 				EB6B95A32A9D21D90013DC1D /* CICN0701.jpg in Resources */,
+				EB8D15932AB4D7EB00B7EA5B /* ICON0305.jpg in Resources */,
 				EB3921052AAB5FB4003EBFBC /* PICT0132.jpg in Resources */,
 				EBF5682B2A9E63CF0062D320 /* CICN0815.jpg in Resources */,
 				EBF336992A8FA04600069683 /* Bouquet512.png in Resources */,
+				EB8D15942AB4D7EB00B7EA5B /* ICON0306.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -217,17 +217,19 @@ static double  gYOffset = 30.;
       
       if (evtRecord.what == keyDown && evtRecord.message == 'q')
          done = TRUE;
+      else  if ((evtRecord.what = mouseDown) && (evtRecord.modifiers == 2))  // second bit, this goes to id_FindWindow()
+         done = TRUE;
       
    } while (!done);
    
    form = id_FindForm (FrontWindow());
    
+   [NSApp endModalSession:modalSession];
+   
    newWin.delegate = nil;
    [newWin close];
    
    form = id_FindForm (FrontWindow());
-   
-   [NSApp endModalSession:modalSession];
    
    dtDialogForm = NULL;
 
@@ -299,6 +301,11 @@ static double  gYOffset = 30.;
    [myImgView setImage:image];
 #endif
    
+   // myImgView.userInteractionEnabled = YES;
+   
+   [myImgView setTarget:self];
+   [myImgView setAction:@selector(checkPressed:)];
+
    return (myImgView);
 }
 
@@ -748,6 +755,13 @@ static double  gYOffset = 30.;
    //Do what You want here...  
 }
 
+#pragma mark -
+
+- (void)ditlButtonPressed:(id)sender
+{
+   NSLog (@"Button pressed!"); 
+}
+
 @end
 
 #pragma mark -
@@ -958,7 +972,12 @@ int  pr_CreateDitlWindow (
                form->usedETypes |= ID_UT_SCROLL_BAR;
             }
             
-            else  if (f_edit_def->e_type == ID_UT_PICTURE)  {  // Yes, it should be id_create_picture()
+            else  if (f_edit_def->e_type == ID_UT_ICON_ITEM)  {
+               id_create_iconItem (form, index, /*savedPort*/NULL);
+               form->usedETypes |= ID_UT_ICON_ITEM;
+            }
+
+            else  if (f_edit_def->e_type == ID_UT_PICTURE)  {  // Yes, it should be id_create_picture(), this is wrong
                id_draw_Picture (form, index);
                // id_create_picture (form, index, savedPort);
                form->usedETypes |= ID_UT_PICTURE;

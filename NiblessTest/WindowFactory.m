@@ -8,6 +8,7 @@
 
 #import "WindowFactory.h"
 #import "MainLoop.h"
+#import "GetNextEvent.h"
 
 @implementation WindowFactory
 
@@ -167,10 +168,17 @@ extern  FORM_REC  *dtRenderedForm;
    return (NO);
 }
 
+// This needs to create an EventRecord that will produce:
+// 1) mouseDown
+// 2) FindWindow() should set partWind == inGoAway & WindowPtr of my NSWindow
+// ... and FindWindow() must become id_FindWindow in both Carbon & Cocoa
+
 - (void)windowWillClose:(NSNotification *)notification;
 {
    NSWindow  *aWindow = (NSWindow *)[notification object];
    FORM_REC  *form = id_FindForm (aWindow);
+   
+   id_BuildCloseWindowEvent (form, NULL);
    
    if (form == dtRenderedForm)  {
       id_release_form (form);

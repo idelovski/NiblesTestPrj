@@ -345,6 +345,13 @@ CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 #define  kSBAR_ICN_WIDTH   64
 #define  kSBAR_SEP_WIDTH   12
 
+NSImage  *id_GetIcon (short rsrc_id);
+NSImage  *id_GetCIcon (short rsrc_id);
+
+void  id_PlotIcon (Rect *macRect, NSImage *iconImage);
+void  id_PlotCIcon (Rect *macRect, NSImage *iconImage);
+
+
 int   id_GetPictRect (PicHandle picHandle, Rect *picRect);
 
 PicHandle  id_GetPicture (FORM_REC *form, short picID);
@@ -352,6 +359,7 @@ PicHandle  id_GetPicture (FORM_REC *form, short picID);
 int   id_DrawPicture (FORM_REC *form, PicHandle picHandle, Rect *picRect);
 void  id_ReleasePicture (PicHandle picHandle);
 void  id_draw_Picture (FORM_REC *form, short index);
+void  id_create_iconItem (FORM_REC *form, short index, WindowPtr savedPort);
 
 void  id_resetPopUpMenu (FORM_REC *form, short index);
 
@@ -382,6 +390,9 @@ int  id_DrawTBPadding (FORM_REC *form);
 
 #define  K_KTO_12x    60
 #define  K_KTO_22x    63
+
+#define  K_I_CHAIN    89
+#define  K_I_INFO     90
 
 #define  K_12x_POP    92
 #define  K_22x_POP    93
@@ -644,6 +655,7 @@ EDIT_item  kupdob_edit_items[] = {
  { K_S_VISITORS, 0, 240, 0, 0, 0, teJustLeft, 0,
                 NULL, NULL, NULL,
                 NULL, NULL },
+#endif
 
  { K_I_CHAIN,   ID_UT_ICON_ITEM, 0, 145, 146, 147, 0, ID_FE_DOWN_ONLY,
                 NULL, NULL, NULL, 
@@ -653,6 +665,7 @@ EDIT_item  kupdob_edit_items[] = {
                 NULL, NULL, NULL, 
                 NULL, NULL },
           
+#ifdef _NIJE_
  { K_INFO_BOX,  0, 240, 0, 0, 0, teJustRight, 0,
                 NULL, NULL, NULL,
                 NULL, NULL },
