@@ -1149,6 +1149,8 @@ int  id_alertErr (const char *message, const char *const info)
    alert.messageText = [NSString stringWithCString:message encoding:NSUTF8StringEncoding];
    alert.informativeText = [NSString stringWithCString:info encoding:NSUTF8StringEncoding];
    
+   alert.icon = [NSImage imageNamed:@"Bouquet512"];
+   
    result = (int)[alert runModal];
    
    [alert release];
