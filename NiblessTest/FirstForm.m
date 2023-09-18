@@ -226,6 +226,8 @@ static double  gYOffset = 30.;
    if (!modalSession)
       return;
    
+   [newWin makeKeyAndOrderFront:NSApp/*appDelegate.firstFormHandler*/];
+   
    do  {
       
       id_GetNextEvent (&evtRecord, 500.);
@@ -1081,7 +1083,7 @@ int  pr_CreateDitlWindow (
       [MainLoop finalizeFormWindow:form];
       
       NSLog (@"about to call: -makeKeyAndOrderFront:");
-      [newWin makeKeyAndOrderFront:appDelegate.firstFormHandler];
+      [newWin makeKeyAndOrderFront:NSApp/*appDelegate.firstFormHandler*/];
       NSLog (@"after the call: -makeKeyAndOrderFront:");
    }
    
