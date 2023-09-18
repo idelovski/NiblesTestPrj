@@ -342,6 +342,9 @@ static double  gYOffset = 30.;
    // Set images for the buttons
    [myImgView setImage:image];
    
+   // There are -setImageScaling:, -setImageAlignment:
+   // Available even for image buttons
+   
    return (myImgView);
 }
 
