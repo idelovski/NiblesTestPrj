@@ -1080,7 +1080,9 @@ int  pr_CreateDitlWindow (
       
       [MainLoop finalizeFormWindow:form];
       
+      NSLog (@"about to call: -makeKeyAndOrderFront:");
       [newWin makeKeyAndOrderFront:appDelegate.firstFormHandler];
+      NSLog (@"after the call: -makeKeyAndOrderFront:");
    }
    
    return (0);

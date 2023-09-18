@@ -91,7 +91,7 @@ static FORM_REC  newForm;
    [aWindow setTitle:@"Bouquet"];
    
    [aWindow setBackgroundColor:[NSColor windowBackgroundColor]];
-   [aWindow makeKeyAndOrderFront:NSApp];
+   // [aWindow makeKeyAndOrderFront:NSApp];
    
    // [aWindow setContentBorderThickness:24.0 forEdge:NSMinYEdge];  - WTF, ovo treba bit statusBar ali NOPE!
    

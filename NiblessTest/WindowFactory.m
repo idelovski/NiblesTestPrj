@@ -173,9 +173,9 @@ extern  FORM_REC  *dtRenderedForm;
 // 2) FindWindow() should set partWind == inGoAway & WindowPtr of my NSWindow
 // ... and FindWindow() must become id_FindWindow in both Carbon & Cocoa
 
-- (void)windowWillClose:(NSNotification *)notification;
+- (void)windowWillClose:(NSNotification *)aNotification;
 {
-   NSWindow  *aWindow = (NSWindow *)[notification object];
+   NSWindow  *aWindow = (NSWindow *)[aNotification object];
    FORM_REC  *form = id_FindForm (aWindow);
    
    id_BuildCloseWindowEvent (form, NULL);
@@ -221,13 +221,18 @@ extern  FORM_REC  *dtRenderedForm;
 
 - (void)windowDidBecomeKey:(NSNotification *)aNotification
 {
-   NSLog (@"windowDidBecomeKey:");
+   NSWindow  *aWindow = (NSWindow *)[aNotification object];
+   FORM_REC  *form = id_FindForm (aWindow);
 
+   NSLog (@"windowDidBecomeKey: [%@]", form ? aWindow.title : @"No name");
 }
 
 - (void)windowDidResignKey:(NSNotification *)aNotification
 {
-   NSLog (@"windowDidResignKey:");
+   NSWindow  *aWindow = (NSWindow *)[aNotification object];
+   FORM_REC  *form = id_FindForm (aWindow);
+
+   NSLog (@"windowDidResignKey: [%@]", form ? aWindow.title : @"No name");
 }
 
 - (void)windowDidChangeBackingProperties:(NSNotification *)aNotification
