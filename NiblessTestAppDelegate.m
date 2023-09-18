@@ -27,45 +27,13 @@ static FORM_REC  theMainForm;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-#ifdef _NIJE_
-	// Insert code here to initialize your application
-   
-   CGFloat  menuBarHeight = NSStatusBar.systemStatusBar.thickness;
-   NSRect   availableFrame = [NSScreen mainScreen].visibleFrame;
-   
-   availableFrame.origin.y += menuBarHeight;
-   availableFrame.size.height -= menuBarHeight;
-      
-   NSLog (@"Menu bar height: %.0f", menuBarHeight);
-   NSLog (@"Screen Frame orig: %@", NSStringFromRect (availableFrame));
-   NSLog (@"Screen Frame normal: %@", NSStringFromRect (id_CocoaRect(nil, availableFrame)));
-   
-   
-   NSRect  winFrame = NSMakeRect (100, 64, 640, 360);
-   
-   self.window = [[[NSWindow alloc] initWithContentRect:id_CocoaRect(nil, winFrame)
-                                               styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
-                                                 backing:NSBackingStoreBuffered
-                                                   defer:NO] autorelease];
-   CGRect  viewFrame = { { 0, 0 }, { winFrame.size.width, winFrame.size.height } };
-   // viewFrame.size = winFrame.size;
-
-   NSView  *view = [[DTBackView alloc] initWithFrame:viewFrame];
-   
-   [self.window setContentView:view];
-   
-   [self.window setTitle:@"Bouquet"];
-   
-   [self.window setBackgroundColor:[NSColor windowBackgroundColor]];
-   [self.window makeKeyAndOrderFront:NSApp];
-#endif
-   
    self.window = [MainLoop openInitialWindowAsForm:&theMainForm];
    
    self.firstFormHandler = [[FirstForm alloc] initWithWindow:self.window];
    
    [self.firstFormHandler performSelector:@selector(runMainLoop) withObject:nil afterDelay:.1];
    
+   [self.window makeKeyAndOrderFront:NSApp];
    // [view release];
 }
 
