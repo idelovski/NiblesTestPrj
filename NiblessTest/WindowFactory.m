@@ -64,7 +64,7 @@
 
    if (wTitle)
       [win setTitle:wTitle];
-   [win makeKeyAndOrderFront:self];  // NSApp or me?
+   // [win makeKeyAndOrderFront:self];  // NSApp or me?  -- do it outside or pass a delegate in here
    
    return (win);
 }
@@ -233,6 +233,23 @@ extern  FORM_REC  *dtRenderedForm;
    FORM_REC  *form = id_FindForm (aWindow);
 
    NSLog (@"windowDidResignKey: [%@]", form ? aWindow.title : @"No name");
+}
+
+- (void)windowDidBecomeMain:(NSNotification *)aNotification;
+{
+   NSWindow  *aWindow = (NSWindow *)[aNotification object];
+   FORM_REC  *form = id_FindForm (aWindow);
+   
+   NSLog (@"windowDidBecomeMain: [%@]", form ? aWindow.title : @"No name");
+}
+
+- (void)windowDidUpdate:(NSNotification *)aNotification;
+{
+   NSWindow  *aWindow = (NSWindow *)[aNotification object];
+   FORM_REC  *form = id_FindForm (aWindow);
+   
+   // This is too chatty, can't see anything else because of this
+   // NSLog (@"windowDidUpdate: [%@]", form ? aWindow.title : @"No name");
 }
 
 - (void)windowDidChangeBackingProperties:(NSNotification *)aNotification
