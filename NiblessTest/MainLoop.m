@@ -172,9 +172,6 @@ static FORM_REC  newForm;
 
       id_move_field (&newForm, K_KTO_12x, 24, 0);
       id_move_field (&newForm, K_KTO_22x, 24, 0);
-      
-      // nothing helps, -windowDidBecomeKey: notification not sent
-      // [newForm.my_window makeKeyAndOrderFront:NSApp/*appDelegate.firstFormHandler*/];
    }
    else  if (theMenu = File_MENU_ID)  {
       FORM_REC  *form = id_FindForm (FrontWindow());

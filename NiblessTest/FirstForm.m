@@ -1082,13 +1082,7 @@ int  pr_CreateDitlWindow (
       
       [MainLoop finalizeFormWindow:form];
       
-      // So, new window does not call delegate 
-      // nothing helps, -windowDidBecomeKey: notification not sent
-
-      NSLog (@"about to call: -makeKeyAndOrderFront:");
       [newWin makeKeyAndOrderFront:NSApp/*appDelegate.firstFormHandler*/];
-      // [newWin performSelector:@selector(makeKeyAndOrderFront:) withObject:NSApp afterDelay:.1];
-      NSLog (@"after the call: -makeKeyAndOrderFront:");
    }
    
    return (0);
