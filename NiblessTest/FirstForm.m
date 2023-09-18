@@ -91,6 +91,8 @@ static double  gYOffset = 30.;
    [MainLoop finalizeFormWindow:form];
 }
 
+#pragma mark -
+
 - (NSButton *)coreCreateButtonWithFrame:(CGRect)frame
                                  inForm:(FORM_REC *)form
                                   title:(NSString *)buttonTitle
@@ -142,13 +144,28 @@ static double  gYOffset = 30.;
 
 - (void)buttonPressed:(id)button
 {
-   NSLog(@"Button pressed!"); 
+   NSEvent  *event = [NSApp currentEvent];
+   
+   NSLog(@"Button pressed!");
    
    //Do what You want here...  
    FORM_REC  *form = id_FindForm (FrontWindow());
    
    [form->imgButton setEnabled:YES];
    [form->imgView setEnabled:YES];
+
+   if (event.modifierFlags)  {
+      if (event.modifierFlags & NSAlternateKeyMask)  {
+         NSLog (@"Alt key!");
+         [self showAlertsButtonHit:button];
+      }
+      if (event.modifierFlags & NSShiftKeyMask)  {
+         NSLog (@"Shift key!");
+      }
+      if (event.modifierFlags & NSControlKeyMask)  {
+         NSLog (@"Ctrl key!");
+      }
+   }
 }
 
 - (NSButton *)createNewWindowButtonInForm:(FORM_REC *)form
@@ -324,6 +341,9 @@ static double  gYOffset = 30.;
    
    // Set images for the buttons
    [myImgView setImage:image];
+   
+   // There are -setImageScaling:, -setImageAlignment:
+   // Available even for image buttons
    
    return (myImgView);
 }
@@ -762,6 +782,70 @@ static double  gYOffset = 30.;
    NSLog (@"Button pressed!"); 
 }
 
+#pragma mark -
+
+- (void)showAlertsButtonHit:(id)sender
+{
+   NSInteger  result = NSRunAlertPanel (@"Title",
+                                       @"Message",
+                                       @"Default Button",
+                                       @"Alternate Button",
+                                       @"Other Button");
+   
+   NSLog (@"NSRunAlertPanel: %d - %@", (int)result, id_Result2Msg((int)result));
+
+	
+   result = NSRunCriticalAlertPanel(@"Title",
+                                    @"Message",
+                                    @"Default Button",
+                                    @"Alternate Button",
+                                    @"Other Button");
+	
+   NSLog (@"NSRunCriticalAlertPanel: %d - %@", (int)result, id_Result2Msg((int)result));
+	
+   result = NSRunInformationalAlertPanel(@"Title",
+                                         @"Message",
+                                         @"Default Button",
+                                         @"Alternate Button",
+                                         @"Other Button");
+
+   NSLog (@"NSRunInformationalAlertPanel: %d - %@", (int)result, id_Result2Msg((int)result));
+
+   NSAlert *alert = [NSAlert alertWithMessageText:@"Alert Title" 
+                                    defaultButton:@"Default Button" 
+                                  alternateButton:@"Cancel" 
+                                      otherButton:@"Other Button" 
+                        informativeTextWithFormat:@"Something bad has happened."];
+
+   result = [alert runModal];
+   
+   // [alert release]; NO NEED!
+
+   NSLog (@"alertWithMessageText...runModal: %d - %@", (int)result, id_Result2Msg((int)result));
+	
+   result = id_alertErr ("This is the message", "Jašta!");
+
+   NSLog (@"id_alertErr: %d - %@", (int)result, id_Result2Msg((int)result));
+
+   alert = [NSAlert alertWithMessageText:@"Alert Title" 
+						defaultButton:@"Default Button"
+						alternateButton:@"Cancel" 
+						otherButton:@"Other Button" 
+						informativeTextWithFormat:@"Something bad has happened."];
+	
+   [alert beginSheetModalForWindow:[self window]
+                     modalDelegate:self
+                    didEndSelector:@selector(sheetModalEnded:returnCode:contextInfo:)
+                       contextInfo:@"1-2-3"];
+   
+}
+
+- (void)sheetModalEnded:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+   NSLog (@"sheet model ended.\nreturnCode: %d - %@\ncontextInfo: %@",
+          (int)returnCode, id_Result2Msg((int)returnCode), contextInfo);
+}
+
 @end
 
 #pragma mark -
@@ -1057,4 +1141,34 @@ int  attach_pr_r1r2_pop (
    return (0);
 }
 
+#pragma mark -
+
+int  id_alertErr (const char *message, const char *const info)
+{
+   int       result;
+   NSAlert  *alert = [[NSAlert alloc] init];
+   
+   alert.alertStyle = NSCriticalAlertStyle;
+   alert.messageText = [NSString stringWithCString:message encoding:NSUTF8StringEncoding];
+   alert.informativeText = [NSString stringWithCString:info encoding:NSUTF8StringEncoding];
+   
+   alert.icon = [NSImage imageNamed:@"Bouquet512"];
+   
+   result = (int)[alert runModal];
+   
+   [alert release];
+   
+   return (result);
+}
+
+NSString  *id_Result2Msg (int result)
+{
+   switch (result)  {
+      case  NSAlertDefaultReturn:  return (@"Default");  
+      case  NSAlertAlternateReturn:  return (@"Alternate");  
+      case  NSAlertOtherReturn:  return (@"Other");  
+   }
+   
+   return (@"No idea!");
+}
 
