@@ -131,7 +131,7 @@ void  id_set_comment_layout (FORM_REC *form);
 void  id_set_list_layout (FORM_REC *form, short index);
 void  id_my_list_layout (FORM_REC *form, short index);
 void  id_my_popUp_layout (FORM_REC *form, short index);
-void  id_set_system_layout (FORM_REC *form);
+void  id_set_system_layout (FORM_REC *form, short index);
 
 #define  HiWord(x) ((short)((long)(x) >> 16))
 #define  LoWord(x) ((short)(x))

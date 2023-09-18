@@ -514,7 +514,7 @@ int  id_InitDTool (   // rev. 13.04.05
    dtGData->statusBarHeight = 20;  // On Win98...
    dtGData->toolBarHeight   = kTB_ICN_HEIGHT;
    
-   id_SetUpLayout (&dtGData->layStat, 0, 0, 0);
+   id_SetUpLayout (&dtGData->layStat, systemFont, 12, 0);
    id_SetUpLayout (&dtGData->layEdit, geneva, 9, bold);
    id_SetUpLayout (&dtGData->layComm, geneva, 9, 0);
    id_SetUpLayout (&dtGData->layList, systemFont, 12, 0);   
@@ -1510,7 +1510,7 @@ int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
    return (retVal);
 }
 
-#pragma mark -
+#pragma mark Fonts
 
 /* ----------------------------------------------------- GetFontNum ------------------ */
 
@@ -1561,6 +1561,7 @@ int  GetFontName (short fontNum, char *fontName, short maxLen)
    *fontName = '\0';
    
    switch (fontNum)  {
+      case  0:  strNCpy (fontName, "Lucida Grande", maxLen);  break;
       case  newYork:  strNCpy (fontName, "NewYork", maxLen);  break;
       case  geneva:  strNCpy (fontName, "Geneva", maxLen);  break;
       case  monaco:  strNCpy (fontName, "Monaco", maxLen);  break;
@@ -1769,18 +1770,19 @@ void  id_my_popUp_layout (
  short      index
 )
 {
-   if (form->popUp_layout)  {
+   if ((index >= 0) && (index <= form->last_fldno) && form->edit_def[index]->e_fld_layout)  {
+      id_SetLayout (form, index, form->edit_def[index]->e_fld_layout);
+   }
+   else  if (form->popUp_layout)  {
       id_SetLayout (form, index, form->popUp_layout);
    }
    else
       id_SetFont (form, index, geneva, form ? id_GetScaledFontSize(form, 12) : 12, normal);
 }
 
-void  id_set_system_layout (FORM_REC *form)
+void  id_set_system_layout (FORM_REC *form, short index)
 {
-   /*TextFont (0);
-   TextSize (0);
-   TextFace (0);*/
+   id_SetFont (form, index, geneva, form ? id_GetScaledFontSize(form, 12) : 12, normal);
 }
 
 #pragma mark -
@@ -1809,7 +1811,7 @@ CGRect  id_CarbonRect (CGRect cocoaRect)
    return (nmlRect);
 }
 
-#pragma mark printing
+#pragma mark Printing
 
 int  idp_OpenPrintSession (ID_PR_DATA *prd)
 {

@@ -341,13 +341,17 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
       
       // newCtlRect = NSOffsetRect (newCtlRect, 0., dtGData->toolBarHeight);
       
-      if (f_ditl_def->i_type & editText)
+      if (f_ditl_def->i_type & editText)  {
          id_adjust_edit_rect (form, index, &tmpRect);
+         id_my_edit_layout (form, index);
+      }
       else  if (f_ditl_def->i_type & statText)  {
          id_adjust_stat_rect (form, index, &tmpRect);
+         id_my_stat_layout (form, index);
       }
       else  if (f_ditl_def->i_type & ctrlItem)  {
          id_adjust_button_rect (form, index, &tmpRect);
+         id_set_system_layout (form, index);
       }
       else  if ((form->ditl_def[index]->i_type & 127) == userItem)  {
          if ((form->edit_def[index]->e_type == ID_UT_POP_UP) /*&& !form->edit_def[index]->e_regular*/)  {
@@ -363,6 +367,7 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
                cell.controlSize = NSRegularControlSize;  // NSSmallControlSize
 
             id_adjust_popUp_rect (form, index, &tmpRect);
+            id_my_popUp_layout (form, index);
             
             // id_resetPopUpSize (form, index, &tmpRect);
          }
@@ -388,6 +393,8 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
    
    // SetWinPort (savedPort);
 }
+
+#pragma mark -
 
 int  gGScaleValues[kScaleLevels]  = { 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200 };
 

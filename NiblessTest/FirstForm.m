@@ -342,8 +342,7 @@ static double  gYOffset = 30.;
    // Set images for the buttons
    [myImgView setImage:image];
    
-   // There are -setImageScaling:, -setImageAlignment:
-   // Available even for image buttons
+   // There are -setImageScaling:, -setImageAlignment: 
    
    return (myImgView);
 }
@@ -978,6 +977,8 @@ int  pr_CreateDitlWindow (
                [((NSTextField *)f_ditl_def->i_handle).cell setBordered:NO];
                [((NSTextField *)f_ditl_def->i_handle).cell setBezeled:NO];
             }
+            
+            id_my_edit_layout (form, index);
          }
          else  if (f_ditl_def->i_type & statText)  {              /* If static text / label */
             
@@ -997,6 +998,7 @@ int  pr_CreateDitlWindow (
 
             // id_create_stat (form, index, savedPort);
             CFRelease (labelText);
+            id_my_stat_layout (form, index);
          }
          else  if (f_ditl_def->i_type & ctrlItem)  {
             
@@ -1025,6 +1027,7 @@ int  pr_CreateDitlWindow (
             else
                itsaControl = FALSE;
             CFRelease (buttonTitle);
+            id_set_system_layout (form, index);
          }
          else  if ((f_ditl_def->i_type & 127) == userItem)  {
             
@@ -1039,7 +1042,7 @@ int  pr_CreateDitlWindow (
                   if (!retVal)
                      id_resetPopUpMenu (form, index);
                }
-               
+               id_my_popUp_layout (form, index);
                
                // id_create_popUp (form, index, savedPort);
                form->usedETypes |= ID_UT_POP_UP;
@@ -1048,6 +1051,7 @@ int  pr_CreateDitlWindow (
             else  if (f_edit_def->e_type & ID_UT_LIST)  {
                
                // id_create_list (form, index, savedPort);
+               id_my_list_layout (form, index);
                form->usedETypes |= ID_UT_LIST;
             }
             
@@ -1081,6 +1085,8 @@ int  pr_CreateDitlWindow (
    
    return (0);
 }
+
+#pragma mark -
 
 int  attach_kd_12x_pop (
  FORM_REC  *form,
