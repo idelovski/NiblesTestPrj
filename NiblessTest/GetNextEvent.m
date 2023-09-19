@@ -15,10 +15,11 @@
 // Or maybe monitor needsDisplay property?
 
 #import "GetNextEvent.h"
+#import "MainLoop.h"
 
 static BOOL  id_handleRightMouse (NSEvent *event);
 
-/*extern*/ EventRecord  gGSavedEventRecord = { 0 };
+// /*extern*/ EventRecord  gGSavedEventRecord = { 0 };
 
 @implementation GetNextEvent
 
@@ -36,9 +37,12 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
                                           dequeue:YES];
    
    if (!event)  {
-      if (gGSavedEventRecord.what)  {
-         BlockMove (&gGSavedEventRecord, evtRec, sizeof(EventRecord));
-         id_SetBlockToZeros (&gGSavedEventRecord, sizeof(EventRecord));
+      EventRecord  *dtEvtPtr = id_GetUsedEventRecord ();  // &dtGData->eventRecord;
+
+      if (dtEvtPtr && dtEvtPtr->what)  {
+         BlockMove (dtEvtPtr, evtRec, sizeof(EventRecord));
+         id_SetBlockToZeros (dtEvtPtr, sizeof(EventRecord));
+         
          return (YES);
       }
 
@@ -292,8 +296,8 @@ void  id_BuildKeyDownEvent (
  EventRef  evtRef      // may be NULL
 )
 {
-   long         loWord;
-   EventRecord *evtPtr =  &gGSavedEventRecord; // &dtGData->eventRecord;  // id_GetFreeEventRecord()
+   long          loWord;
+   EventRecord  *evtPtr =  id_GetFreeEventRecord (); // &dtGData->eventRecord;  // id_GetFreeEventRecord()
 
    id_SetBlockToZeros (evtPtr, sizeof(EventRecord));
    
@@ -341,6 +345,8 @@ void  id_BuildKeyDownEvent (
    evtPtr->modifiers = modifiers;
 }
 
+// On Windows I have id_BuildCloseEvent() that uses invented closeEvent or keyDown + Esc
+
 void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window, find one day the real position of the mouse
  FORM_REC  *form,       // must not be NULL
  EventRef   evtRef      // may be NULL
@@ -349,7 +355,7 @@ void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window
    long   loWord;
    Point  where = { 0, 0 };
    
-   EventRecord  *evtPtr =  &gGSavedEventRecord; // &dtGData->eventRecord;  // id_GetFreeEventRecord()
+   EventRecord  *evtPtr =  id_GetFreeEventRecord (); // &dtGData->eventRecord;  // id_GetFreeEventRecord()
 
    id_SetBlockToZeros (evtPtr, sizeof(EventRecord));
    
@@ -370,3 +376,25 @@ void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window
    evtPtr->modifiers = 1 << (activeFlagBit+1);  // This flag is unused by OS - hope so
 }
 
+void  id_BuildActivateEvent (FORM_REC *form, short fActive)
+{
+   EventRecord  *evtPtr = id_GetFreeEventRecord (); // &dtGData->eventRecord;
+   
+   // id_SetBlockToZeros (evtPtr, sizeof(EventRecord));
+   
+   if (!evtPtr)  return;   // handle this better!
+   
+   // evtPtr->hwnd = form->my_window;
+   
+   evtPtr->what = activateEvt;
+   evtPtr->when = TickCount ();
+   
+   // Could have used GetMessagePos() !!!
+   
+   SetPt (&evtPtr->where, dtGData->mousePos.x, dtGData->mousePos.y);  //  Jesus!
+   
+   evtPtr->message = (long) form->my_window;
+      
+   if (fActive)
+      evtPtr->modifiers = activeFlag;
+}

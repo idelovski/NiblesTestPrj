@@ -31,9 +31,12 @@ static FORM_REC  theMainForm;
    
    self.firstFormHandler = [[FirstForm alloc] initWithWindow:self.window];
    
+   id_InitDTool (0/*idApple*/, 0/*idFile*/, 0/*idEdit*/, NULL);
+   
    [self.firstFormHandler performSelector:@selector(runMainLoop) withObject:nil afterDelay:.1];
    
    [self.window makeKeyAndOrderFront:NSApp];
+   
    // [view release];
 }
 

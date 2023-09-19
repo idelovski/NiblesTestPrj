@@ -225,6 +225,9 @@ extern  FORM_REC  *dtRenderedForm;
    FORM_REC  *form = id_FindForm (aWindow);
 
    NSLog (@"windowDidBecomeKey: [%@]", form ? aWindow.title : @"No name");
+   
+   if (form)
+      id_BuildActivateEvent (form, TRUE);
 }
 
 - (void)windowDidResignKey:(NSNotification *)aNotification
@@ -233,6 +236,9 @@ extern  FORM_REC  *dtRenderedForm;
    FORM_REC  *form = id_FindForm (aWindow);
 
    NSLog (@"windowDidResignKey: [%@]", form ? aWindow.title : @"No name");
+   
+   if (form)
+      id_BuildActivateEvent (form, FALSE);
 }
 
 - (void)windowDidBecomeMain:(NSNotification *)aNotification;

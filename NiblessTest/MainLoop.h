@@ -103,6 +103,7 @@ void  SetRect (Rect *rect, short l, short t, short r, short b);
 void  OffsetRect (Rect *rect, short h, short v);
 void  InsetRect (Rect *rect, short h, short v);
 void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect);
+void  SetPt (Point *pt, short h, short v);
 
 #endif
 

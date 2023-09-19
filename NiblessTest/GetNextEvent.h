@@ -41,3 +41,4 @@ void id_FlushParentActivations (FORM_REC *form);
 
 void  id_BuildKeyDownEvent (FORM_REC *form, short charCode, short keyCode, short modifiers, EventRef evtRef);
 void  id_BuildCloseWindowEvent (FORM_REC *form, EventRef evtRef);
+void  id_BuildActivateEvent (FORM_REC *form, short fActive);

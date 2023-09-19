@@ -36,7 +36,7 @@ static double  gYOffset = 30.;
 
 - (void)runMainLoop
 {
-   id_InitDTool (0/*idApple*/, 0/*idFile*/, 0/*idEdit*/, NULL);
+   // id_InitDTool (0/*idApple*/, 0/*idFile*/, 0/*idEdit*/, NULL);
    
    // initMacOSVersion (0, verStr);
    

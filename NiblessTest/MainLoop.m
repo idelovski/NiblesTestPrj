@@ -38,7 +38,7 @@ static int  id_InitStatusbarIcons (void);
 static int  id_DrawStatusbarText (FORM_REC *form, short statPart, char *statusText);
 static int  id_DrawTBPopUp (FORM_REC  *form);
 
-extern EventRecord  gGSavedEventRecord;
+// extern EventRecord  gGSavedEventRecord;
 
 @implementation MainLoop
 
@@ -52,7 +52,7 @@ static FORM_REC  newForm;
 	// Insert code here to initialize your application
    
    CGFloat  menuBarHeight = NSStatusBar.systemStatusBar.thickness;
-   NSRect   availableFrame = [NSScreen mainScreen].visibleFrame;
+   NSRect   availableFrame = [NSScreen mainScreen].visibleFrame;  // Seems to be area above the dock
    
    id_init_form (form);
 
@@ -60,7 +60,8 @@ static FORM_REC  newForm;
    availableFrame.size.height -= menuBarHeight;
       
    NSLog (@"Menu bar height: %.0f", menuBarHeight);
-   NSLog (@"Screen Frame orig: %@", NSStringFromRect (availableFrame));
+   NSLog (@"Screen Frame orig: %@", NSStringFromRect ([NSScreen mainScreen].frame));
+   NSLog (@"Visible Frame orig: %@", NSStringFromRect (availableFrame));
    NSLog (@"Screen Frame normal: %@", NSStringFromRect (id_CocoaRect(nil, availableFrame)));
    NSLog (@"Back to orig Frame: %@", NSStringFromRect (id_CarbonRect(id_CocoaRect(nil, availableFrame))));
    
@@ -379,6 +380,8 @@ BOOL  id_MainLoop (FORM_REC *form)
       
       if (evtRecord.what == keyDown)
          NSLog (@"Key in keyDown: %c %hd", (unsigned char)evtRecord.message, (short)evtRecord.message);
+      if (evtRecord.what == activateEvt)
+         NSLog (@"ActivateEvt: %@", evtRecord.modifiers ? @"Activate" : @"Deactivate");
       
       // if (evtRecord.what == keyDown && evtRecord.message == 'q')
       //   done = TRUE;
@@ -517,7 +520,10 @@ int  id_InitDTool (   // rev. 13.04.05
    id_SetUpLayout (&dtGData->layStat, systemFont, 12, 0);
    id_SetUpLayout (&dtGData->layEdit, geneva, 9, bold);
    id_SetUpLayout (&dtGData->layComm, geneva, 9, 0);
-   id_SetUpLayout (&dtGData->layList, systemFont, 12, 0);   
+   id_SetUpLayout (&dtGData->layList, systemFont, 12, 0);
+   
+   id_SetBlockToZeros (&dtGData->eventRecord[0], sizeof(EventRecord)*kEVENTS_STACK);
+   id_SetBlockToZeros (dtGData->eventsUsed, kEVENTS_STACK);
 
 #ifdef _ONE_DAY_
    short   applResRef, resErr;
@@ -2699,6 +2705,12 @@ void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect)
    targetRect->top  = MIN (rect1->top, rect2->top);
    targetRect->right  = MAX (rect1->top, rect2->top);
    targetRect->bottom  = MAX (rect1->bottom, rect2->bottom);
+}
+
+void  SetPt (Point *pt, short h, short v)
+{
+   pt->v = v;
+   pt->h = h;
 }
 
 #endif
