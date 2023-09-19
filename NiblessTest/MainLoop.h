@@ -14,12 +14,15 @@
 
 // #import <CarbonCore/CarbonCore.h>
 
-#import "transitionHeader.h"
+#import  "transitionHeader.h"
+
+@class  NiblessTestAppDelegate;
 
 @interface MainLoop : NSObject
 {
 }
 
++ (void)handleApplicationDidFinishLaunchingWithAppDelegate:(NiblessTestAppDelegate *)appDelegate;
 + (NSWindow *)openInitialWindowAsForm:(FORM_REC *)form;
 + (void)finalizeFormWindow:(FORM_REC *)form;
 

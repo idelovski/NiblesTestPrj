@@ -10,8 +10,6 @@
 
 #import  "transitionHeader.h"
 
-static FORM_REC  theMainForm;
-
 @implementation NiblessTestAppDelegate
 
 @synthesize  window, menuDict, firstFormHandler;
@@ -27,17 +25,7 @@ static FORM_REC  theMainForm;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-   self.window = [MainLoop openInitialWindowAsForm:&theMainForm];
-   
-   self.firstFormHandler = [[FirstForm alloc] initWithWindow:self.window];
-   
-   id_InitDTool (0/*idApple*/, 0/*idFile*/, 0/*idEdit*/, NULL);
-   
-   [self.firstFormHandler performSelector:@selector(runMainLoop) withObject:nil afterDelay:.1];
-   
-   [self.window makeKeyAndOrderFront:NSApp];
-   
-   // [view release];
+   [MainLoop handleApplicationDidFinishLaunchingWithAppDelegate:self];
 }
 
 - (void)didFuckinPopUp:(id)sender

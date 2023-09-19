@@ -14,8 +14,9 @@
 
 // Or maybe monitor needsDisplay property?
 
-#import "GetNextEvent.h"
-#import "MainLoop.h"
+#import  "GetNextEvent.h"
+
+#import  "MainLoop.h"
 
 static BOOL  id_handleRightMouse (NSEvent *event);
 

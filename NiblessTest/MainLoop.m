@@ -44,7 +44,21 @@ static int  id_DrawTBPopUp (FORM_REC  *form);
 
 #pragma mark Menu
 
+static FORM_REC  theMainForm;
 static FORM_REC  newForm;
+
++ (void)handleApplicationDidFinishLaunchingWithAppDelegate:(NiblessTestAppDelegate *)appDelegate
+{
+   id_InitDTool (0/*idApple*/, 0/*idFile*/, 0/*idEdit*/, NULL);
+   
+   appDelegate.window = [MainLoop openInitialWindowAsForm:&theMainForm];
+   
+   appDelegate.firstFormHandler = [[FirstForm alloc] initWithWindow:appDelegate.window];
+   
+   [appDelegate.firstFormHandler performSelector:@selector(runMainLoop) withObject:nil afterDelay:.1];
+   
+   [appDelegate.window makeKeyAndOrderFront:NSApp];
+}
 
 + (NSWindow *)openInitialWindowAsForm:(FORM_REC *)form
 {
