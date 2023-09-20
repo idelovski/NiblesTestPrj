@@ -1,6 +1,6 @@
 //
 //  MainLoop.h
-//  GeneralCocoaProject
+//  NiblessTest
 //
 //  Created by me on 16.07.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
@@ -309,6 +309,12 @@ char  *id_get_day_name (unsigned short dateShort);
 CGRect  id_Rect2CGRect (Rect *rect);
 Rect   *id_CGRect2Rect (CGRect cgRect, Rect *rect);
 
+CGColorRef  QD_DarkGray (void);
+CGColorRef  QD_LightGray (void);
+CGColorRef  QD_Gray (void);
+CGColorRef  QD_Black (void);
+CGColorRef  QD_White (void);
+
 void id_GetClientRect (FORM_REC *form, Rect *rect);
 void id_get_form_rect (Rect *rect, FORM_REC *form, short clientFlag);
 int  id_get_fld_rect (FORM_REC *form, short fldno, Rect *fldRect);
@@ -331,7 +337,7 @@ void id_MulDivRect (Rect *theRect, int mul, int div);
 void id_CopyMac2Rect (FORM_REC *form, Rect *dstRect, MacRect *srcRect);
 int  id_itemsRect (FORM_REC *form, short index, Rect *fldRect);
 int  id_controlsRect (FORM_REC *form, NSControl *field, Rect *fldRect);
-int  id_frame_fields (FORM_REC *form, NSControl *fldno_1, NSControl *fldno_2, short distance, PatPtr frPatPtr);
+int  id_frame_fields (FORM_REC *form, NSControl *fldno_1, NSControl *fldno_2, short distance, CGColorRef frPatPtr);
 
 int  id_AdjustScaledRight (FORM_REC *form, short index, Rect *fldRect);
 int  id_AdjustScaledBottom (FORM_REC *form, short index, Rect *fldRect);
@@ -339,6 +345,15 @@ int  id_AdjustScaledPictBottom (FORM_REC *form, short index, Rect *fldRect);
 
 int  id_frame_editText (FORM_REC *form, short index);
 
+int  id_title_bounds (FORM_REC *form, short fldno_1, short fldno_2, CGColorRef frPatPtr, char *title_str, ID_LAYOUT *specLayout);
+
+int  id_set_field_layout (FORM_REC *form, short index, ID_LAYOUT *theLayout);
+void id_same_edit_type (FORM_REC *, short, short);
+
+int  id_disable_field (FORM_REC *form, short fldno);
+int  id_enable_field (FORM_REC *form, short fldno);
+
+Boolean  id_field_enabled (FORM_REC *form, short fldno);
 
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 
@@ -380,9 +395,8 @@ int  id_DrawTBPadding (FORM_REC *form);
 #define K_PICT_MID      2  // till 22
 #define K_PICT_DN      23
 
-#define  K_KUPDOB      25
-#define  K_KUPDOB_CD   27
-
+#define  K_KUPDOB     25
+#define  K_KUPDOB_CD  27
 #define  K_ADRESA_1   29
 #define  K_ADRESA_2   30
 #define  K_ADRESA_3   31
@@ -392,18 +406,109 @@ int  id_DrawTBPadding (FORM_REC *form);
 #define  K_TEL_3      38
 #define  K_FAX        41
 
+#define  K_DRZAVA     43
+#define  K_C_EU       44
+
+#define  K_LABEL      46  // 2013
+#define  K_CAT_INFO   47  // 2016
+
+#define  K_ZIRO       49
+#define  K_STAT_9_L   50  // used a lot later
+#define  K_PNBR_0     51
+#define  K_POZIV      52
+
+#define  K_MAT_BROJ   54
+#define  K_OIB        56  // 07/2009
+#define  K_PDV_BROJ   58  // 07/2013
+
+#define  K_STAT_9_R   59  // 60
+
 #define  K_KTO_12x    60
+#define  K_12x_CHECK  61
 #define  K_KTO_22x    63
+#define  K_22x_CHECK  64
+#define  K_PLS_KONTO  66
+#define  K_PLS_CHECK  67
 
-#define  K_I_CHAIN    89
-#define  K_I_INFO     90
+#define  K_OSOBA      69
+#define  K_MOBITEL    71
+#define  K_E_MAIL     73
+#define  K_URL        75
 
-#define  K_12x_POP    92
-#define  K_22x_POP    93
-#define  K_R1R2_POP   95
+#define  K_NAPOMENA   77
 
-#define  K_TXT_12x   124
-#define  K_TXT_22x   125
+#define  K_HOLDING_CD 79
+#define  K_HOLDING    80
+#define  K_STD_RBT_P  82
+#define  K_STD_ROK    84
+
+#define  K_LINK_TXT   86
+#define  K_STICKY_CHK 87  // !
+#define  K_S_VISITORS 88  // +
+
+#define  K_I_CHAIN   89
+#define  K_I_INFO    90
+
+#define  K_INFO_BOX  91
+
+#define  K_12x_POP   92
+#define  K_22x_POP   93
+#define  K_PLS_POP   94
+#define  K_R1R2_POP  95
+
+#define  K_SMALL_9   96  // 96
+
+#define  K_B_OK      98
+#define  K_B_CANCEL  99
+
+#define K_UF_MODULE 100
+#define K_UF_TIP    101
+#define K_UF_BR     102
+#define K_KL_MODULE 103
+#define K_KL_TIP    104
+#define K_KL_BR     105
+#define K_PO_MODULE 106
+#define K_PO_TIP    107
+#define K_PO_BR     108
+
+#define K_PF_MODULE 109
+#define K_PF_TIP    110
+#define K_PF_BR     111
+#define K_IF_MODULE 112
+#define K_IF_TIP    113
+#define K_IF_BR     114
+#define K_IA_MODULE 115
+#define K_IA_TIP    116
+#define K_IA_BR     117
+
+#define K_DP_MODULE 118
+#define K_DP_TIP    119
+#define K_DP_BR     120
+#define K_RV_MODULE 121
+#define K_RV_TIP    122
+#define K_RV_BR     123
+
+#define K_TXT_12x   124
+#define K_TXT_22x   125
+
+#define K_C_STICKY    126
+#define K_STICKY      127
+#define K_C_SKIP_INFO 128
+
+#define K_STORE_DATE  129  // Store open date
+#define K_OPCINA_CD   130
+#define K_IBAN        131
+
+#define K_C_CIJ_PF    132
+#define K_R_CIJ_PF    133  // prefak
+#define K_R_CIJ_ZO    134  // zorder
+
+#define K_DISTANCE_KM 135
+
+#define K_C_SKIP_EXP  136
+#define K_C_SKIP_IMP  137
+
+#define  K_LAST_ELEM  K_C_SKIP_IMP
 
 
 int  attach_kd_12x_pop (FORM_REC *form, int fldno, int offset, int mode);
@@ -547,10 +652,9 @@ EDIT_item  kupdob_edit_items[] = {
                 NULL, NULL, NULL,
                 NULL, NULL },
 
-#ifdef _NIJE_
  { K_DRZAVA,    0, 24, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
-                attach_kd_drzava, attach_kd_drzava },
+                NULL/*attach_kd_drzava*/, NULL/*attach_kd_drzava*/ },
 
  { K_LABEL,     0, 19, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
@@ -562,7 +666,7 @@ EDIT_item  kupdob_edit_items[] = {
 
  { K_ZIRO,      0, 28, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_TOUPPER,
                 NULL, NULL, NULL,
-                NULL, attach_kd_ziro },
+                NULL, NULL/*attach_kd_ziro*/ },
 
  { K_STAT_9_L,  0, 31, 0, 0, 0, teJustLeft, 0,
                 NULL, NULL, NULL, 
@@ -578,16 +682,17 @@ EDIT_item  kupdob_edit_items[] = {
 
  { K_MAT_BROJ,  0, 13, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, NULL,
-                NULL, attach_kd_mat_broj },
+                NULL, NULL/*attach_kd_mat_broj*/ },
 
  { K_OIB,       0, 11, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, "OIB, obavezni podatak za sve pravne subjekte",
-                NULL, attach_kd_oib },
+                NULL, NULL/*attach_kd_oib*/ },
 
  { K_PDV_BROJ,  0, 16, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
                 NULL, NULL, "PDV broj inozemnih poslovnih subjekata, vaæan podatak za EU partnere",
-                NULL, attach_kd_pdv_broj },
+                NULL, NULL/*attach_kd_pdv_broj*/ },
 
+#ifdef _NIJE_
  { K_STAT_9_R,  0, 31, 0, 0, 0, teJustRight, 0,
                 NULL, NULL, NULL, 
                 NULL, NULL },   
@@ -690,11 +795,10 @@ EDIT_item  kupdob_edit_items[] = {
                 NULL, NULL, NULL,
                 attach_pr_r1r2_pop, attach_pr_r1r2_pop },
 
-#ifdef _NIJE_
  { K_SMALL_9,   0, 31, 0, 0, 0, teJustCenter, 0,
                 NULL, NULL, NULL, 
                 NULL, NULL },   
-#endif
+
  { K_TXT_12x,   0, 3, 0, 0, 0, teJustRight, 0,
                 NULL, NULL, NULL,
                 NULL, NULL },

@@ -13,6 +13,7 @@
 		EB1643952AA64255009446E6 /* PICT0603.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643922AA64255009446E6 /* PICT0603.jpg */; };
 		EB1643962AA64255009446E6 /* PICT0604.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643932AA64255009446E6 /* PICT0604.jpg */; };
 		EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643942AA64255009446E6 /* PICT0602.jpg */; };
+		EB26B6272ABB6C6300FC2E83 /* Bouquet.m in Sources */ = {isa = PBXBuildFile; fileRef = EB26B6252ABB6C6200FC2E83 /* Bouquet.m */; };
 		EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */ = {isa = PBXBuildFile; fileRef = EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */; };
 		EB3921052AAB5FB4003EBFBC /* PICT0132.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB3921032AAB5FB4003EBFBC /* PICT0132.jpg */; };
 		EB3921062AAB5FB4003EBFBC /* PICT0131.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */; };
@@ -59,6 +60,8 @@
 		EB1643922AA64255009446E6 /* PICT0603.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0603.jpg; path = PICT/PICT0603.jpg; sourceTree = "<group>"; };
 		EB1643932AA64255009446E6 /* PICT0604.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0604.jpg; path = PICT/PICT0604.jpg; sourceTree = "<group>"; };
 		EB1643942AA64255009446E6 /* PICT0602.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0602.jpg; path = PICT/PICT0602.jpg; sourceTree = "<group>"; };
+		EB26B6252ABB6C6200FC2E83 /* Bouquet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Bouquet.m; path = NiblessTest/Bouquet.m; sourceTree = "<group>"; };
+		EB26B6262ABB6C6300FC2E83 /* Bouquet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Bouquet.h; path = NiblessTest/Bouquet.h; sourceTree = "<group>"; };
 		EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Appl_KnjigeNT.rsrc.zip; sourceTree = "<group>"; };
 		EB3921032AAB5FB4003EBFBC /* PICT0132.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0132.jpg; path = PICT/PICT0132.jpg; sourceTree = "<group>"; };
 		EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0131.jpg; path = PICT/PICT0131.jpg; sourceTree = "<group>"; };
@@ -305,6 +308,8 @@
 				EBEB573B2AA61B4100A55FE3 /* transitionHeader.h */,
 				EBEB57382AA61B4100A55FE3 /* WindowFactory.h */,
 				EBEB573D2AA61B4100A55FE3 /* WindowFactory.m */,
+				EB26B6262ABB6C6300FC2E83 /* Bouquet.h */,
+				EB26B6252ABB6C6200FC2E83 /* Bouquet.m */,
 			);
 			name = NiblesTest;
 			sourceTree = "<group>";
@@ -425,6 +430,7 @@
 				EBEB57412AA61B4100A55FE3 /* FirstForm.m in Sources */,
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				EBEB57422AA61B4100A55FE3 /* WindowFactory.m in Sources */,
+				EB26B6272ABB6C6300FC2E83 /* Bouquet.m in Sources */,
 				EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */,
 				EBEB57362AA61B2200A55FE3 /* DTBackView.m in Sources */,
 				EBEB57302AA61A5000A55FE3 /* NiblessTestAppDelegate.m in Sources */,

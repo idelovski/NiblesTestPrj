@@ -298,6 +298,8 @@ void  id_FlushParentActivations (FORM_REC *form)
    }
 }
 
+#pragma mark -
+
 void  id_BuildKeyDownEvent (
  FORM_REC *form,       // must not be NULL
  short     charCode,

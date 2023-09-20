@@ -215,6 +215,8 @@ static double  gYOffset = 30.;
    
    [newWin setDelegate:self.windowFactory];
    
+   [newWin setStyleMask:NSTitledWindowMask | NSClosableWindowMask];
+   
    dtDialogForm = &tmpForm;
    
    id_init_form (&tmpForm);
@@ -257,6 +259,10 @@ static double  gYOffset = 30.;
    newWin.delegate = nil;
    [newWin close];
    
+   id_FlushUsedEvents (dtDialogForm);
+   
+   dtDialogForm->my_window = NULL;
+
    form = id_FindForm (FrontWindow());
    
    dtDialogForm = NULL;

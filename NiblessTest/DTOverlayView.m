@@ -102,8 +102,8 @@ extern  FORM_REC  *dtRenderedForm;
    if (form->update_func)
       (*form->update_func)(form, NULL, ID_BEGIN_OF_UPDATE, 0);
 
-   if (form == dtRenderedForm)
-      id_FrameCard (form, 12);
+   // if (form == dtRenderedForm)
+   //    id_FrameCard (form, 12);
    
    if (form->pathsArray)  {
       CFIndex  count = CFArrayGetCount (form->pathsArray);

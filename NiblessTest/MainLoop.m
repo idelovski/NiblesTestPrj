@@ -1,6 +1,6 @@
 //
 //  MainLoop.m
-//  GeneralCocoaProject
+//  NiblessTest
 //
 //  Created by me on 16.07.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
@@ -14,6 +14,8 @@
 #import  "GetNextEvent.h"
 #import  "NiblessTestAppDelegate.h"
 #import  "FirstForm.h"
+
+#import  "Bouquet.h"
 
 // LOCAL GLOBALS
 
@@ -175,9 +177,10 @@ static FORM_REC  newForm;
    
    NSLog (@"ALT MenuId: %hd, itemId: %hd", theMenu, theItem);
 
-   if (!newForm.my_window && menuIndex > 3)  {
+   if (!newForm.my_window && (menuIndex > 3))  {
       // id_SetBlockToZeros (, sizeof(FORM_REC));
       id_init_form (&newForm);
+      newForm.update_func = pr_OnUpdateKupdob;
       pr_CreateDitlWindow (&newForm, 601, &tmpRect, "Adresar", &kupdob_edit_items[0]);
       id_move_field (&newForm, K_12x_POP, 0, -303);
       id_move_field (&newForm, K_22x_POP, 0, -303);
@@ -2781,6 +2784,33 @@ void  id_GetClientRect (FORM_REC *form, Rect *rect)
    }
 }
 
+CGColorRef  QD_DarkGray (void)
+{
+   return ([NSColor darkGrayColor].toCGColor);
+}
+
+CGColorRef  QD_LightGray (void)
+{
+   return ([NSColor lightGrayColor].toCGColor);
+}
+
+CGColorRef  QD_Gray (void)
+{
+   return ([NSColor grayColor].toCGColor);
+}
+
+CGColorRef  QD_Black (void)
+{
+   return ([NSColor blackColor].toCGColor);
+}
+
+CGColorRef  QD_White (void)
+{
+   return ([NSColor whiteColor].toCGColor);
+}
+
+#pragma mark Fields
+
 /* ----------------------------------------------------------- id_get_form_rect ------ */
 
 void  id_get_form_rect (  // in local/client coordinates
@@ -3226,7 +3256,7 @@ int  id_frame_fields (
  NSControl  *fldno_1,
  NSControl  *fldno_2,
  short       distance,
- PatPtr      frPatPtr
+ CGColorRef  frPatPtr
 )
 {
    WindowPtr   savedPort;
@@ -3389,7 +3419,7 @@ int  id_title_bounds (
  FORM_REC  *form,
  short      fldno_1,
  short      fldno_2,
- PatPtr     frPatPtr,
+ CGColorRef frPatPtr,
  char      *title_str,
  ID_LAYOUT *specLayout
 )
@@ -3442,6 +3472,137 @@ int  id_title_bounds (
    id_SetPort (form, savedPort);
    
    return (0);
+}
+
+/* ----------------------------------------------------------- id_same_edit_type ----- */
+
+void  id_same_edit_type (
+ FORM_REC  *form,
+ short      fld1,
+ short      fld2
+)
+{
+   if (form->my_window)          /* Window opened already */
+      if ((fld1-1 <= form->last_fldno) && (fld2-1 <= form->last_fldno))  {
+      
+         if (fld1 != fld2)  {
+            short  index = fld2 - 1;
+            short  oldJustify = form->edit_def[index]->e_justify;
+
+            form->edit_def[index] = form->edit_def[fld1-1];
+#ifdef _DTOOL_OSX_            
+            if (form->ditl_def[index]->i_handle)  {   // Control already created!
+               if (oldJustify != form->edit_def[index]->e_justify)
+                  TExSetAlignment (form->ditl_def[index]->i_handle, form->edit_def[index]->e_justify);
+            }
+#endif
+         }
+      }
+}
+
+/* .......................................................... id_set_field_layout .... */
+
+int  id_set_field_layout (  // there is pr_SetFldEdits()
+ FORM_REC  *form,
+ short      fldno,
+ ID_LAYOUT *theLayout
+)
+{
+   extern  EDIT_item  default_edit_item;
+   
+   // EDIT_item *f_edit_def;
+   
+   short      index = fldno - 1;
+   
+   if (id_inpossible_item (form, index))  return (-1);
+   
+   // f_edit_def = form->edit_def[index];
+
+   if (form->edit_def[index] == &default_edit_item)  return (-1);
+   
+   form->edit_def[index]->e_fld_layout = theLayout;
+   
+   return (0);
+}
+
+/* .......................................................... id_disable_field ...... */
+
+int  id_disable_field (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short          index = fldno-1;
+   NSControl     *theCtrl;
+   Rect           tmpRect;
+   DITL_item     *fDitl_def;
+   EDIT_item     *fEdit_def;
+   
+   if (id_inpossible_item (form, index))
+      return (-1);
+      
+   fDitl_def = form->ditl_def[index];
+   fEdit_def = form->edit_def[index];
+   
+   if (fDitl_def->i_type & itemDisable)
+      return (fDitl_def->i_type);
+   else
+      fDitl_def->i_type |= itemDisable;
+   
+   theCtrl = (NSControl *)fDitl_def->i_handle;
+   
+   if (theCtrl)
+      [theCtrl setEnabled:NO];
+   
+   return (fDitl_def->i_type);
+}
+
+/* .......................................................... id_enable_field ....... */
+
+int  id_enable_field (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short          index = fldno-1;
+   NSControl     *theCtrl;
+   Rect           tmpRect;
+   DITL_item     *fDitl_def;
+   EDIT_item     *fEdit_def;
+   
+   if (id_inpossible_item (form, index))  return (-1);
+      
+   fDitl_def = form->ditl_def[index];
+   fEdit_def = form->edit_def[index];
+
+   if (fDitl_def->i_type & itemDisable)
+      fDitl_def->i_type &= (~itemDisable);
+   else
+      return (fDitl_def->i_type);
+ 
+   theCtrl = (NSControl *)fDitl_def->i_handle;
+   
+   if (theCtrl)
+      [theCtrl setEnabled:YES];
+   
+   return (fDitl_def->i_type);
+}
+
+/* .......................................................... id_field_enabled ...... */
+
+Boolean  id_field_enabled (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short  index = fldno-1;
+   
+   if (id_inpossible_item (form, index))  return (FALSE);
+      
+   if (form->ditl_def[index]->i_type & itemDisable)
+      return (FALSE);
+   else
+      return (TRUE);
 }
 
 #pragma mark PDF
