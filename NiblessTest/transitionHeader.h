@@ -352,6 +352,9 @@ struct  FormRecord  {
 
    Handle          toolBarHandle;
    
+   struct
+    FormRecord    *parentForm;
+   
    NSView         *overlayView;
    NSFont         *currentFont;  // For direct drawing aside from controls
    
@@ -403,6 +406,7 @@ typedef struct  {
    int        (*fDblExitCheckProc)(void /*struct FormRecord*/ *, short fldNo);
    
    short        errLogActive;
+   short        modalFormsCount;
    
    short        quitNow;
    short        exportWaiting;  // for AutoExport

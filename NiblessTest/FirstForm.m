@@ -217,16 +217,21 @@ static double  gYOffset = 30.;
    
    dtDialogForm = &tmpForm;
    
-   id_SetBlockToZeros (&tmpForm, sizeof (FORM_REC));
+   id_init_form (&tmpForm);
    
-   tmpForm.my_window = newWin;   
+   [MainLoop finalizeFormWindow:&tmpForm];
    
-   NSModalSession  modalSession = [NSApp beginModalSessionForWindow:newWin];
+   tmpForm.my_window = newWin;
+   tmpForm.parentForm = form;
+   
+   NSModalSession  modalSession = [NSApp beginModalSessionForWindow:newWin];  // seem to call -makeKeyAndOrderFront in there
    
    if (!modalSession)
       return;
    
-   [newWin makeKeyAndOrderFront:NSApp];
+   // [newWin makeKeyAndOrderFront:NSApp];
+   
+   dtGData->modalFormsCount++;
    
    do  {
       
@@ -234,12 +239,16 @@ static double  gYOffset = 30.;
       
       // NSLog (@"One tick!...");
       
-      if (evtRecord.what == keyDown && evtRecord.message == 'q')
-         done = TRUE;
+      if (evtRecord.what == keyDown)  {
+         if (evtRecord.message == 27)
+            done = TRUE;
+      }
       else  if ((evtRecord.what = mouseDown) && (evtRecord.modifiers == 2))  // second bit, this goes to id_FindWindow()
          done = TRUE;
       
    } while (!done);
+   
+   dtGData->modalFormsCount--;
    
    form = id_FindForm (FrontWindow());
    

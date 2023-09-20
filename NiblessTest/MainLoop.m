@@ -528,6 +528,8 @@ int  id_InitDTool (   // rev. 13.04.05
    if (!id_InitComputerUserName (userName, 128))
       NSLog (@"User: %s", userName);
    
+   dtGData->modalFormsCount = 0;
+   
    dtGData->statusBarHeight = 20;  // On Win98...
    dtGData->toolBarHeight   = kTB_ICN_HEIGHT;
    
@@ -840,10 +842,16 @@ FORM_REC  *id_FindForm (NSWindow *nsWindow)
 
 NSWindow  *FrontWindow (void)
 {
-   if ([NSApp mainWindow])
-      return ([NSApp mainWindow]);
-      
-   return ([NSApp keyWindow]);  // or mainWindow
+   static NSWindow  *savedFrontWindow = NULL;
+   
+   NSWindow  *frontWindow = [NSApp mainWindow];
+   
+   if (!frontWindow)
+      frontWindow = [NSApp keyWindow];
+   if (!frontWindow)
+      frontWindow = savedFrontWindow;
+   
+   return (savedFrontWindow = frontWindow);
 }
 
 OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef)

@@ -65,6 +65,15 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
          NSView *subview = [event.window.contentView hitTest:event.locationInWindow];
          if (subview && [subview isKindOfClass:[NSControl class]])
             NSLog (@"We hit something");
+         if (dtGData->modalFormsCount)  {
+            NSWindow  *frontWin = FrontWindow ();
+            NSWindow  *eventWin = event.window;
+            
+            if (eventWin != frontWin)  {
+               NSLog (@"EvtWin: %@ - FrontWin: %@", eventWin.title, frontWin.title);
+               dontSendEvent = YES;
+            }
+         }
       }
    }
    else  if (event.type == NSRightMouseDown)  {

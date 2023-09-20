@@ -247,6 +247,13 @@ extern  FORM_REC  *dtRenderedForm;
    FORM_REC  *form = id_FindForm (aWindow);
    
    NSLog (@"windowDidBecomeMain: [%@]", form ? aWindow.title : @"No name");
+   
+   FrontWindow ();
+   
+   /*if (form && form->parentForm)  {
+      // [form->parentForm->my_window orderWindow:NSWindowBelow relativeTo:[aWindow windowNumber]];
+      [aWindow orderWindow:NSWindowAbove relativeTo:[form->parentForm->my_window windowNumber]];
+   }*/
 }
 
 - (void)windowDidUpdate:(NSNotification *)aNotification;
