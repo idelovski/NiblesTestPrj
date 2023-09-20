@@ -1,6 +1,6 @@
 //
 //  FirstForm.h
-//  GeneralCocoaProject
+//  NiblessTest
 //
 //  Created by me on 09.07.23.
 //  Copyright (c) 2023 Delovski d.o.o. All rights reserved.
