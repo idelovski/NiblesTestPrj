@@ -62,16 +62,45 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
              event.window, event.window? event.window.title : @"#",
              event.locationInWindow.x, event.locationInWindow.x);
       if (event.window)  {
-         NSView *subview = [event.window.contentView hitTest:event.locationInWindow];
+         NSView  *subview = [event.window.contentView hitTest:event.locationInWindow];
          if (subview && [subview isKindOfClass:[NSControl class]])
             NSLog (@"We hit something");
          if (dtGData->modalFormsCount)  {
             NSWindow  *frontWin = FrontWindow ();
             NSWindow  *eventWin = event.window;
             
+            // Well, I'll be damned....
+            
             if (eventWin != frontWin)  {
                NSLog (@"EvtWin: %@ - FrontWin: %@", eventWin.title, frontWin.title);
                dontSendEvent = YES;
+               
+               {
+                  NSPoint    windowLocation = [event locationInWindow];
+                  NSPoint    location = [[frontWin contentView] convertPoint:windowLocation fromView:nil];
+                  
+                  // NSPoint  newLocation = NSMakePoint (location.x + 100.0, location.y);
+                  NSPoint  newLocation = NSMakePoint (1., 1.);
+                  
+                  NSEventType  eventType = event.type;
+                  NSUInteger  modifiers = event.modifierFlags;
+                  NSTimeInterval  timestamp = event.timestamp;
+                  NSInteger  windowNumber = frontWin.windowNumber;
+                  NSInteger  eventNumber = event.eventNumber;
+                  NSInteger  clickCount = event.clickCount;
+                  float pressure = event.pressure;
+                  
+                  NSEvent  *newMouseEvent = [NSEvent mouseEventWithType:eventType
+                                                              location:newLocation
+                                                         modifierFlags:modifiers
+                                                             timestamp:timestamp
+                                                          windowNumber:windowNumber
+                                                               context:nil // Pass nil for context to use global screen location
+                                                           eventNumber:eventNumber
+                                                            clickCount:clickCount
+                                                              pressure:pressure];
+                  [NSApp sendEvent:newMouseEvent];
+               }
             }
          }
       }
