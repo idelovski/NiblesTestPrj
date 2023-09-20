@@ -2728,7 +2728,7 @@ void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect)
 {
    targetRect->left = MIN (rect1->left, rect2->left);
    targetRect->top  = MIN (rect1->top, rect2->top);
-   targetRect->right  = MAX (rect1->top, rect2->top);
+   targetRect->right  = MAX (rect1->right, rect2->right);
    targetRect->bottom  = MAX (rect1->bottom, rect2->bottom);
 }
 
