@@ -23,6 +23,316 @@ ID_LAYOUT     gLayTimes9      = { times,  9, 0 };
 ID_LAYOUT     gLayTimes10     = { times, 10, 0 };
 ID_LAYOUT     gLayTimes10bold = { times, 10, bold };
 
+static FORM_REC  kupdobForm = { 0 };
+
+// --------------------------------
+
+#ifdef _BOUQUET_SRC_
+
+EDIT_item  kupdob_edit_items[] = {
+ { K_PICT_UP,   ID_UT_PICTURE, 0, 0, 603, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+1,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+2,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+3,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+4,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+5,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+6,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+7,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+8,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+9,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+10,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+11,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+12,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+13,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+14,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+15,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+16,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+17,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+18,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+19,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_MID+20,  ID_UT_PICTURE, 0, 0, 602, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_PICT_DN,   ID_UT_PICTURE, 0, 0, 604, 0, 0, ID_FE_CLIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_KUPDOB,    0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DATA_REQ,
+                NULL, NULL, NULL,
+                NULL, NULL /*attach_kd_kupdob, finda_kd_kupdob*/ },
+
+ { K_KUPDOB_CD, 0, 5, 0, 0, 0, teJustLeft, ID_FE_DIGITS | ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DATA_REQ,
+                NULL, NULL, NULL,
+                NULL, NULL /*generate_kupdob_cd, generate_kupdob_cd*/ },
+
+ { K_ADRESA_1,  0, 31, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL/*attach_kd_addresa_1*/, NULL },
+
+ { K_ADRESA_2,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_ADRESA_3,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_ADRESA_4,  0, 40, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL/*attach_kd_addresa_3*/ },
+
+ { K_TEL_1,     0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_TEL_2,     0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+
+ { K_TEL_3,     0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_FAX,       0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_DRZAVA,    0, 24, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL/*attach_kd_drzava*/, NULL/*attach_kd_drzava*/ },
+
+ { K_LABEL,     0, 19, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_CAT_INFO,  0, 1, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_TOUPPER,
+                "AGINPR", NULL, "Nepovezano ili A - naπa Adresa, G - Grupacija, I - sudjelujuÊi Interesi, P - Poslovnica, R - Recurring",
+                NULL, NULL },
+
+ { K_ZIRO,      0, 28, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_TOUPPER,
+                NULL, NULL, NULL,
+                NULL, NULL/*attach_kd_ziro*/ },
+
+ { K_STAT_9_L,  0, 31, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_PNBR_0,    0, 2, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_POZIV,     0, 24, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_MAT_BROJ,  0, 13, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL/*attach_kd_mat_broj*/ },
+
+ { K_OIB,       0, 11, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, "OIB, obavezni podatak za sve pravne subjekte",
+                NULL, NULL/*attach_kd_oib*/ },
+
+ { K_PDV_BROJ,  0, 16, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, "PDV broj inozemnih poslovnih subjekata, vaæan podatak za EU partnere",
+                NULL, NULL/*attach_kd_pdv_broj*/ },
+
+#ifdef _NIJE_
+ { K_STAT_9_R,  0, 31, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_KTO_12x,   0, 4, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, "Konto kupca, domaÊi ili inozemni",
+                attach_kd_konto, attach_kd_konto },
+
+ { K_12x_CHECK, ID_UT_CICN, 0, 516, 516, 516, 0, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_KTO_22x,   0, 4, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, "Konto dobavljaËa, domaÊi ili inozemni",
+                attach_kd_konto, attach_kd_konto },
+
+ { K_22x_CHECK, ID_UT_CICN, 0, 516, 516, 516, 0, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_PLS_KONTO, 0, 4, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                attach_kd_konto, attach_kd_konto },
+
+ { K_PLS_CHECK, ID_UT_CICN, 0, 516, 516, 516, 0, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_OSOBA,     0, 23, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_MOBITEL,   0, 17, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_E_MAIL,    0, 47, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_URL,       0, 31, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+             
+ { K_NAPOMENA,  0, 63, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_HOLDING_CD, 0, 5, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS | ID_FE_LETTERS,
+                NULL, NULL, NULL,
+                NULL, attach_k_holding, finda_k_holding },
+
+ { K_HOLDING,   0, 23, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_PROTECT | ID_FE_SKIP,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_STD_RBT_P, 0, 4, 1, 0, 0, teJustRight, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_NUMERIC,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_STD_ROK,   0, 3, 0, 0, 0, teJustLeft, ID_FE_OUTGRAY | ID_FE_LINE_UNDER | ID_FE_DIGITS,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_LINK_TXT,  0, 240, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_S_VISITORS, 0, 240, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+#endif
+
+ { K_I_CHAIN,   ID_UT_ICON_ITEM, 0, 145, 146, 147, 0, ID_FE_DOWN_ONLY,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { K_I_INFO,    ID_UT_ICON_ITEM, 0, 305, 306, 307, 0, ID_FE_UP_ONLY,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+          
+#ifdef _NIJE_
+ { K_INFO_BOX,  0, 240, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+#endif
+ { K_12x_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,  // Regular popUps
+                "Reg", NULL, NULL,
+                attach_kd_12x_pop, attach_kd_12x_pop },
+
+ { K_22x_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,
+                "Reg", NULL, NULL,
+                attach_kd_22x_pop, attach_kd_22x_pop },
+#ifdef _NIJE_
+ { K_PLS_POP,   ID_UT_POP_UP, 0, 0, 2, 0, teJustLeft, 0,
+                "Reg", NULL, NULL,
+                attach_kd_pls_pop, attach_kd_pls_pop },
+#endif
+ { K_R1R2_POP,   ID_UT_POP_UP, 0, 0, 4, 0, teJustLeft, 0,
+                NULL, NULL, NULL,
+                attach_pr_r1r2_pop, attach_pr_r1r2_pop },
+
+ { K_SMALL_9,   0, 31, 0, 0, 0, teJustCenter, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_TXT_12x,   0, 3, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+ { K_TXT_22x,   0, 3, 0, 0, 0, teJustRight, 0,
+                NULL, NULL, NULL,
+                NULL, NULL },
+
+#ifdef _NIJE_
+ { K_STICKY,    0, 127, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },   
+
+ { K_IBAN,      0, 35, 0, 0, 0, teJustLeft, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+#endif
+
+ { 0,           0 } 
+};
+#endif
+
+
 // --------------------------------
 
 static void  pr_kd_SpecEditTypes (FORM_REC *form)
@@ -95,4 +405,28 @@ int  pr_OnUpdateKupdob (
    }
    
    return (0);
+}
+
+void  pr_OpenKupdob (void)
+{
+   Rect  tmpRect;
+   
+   SetRect (&tmpRect, 32+1, 32+39, 32+484, 32+244+72+64+8+54 /*- 28*/);
+   
+   if (!kupdobForm.my_window)  {
+      id_init_form (&kupdobForm);
+      
+      kupdobForm.update_func = pr_OnUpdateKupdob;
+      
+      pr_CreateDitlWindow (&kupdobForm, 601, &tmpRect, "Adresar", &kupdob_edit_items[0]);
+      
+      id_move_field (&kupdobForm, K_12x_POP, 0, -303);
+      id_move_field (&kupdobForm, K_22x_POP, 0, -303);
+      
+      id_move_field (&kupdobForm, K_TXT_12x, 0,  303);
+      id_move_field (&kupdobForm, K_TXT_22x, 0,  303);
+      
+      id_move_field (&kupdobForm, K_KTO_12x, 24, 0);
+      id_move_field (&kupdobForm, K_KTO_22x, 24, 0);
+   }
 }

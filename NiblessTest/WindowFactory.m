@@ -514,13 +514,28 @@ extern  FORM_REC  *dtRenderedForm;
 
 #pragma mark -
 
+// I have this id_check_chr_edit() that is dealing with a last typed char and I can't use it here
+// There's no way to know what was the last typed char as the cursor may be in the middle of the text
+// So, id_check_chr_edit() has to be split into several parts
+// a) Size, if new text is too big return the old text I have in ditl_def
+// b) Allowed chars ... well, go from strt to finsh, what can I do?
+// c) Toupper, tolower, well, from start to finish
+// d) Newline...? What if cursor is already in new line? As I remove it, what happens? Maybe a hook in GetNextEvent?
+// e) 
+
+
 - (void)controlTextDidChange:(NSNotification *)notification
 {
+   short  selStart, selEnd;
+   
    NSTextField  *textField = [notification object];
    
    NSEvent  *event = [NSApp currentEvent];
    
-   NSLog (@"controlTextDidChange: stringValue = '%@' -> '%@'",
+   TExGetSelection (textField, &selStart, &selEnd);
+   
+   NSLog (@"controlTextDidChange: stringValue[%hd,%hd] = '%@' -> '%@'",
+          selStart, selEnd,
           (event.type == NSKeyDown) ? event.characters : @"º",
           [textField stringValue]);
    

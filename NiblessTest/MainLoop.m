@@ -47,7 +47,6 @@ static int  id_DrawTBPopUp (FORM_REC  *form);
 #pragma mark Menu
 
 static FORM_REC  theMainForm;
-static FORM_REC  newForm;
 
 + (void)handleApplicationDidFinishLaunchingWithAppDelegate:(NiblessTestAppDelegate *)appDelegate
 {
@@ -151,9 +150,7 @@ static FORM_REC  newForm;
    NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
    NSDictionary            *menuDict = appDelegate.menuDict;
 
-   Rect  tmpRect;
-   
-   SetRect (&tmpRect, 32+1, 32+39, 32+484, 32+244+72+64+8+54 /*- 28*/);
+   // Rect  tmpRect;
    
    NSLog (@"%@", sender);
    
@@ -177,19 +174,8 @@ static FORM_REC  newForm;
    
    NSLog (@"ALT MenuId: %hd, itemId: %hd", theMenu, theItem);
 
-   if (!newForm.my_window && (menuIndex > 3))  {
-      // id_SetBlockToZeros (, sizeof(FORM_REC));
-      id_init_form (&newForm);
-      newForm.update_func = pr_OnUpdateKupdob;
-      pr_CreateDitlWindow (&newForm, 601, &tmpRect, "Adresar", &kupdob_edit_items[0]);
-      id_move_field (&newForm, K_12x_POP, 0, -303);
-      id_move_field (&newForm, K_22x_POP, 0, -303);
-
-      id_move_field (&newForm, K_TXT_12x, 0,  303);
-      id_move_field (&newForm, K_TXT_22x, 0,  303);
-
-      id_move_field (&newForm, K_KTO_12x, 24, 0);
-      id_move_field (&newForm, K_KTO_22x, 24, 0);
+   if (menuIndex > 3)  {
+      pr_OpenKupdob ();
    }
    else  if (theMenu = File_MENU_ID)  {
       FORM_REC  *form = id_FindForm (FrontWindow());
@@ -1511,6 +1497,52 @@ int  TExSetAlignment (NSTextField *theCtl, short teJust)
    [theCtl setAlignment:justificationToSet];
    
    return (theCtl.alignment == justificationToSet ? 0 :  -1);
+}
+
+/* .......................................................... TExSetSelection ....... */
+
+// txn version
+
+int  TExSetSelection (NSTextField *theCtl, short selStart, short selEnd)
+{
+   OSErr    err = noErr;
+   NSRange  selRange = NSMakeRange (selStart, selEnd-selStart);
+
+   if (!theCtl)
+      return (paramErr);
+   
+   NSText  *fieldEditor = theCtl.currentEditor;
+   
+   [fieldEditor setSelectedRange:selRange];
+      
+   // if (!err)
+   //    TXNShowSelection ((TXNObject)theCtl, FALSE);  // false for show end of selection
+   
+   return (err);
+}
+
+/* .......................................................... TExGetSelection ....... */
+
+// txn version
+
+int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd)
+{
+   OSErr  err = noErr;
+
+   if (!theCtl)
+      return (paramErr);
+      
+   NSText  *fieldEditor = theCtl.currentEditor;
+   NSRange  selRange = [fieldEditor selectedRange];
+       
+   if (selRange.location != NSNotFound)  {
+      *selStart = selRange.location;
+      *selEnd   = selRange.location + selRange.length;
+   }
+   else
+      *selStart = *selEnd = 0;
+   
+   return (err);
 }
 
 /* ----------------------------------------------------- id_TextWidth ---------------- */

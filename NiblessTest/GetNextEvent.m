@@ -51,10 +51,15 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
    }
 
    if (event.type == NSKeyDown)  {
+      char  ch;
+      
       evtRec->what = keyDown;
       evtRec->message = event.keyCode;
+      evtRec->modifiers = (UInt16)event.modifierFlags;  // See if this actually works - altKey, ctrlKey, cmdKey etc
       NSLog (@"Keys: %@", event.characters);
-      evtRec->message = [event.characters characterAtIndex:0];
+      
+      if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))
+         evtRec->message = ch;
    }
    else  if (event.type == NSLeftMouseDown)  {
       evtRec->what = mouseDown;
@@ -72,35 +77,12 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
             // Well, I'll be damned....
             
             if (eventWin != frontWin)  {
+               NSEvent  *newMouseEvent = id_mouseEventInModalFromEvent (event, frontWin);
+               
+               [NSApp sendEvent:newMouseEvent];
+
                NSLog (@"EvtWin: %@ - FrontWin: %@", eventWin.title, frontWin.title);
                dontSendEvent = YES;
-               
-               {
-                  NSPoint    windowLocation = [event locationInWindow];
-                  NSPoint    location = [[frontWin contentView] convertPoint:windowLocation fromView:nil];
-                  
-                  // NSPoint  newLocation = NSMakePoint (location.x + 100.0, location.y);
-                  NSPoint  newLocation = NSMakePoint (1., 1.);
-                  
-                  NSEventType  eventType = event.type;
-                  NSUInteger  modifiers = event.modifierFlags;
-                  NSTimeInterval  timestamp = event.timestamp;
-                  NSInteger  windowNumber = frontWin.windowNumber;
-                  NSInteger  eventNumber = event.eventNumber;
-                  NSInteger  clickCount = event.clickCount;
-                  float pressure = event.pressure;
-                  
-                  NSEvent  *newMouseEvent = [NSEvent mouseEventWithType:eventType
-                                                              location:newLocation
-                                                         modifierFlags:modifiers
-                                                             timestamp:timestamp
-                                                          windowNumber:windowNumber
-                                                               context:nil // Pass nil for context to use global screen location
-                                                           eventNumber:eventNumber
-                                                            clickCount:clickCount
-                                                              pressure:pressure];
-                  [NSApp sendEvent:newMouseEvent];
-               }
             }
          }
       }
@@ -131,6 +113,38 @@ BOOL  id_GetNextEvent (EventRecord *evtRec, long timeout)
       else
          return (id_CoreGetNextEvent(evtRec, [NSDate distantFuture]));
    // }
+}
+
+#pragma mark -
+
+NSEvent  *id_mouseEventInModalFromEvent (NSEvent *event, NSWindow *modalWindow)
+{
+   // NSPoint    windowLocation = [event locationInWindow];
+   // NSPoint    location = [[frontWin contentView] convertPoint:windowLocation fromView:nil/*frontWindow.contentView*/];
+   
+   // NSPoint  newLocation = NSMakePoint (location.x + 100.0, location.y);
+   NSPoint  newLocation = NSMakePoint (1., 1.);
+   
+   NSEventType    eventType = event.type;
+   NSUInteger     modifiers = event.modifierFlags;
+   NSTimeInterval timestamp = event.timestamp;
+   
+   NSInteger  windowNumber = modalWindow.windowNumber;
+   NSInteger  eventNumber = event.eventNumber;
+   NSInteger  clickCount = event.clickCount;
+   
+   float  pressure = event.pressure;
+   
+   NSEvent  *newMouseEvent = [NSEvent mouseEventWithType:eventType
+                                                location:newLocation
+                                           modifierFlags:modifiers
+                                               timestamp:timestamp
+                                            windowNumber:windowNumber
+                                                 context:nil // Pass nil for context to use global screen location
+                                             eventNumber:eventNumber
+                                              clickCount:clickCount
+                                                pressure:pressure];
+   return (newMouseEvent);
 }
 
 static BOOL  id_handleRightMouse (NSEvent *event)

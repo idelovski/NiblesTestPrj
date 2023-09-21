@@ -538,7 +538,7 @@ static double  gYOffset = 30.;
    
    [[form->my_window contentView] addSubview:edit];
 
-   [edit setTag:++form->creationIndex];
+   [edit setTag:++form->creationIndex];  // Nope, I need to set this tag on my own as there might be certain fields in rsrc that are not active
 
    [edit setDelegate:self.windowFactory];
 

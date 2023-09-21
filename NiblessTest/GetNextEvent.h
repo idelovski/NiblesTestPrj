@@ -29,6 +29,8 @@
 BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration);
 BOOL  id_GetNextEvent (EventRecord *evtRec, long timeout);
 
+NSEvent  *id_mouseEventInModalFromEvent (NSEvent *event, NSWindow *modalWindow);
+
 // -------------------
 
 EventRecord  *id_GetFreeEventRecord (void);
