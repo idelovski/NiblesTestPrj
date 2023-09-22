@@ -394,27 +394,33 @@ BOOL  id_MainLoop (FORM_REC *form)
       // if (evtRecord.what == keyDown && evtRecord.message == 'q')
       //   done = TRUE;
       
-      if (evtRecord.what == keyDown && evtRecord.message == '\t')  {
-         NSLog (@"Tab!");
-         
-         if (form->leftField.currentEditor == form->my_window.firstResponder)  {
-            NSLog (@"Left had Focus");
-            [form->my_window makeFirstResponder:form->rightField];
-            // [form->rightField becomeFirstResponder];
+      // This is wrong as it only works with initial form, so I need a concept of top form...
+      // Until then, use FrontWindow();
+      
+      if (id_FindForm(FrontWindow()) == form)  {
+      
+         if (evtRecord.what == keyDown && evtRecord.message == '\t')  {
+            NSLog (@"Tab!");
+            
+            /*if (form->leftField.currentEditor == form->my_window.firstResponder)  {
+               NSLog (@"Left had Focus");
+               [form->my_window makeFirstResponder:form->rightField];
+               // [form->rightField becomeFirstResponder];
+            }
+            else  if (form->rightField.currentEditor == form->my_window.firstResponder)  {
+               NSLog (@"Right has Focus");
+               [form->my_window makeFirstResponder:form->bigField];
+               // [form->leftField becomeFirstResponder];
+            }
+            else  if (form->bigField.currentEditor == form->my_window.firstResponder)  {
+               NSLog (@"Big has Focus");
+               [form->my_window makeFirstResponder:form->leftField];
+               // [form->leftField becomeFirstResponder];
+            }*/
+            
+            if (form->leftField.window == form->my_window)
+               NSLog (@"My man!");
          }
-         else  if (form->rightField.currentEditor == form->my_window.firstResponder)  {
-            NSLog (@"Right has Focus");
-            [form->my_window makeFirstResponder:form->bigField];
-            // [form->leftField becomeFirstResponder];
-         }
-         else  if (form->bigField.currentEditor == form->my_window.firstResponder)  {
-            NSLog (@"Big has Focus");
-            [form->my_window makeFirstResponder:form->leftField];
-            // [form->leftField becomeFirstResponder];
-         }
-         
-         if (form->leftField.window == form->my_window)
-            NSLog (@"My nigger!");
       }
    
    } while (!done);
@@ -1830,6 +1836,10 @@ int  id_check_chr_edit_char (
       case  kUpArrowCharCode:
       case  kDownArrowCharCode:
          // even protected fields
+         return (0);
+      case  kBackspaceCharCode:
+      case  kDeleteCharCode:
+         form->pen_flags |= ID_PEN_DIRTY;
          return (0);
    }
 

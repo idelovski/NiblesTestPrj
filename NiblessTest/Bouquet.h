@@ -132,6 +132,7 @@
 #define  K_LAST_ELEM  K_C_SKIP_IMP
 
 
+int  attach_kd_kupdob (FORM_REC *form, int fldno, int offset, int mode);
 int  attach_kd_12x_pop (FORM_REC *form, int fldno, int offset, int mode);
 int  attach_kd_22x_pop (FORM_REC *form, int fldno, int offset, int mode);
 int  attach_pr_r1r2_pop (FORM_REC *form, int fldno, int offset, int mode);

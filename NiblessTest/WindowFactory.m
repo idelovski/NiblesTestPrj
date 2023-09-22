@@ -15,7 +15,7 @@
 @synthesize  window;
 
 // TO DO!
-// Well, this windowFactory should be allecated for each window
+// Well, this windowFactory should be allocated for each window
 // as it has KVO for a window so one instance can't observe all the windows out there
 
 
@@ -439,9 +439,11 @@ extern  FORM_REC  *dtRenderedForm;
    return (YES);
 }
 
+// This is called only if dirty
+
 - (BOOL)control:(NSControl *)control textShouldEndEditing:(NSText *)fieldEditor;
 {
-   NSLog (@"control:textShouldBeginEditing: %@", fieldEditor.string);
+   NSLog (@"control:textShouldEndEditing: %@", fieldEditor.string);
    
    return (YES);
 }
@@ -472,6 +474,10 @@ extern  FORM_REC  *dtRenderedForm;
    else if (commandSelector == @selector(insertTab:))  {
       //Do something against TAB key
       NSLog (@"control:textView:doCommandBySelector: insertTab");
+      
+      // result = YES; to handle it on my own
+      // or...
+      // [[textView window] selectNextKeyView:nil];  return (YES);
    }
    
    return (result);
@@ -485,6 +491,8 @@ extern  FORM_REC  *dtRenderedForm;
    
    return (YES);
 }
+
+// Useless
 
 - (BOOL)textShouldEndEditing:(NSText *)textObject;
 {
@@ -500,7 +508,7 @@ extern  FORM_REC  *dtRenderedForm;
 
 /*---------------------------------------------------------------------------*/
 
-- (void)textDidBeginEditing:(NSNotification *)obj
+- (void)textDidBeginEditing:(NSNotification *)notification
 {
    NSLog (@"textDidBeginEditing:");
 }
@@ -556,7 +564,7 @@ extern  FORM_REC  *dtRenderedForm;
                
                TExSetText (textField, theText, txLen);
             }
-            else  {
+            else  if (form->ditl_def)  {
                char   tmpStr[256];
                short  len = 256;
                
@@ -605,11 +613,14 @@ extern  FORM_REC  *dtRenderedForm;
    // [control setFieldEditor:]
 }
 
+// Called twice, first time window is firstResponder, next time the TextField in question, makes no sense
+// Aha, if I Tab first Win becomes firstResponder, but if use the mouse, then nope, calle only once for text field as first responder
+
 - (void)controlTextDidEndEditing:(NSNotification *)notification;
 {
    NSTextField  *textField = [notification object];
    
-   NSLog (@"controlTextDidEndEditing: stringValue = '%@'", [textField stringValue]);
+   NSLog (@"56: stringValue = '%@'", [textField stringValue]);
    
    if ([self isTextFieldInFocus:textField])  {
       FORM_REC  *form = id_FindForm (textField.window);
@@ -623,7 +634,16 @@ extern  FORM_REC  *dtRenderedForm;
 
 - (BOOL)isTextFieldInFocus:(NSTextField *)textField
 {
-	BOOL inFocus = NO;
+	BOOL  inFocus = NO;
+   
+   NSResponder  *firstResponder = [[textField window] firstResponder];
+
+   BOOL  rightClass = [[[textField window] firstResponder] isKindOfClass:[NSTextView class]];
+   BOOL  isEqual = [textField isEqualTo:(id)[(NSTextView *)[[textField window] firstResponder]delegate]];
+
+   NSText  *nsText1 = [[textField window] fieldEditor:NO forObject:nil];
+   NSText  *nsText2 = [[textField window] fieldEditor:NO forObject:textField];
+   Class    class = [firstResponder class];
 	
 	inFocus = ([[[textField window] firstResponder] isKindOfClass:[NSTextView class]]
               && [[textField window] fieldEditor:NO forObject:nil]!=nil

@@ -1106,6 +1106,24 @@ int  pr_CreateDitlWindow (
 
 #pragma mark -
 
+int  attach_kd_kupdob (
+ FORM_REC  *form,
+ int        fldno,
+ int        offset,
+ int        mode
+)
+{
+   short        index=fldno-1;
+
+   if (mode==ID_ENTRY_FLAG)  {
+   }
+   else  if (mode==ID_EXIT_FLAG)  {
+   }
+
+   return (0);
+}
+
+
 int  attach_kd_12x_pop (
  FORM_REC  *form,
  int        fldno,
