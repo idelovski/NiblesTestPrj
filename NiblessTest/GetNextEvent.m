@@ -56,10 +56,10 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
       evtRec->what = keyDown;
       evtRec->message = event.keyCode;
       evtRec->modifiers = (UInt16)event.modifierFlags;  // See if this actually works - altKey, ctrlKey, cmdKey etc
-      NSLog (@"Keys: %@", event.characters);
+      NSLog (@"Key: '%@'", event.characters);
       
       if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))
-         evtRec->message = ch;
+         evtRec->message = (unsigned char)ch;
    }
    else  if (event.type == NSLeftMouseDown)  {
       evtRec->what = mouseDown;

@@ -58,6 +58,12 @@ char *strNCpy (char *s1, const char *s2, long n);
 int  stricmp (char *s1, char *s2);
 int  strnicmp (char *s1, char *s2, short n);
 
+int  id_isCroAlpha (char ch, short spaceIsAlpha);
+
+void   id_ConvertTextTo1250 (char *sText, short *len, short expandNewLines);
+void   id_ConvertTextTo1250L (char *sText, long *len, short expandNewLines);  // expands \r
+void   id_Convert1250ToText (char *sText, short *len, short expandNewLines);  // shrinks \r\n
+
 OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef);
 
 int   id_GetApplicationExeFSRef (FSRef *appParentFolderFSRef);  // out, exe folder
@@ -110,6 +116,10 @@ void  SetPt (Point *pt, short h, short v);
 
 #endif
 
+int  TExSetText (NSTextField *theCtl, char *theText, short txLen);
+int  TExGetText (NSTextField *theCtl, char *theText, short *maxLen);  // maxLen is in & out
+int  TExGetTextLen (NSTextField *theCtl);
+
 int  TExMeasureText (char *cStr, long len, short *txtWidth, short *txtHeight);
 void TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWrap, short eraseBackground);
 int  TExSetAlignment (NSTextField *theCtl, short teJust);
@@ -120,6 +130,9 @@ int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd);
 NSTextAlignment  TExAlignment (short teJust);
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len);
+
+int  id_check_chr_edit_char (FORM_REC *form, short index, char ch);
+int  id_check_chr_edit_size (FORM_REC *form, short index, short newSize);
 
 int  GetFontNum (char *fontName, short *fontNum);
 int  GetFontName (short fontNum, char *fontName, short maxLen);
@@ -349,6 +362,11 @@ int  id_AdjustScaledPictBottom (FORM_REC *form, short index, Rect *fldRect);
 int  id_frame_editText (FORM_REC *form, short index);
 
 int  id_title_bounds (FORM_REC *form, short fldno_1, short fldno_2, CGColorRef frPatPtr, char *title_str, ID_LAYOUT *specLayout);
+
+void     id_set_field_buffer_text (FORM_REC *form, short fldno, char *text, short txtLen);
+char    *id_field_text_buffer (FORM_REC *form, short fldno);
+int      id_field_text_length (FORM_REC *form, short fldno);
+Boolean  id_field_empty (FORM_REC *form, short fldno);
 
 int  id_set_field_layout (FORM_REC *form, short index, ID_LAYOUT *theLayout);
 void id_same_edit_type (FORM_REC *, short, short);

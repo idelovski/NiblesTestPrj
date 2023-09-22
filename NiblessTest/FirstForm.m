@@ -994,6 +994,7 @@ int  pr_CreateDitlWindow (
                [((NSTextField *)f_ditl_def->i_handle).cell setBordered:NO];
                [((NSTextField *)f_ditl_def->i_handle).cell setBezeled:NO];
             }
+            ((NSTextField *)f_ditl_def->i_handle).tag = index + 1;
             
             id_my_edit_layout (form, index);
          }

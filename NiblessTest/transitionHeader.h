@@ -14,6 +14,7 @@
 #define _DTOOL_COCOA_
 // -------------------
 
+#define  NOT_YET         
 
 #define  MAX_PATH        256
 
@@ -330,6 +331,7 @@ struct  FormRecord  {
    char           *w_title;     /* C string, po novom od 04.07.2005 */
    Rect            w_rect;      // win first, since 27/10/2008 on Mac
    short           w_procID;
+   short           pen_flags;
 
    ID_LAYOUT      *edit_layout,
                   *stat_layout, 

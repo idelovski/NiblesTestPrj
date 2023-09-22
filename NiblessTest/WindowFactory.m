@@ -526,11 +526,48 @@ extern  FORM_REC  *dtRenderedForm;
 
 - (void)controlTextDidChange:(NSNotification *)notification
 {
+   int    cpt = 0;
    short  selStart, selEnd;
    
    NSTextField  *textField = [notification object];
    
    NSEvent  *event = [NSApp currentEvent];
+   
+   if (event && (event.type == NSKeyDown))  {
+      char  ch;
+      
+      if (event.modifierFlags & NSAlphaShiftKeyMask)  // See if this actually works - altKey, ctrlKey, cmdKey etc
+         NSLog (@"controlTextDidChange - Shift key");
+      if (event.modifierFlags & NSControlKeyMask)  // See if this actually works - altKey, ctrlKey, cmdKey etc
+         NSLog (@"controlTextDidChange - Ctrl key");
+      if (event.modifierFlags & NSAlternateKeyMask)  // See if this actually works - altKey, ctrlKey, cmdKey etc
+         NSLog (@"controlTextDidChange - Alt key");
+         
+      NSLog (@"controlTextDidChange - Key: '%@'", event.characters);
+      
+      if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))  {
+         FORM_REC  *form = id_FindForm (textField.window);
+         
+         if (form)  {
+            if (id_check_chr_edit_char(form, textField.tag-1, ch) ||
+                id_check_chr_edit_size(form, textField.tag-1, TExGetTextLen(textField)))  {
+               char  *theText = id_field_text_buffer (form, textField.tag);
+               short  txLen   = id_field_text_length (form, textField.tag);
+               
+               TExSetText (textField, theText, txLen);
+            }
+            else  {
+               char   tmpStr[256];
+               short  len = 256;
+               
+               TExGetText (textField, tmpStr, &len);
+               
+               id_set_field_buffer_text (form, textField.tag, tmpStr, len);
+            }
+            return;
+         }
+      }
+   }
    
    TExGetSelection (textField, &selStart, &selEnd);
    
@@ -542,8 +579,6 @@ extern  FORM_REC  *dtRenderedForm;
    NSCharacterSet  *charSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzŠĐČĆŽšđčćž#$%&?*\n "];
    
    unichar  *stringResult = malloc ([textField.stringValue length] * sizeof(unichar) + 1);
-   
-   int    cpt = 0;
    
    for (int i = 0; i < [textField.stringValue length]; i++) {
       unichar c = [textField.stringValue characterAtIndex:i];

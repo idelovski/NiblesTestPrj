@@ -381,8 +381,13 @@ BOOL  id_MainLoop (FORM_REC *form)
 
       // NSLog (@"One tick!...");
       
-      if (evtRecord.what == keyDown)
-         NSLog (@"Key in keyDown: %c %hd", (unsigned char)evtRecord.message, (short)evtRecord.message);
+      if (evtRecord.what == keyDown)  {
+         UniChar  uch;
+         
+         id_CharToUniChar (evtRecord.message, &uch);
+         
+         NSLog (@"Key in keyDown: %C %hu", uch, (unsigned short)evtRecord.message);
+      }
       if (evtRecord.what == activateEvt)
          NSLog (@"ActivateEvt: %@", evtRecord.modifiers ? @"Activate" : @"Deactivate");
       
@@ -744,7 +749,9 @@ FORM_REC  *id_init_form (FORM_REC *form)
    id_SetBlockToZeros (form, sizeof (FORM_REC));
    
    form->scaleRatio = 100;
-   
+
+   form->pen_flags = ID_PEN_DOWN;
+
    form->pathsArray = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
    form->pdfsArray = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
    
@@ -1043,6 +1050,177 @@ int  strnicmp (char *s1, char *s2, short n)  // see id_StrniCmpCro
    return (toupper(*s1) - toupper(*s2));
 }
 
+/* ----------------------------------------------------------- id_isCroAlpha --------- */
+
+int  id_isCroAlpha (char ch, short spaceIsAlpha)
+{
+   char  croCharacters[12] = { 0xC8, 0xC6, 0xD0, 0xA9, 0xAE,  0xE8, 0xE6, 0xF0, 0xB9, 0xBE,  '\0' };
+   
+   if (isalpha(ch) || strchr(croCharacters, ch) || (spaceIsAlpha && ch == ' '))  // "ËÊπæ»∆–©Æ"
+      return (TRUE);
+   
+   return (FALSE);
+}
+
+/* ................................................... id_ConvertTextTo1250 ........ */
+
+// Watch it! This thing can enlarge the string by few characters...
+
+void  id_ConvertTextTo1250 (
+ char  *sText,
+ short *len,
+ short  expandNewLines
+)
+{
+   long  retLen = (short)*len;
+   
+   if (retLen < 0)
+      NOT_YET  // id_note_emsg ("id_ConvertTextTo1250 - Duljina teksta!");
+      NSLog (@"id_ConvertTextTo1250 - Duljina teksta!");
+   
+   id_ConvertTextTo1250L (sText, &retLen, expandNewLines);
+   
+   *len = retLen;
+}
+
+/* ................................................... id_ConvertTextTo1250L ....... */
+
+void  id_ConvertTextTo1250L (
+ char  *sText,
+ long  *len,
+ short  expandNewLines
+)
+{
+   long  retLen = *len;
+   
+   while (*sText && *len)  {
+      switch ((unsigned char)*sText)  {
+            
+         //    Mac             Win
+            
+         case 0xC4:  *sText = 0xFB;  break;  // 'ƒ' - 'ƒ'
+
+         case 0xC8:  *sText = 0xC8;  break;  // 'CC' - '»'
+         case 0xC6:  *sText = 0xC6;  break;  // 'CH' - '∆'
+         case 0xD0:  *sText = 0xD0;  break;  // 'DJ' - '–'
+         case 0xA9:  *sText = 0x8A;  break;  // 'SH' - '©'
+         case 0xAE:  *sText = 0x8E;  break;  // 'ZH' - 'Æ'
+            
+         case 0xE8:  *sText = 0xE8;  break;  // 'cc' - 'Ë'
+         case 0xE6:  *sText = 0xE6;  break;  // 'ch' - 'Ê'
+         case 0xF0:  *sText = 0xF0;  break;  // 'dj' - ''
+         case 0xB9:  *sText = 0x9A;  break;  // 'sh' - 'π'
+         case 0xBE:  *sText = 0x9E;  break;  // 'zh' - 'æ'
+            
+         case 0xD2:  *sText = 0x93;  break;  // '“' - '//'
+         case 0xD3:  *sText = 0x94;  break;  // '”' - '//'
+         case 0xA5:  *sText = 0x95;  break;  // '•' - '*'
+            
+         case 0xB7:  *sText = 0xE4;  break;  // '∑' - 'E'
+            
+         case 0x80:  *sText = 0xC4;  break;  // 'Ä' - ''
+         case 0xFA:  *sText = 0xCB;  break;  // 'Ë' - ''
+         case 0x85:  *sText = 0xD6;  break;  // 'Ö' - ''
+         case 0x86:  *sText = 0xDC;  break;  // 'Ü' - ''
+         case 0x8A:  *sText = 0xE4;  break;  // 'ä' - ''
+         case 0x91:  *sText = 0xEB;  break;  // 'ë' - ''
+         case 0x9A:  *sText = 0xF6;  break;  // 'ö' - ''
+         case 0x9F:  *sText = 0xFC;  break;  // 'ü' - ''
+
+         case 0x8E:  *sText = 0xE9;  break;  // 'é' - ''
+         case 0x8D:  *sText = 0xE7;  break;  // 'ç' - ''
+         case 0x83:  *sText = 0xC9;  break;  // 'É' - ''
+         case 0x82:  *sText = 0xC7;  break;  // 'Ç' - ''
+         case 0x8F:  *sText = 0xB7;  break;  // '·' - ''
+
+         case 0xE0:  *sText = 0x96;  break;  // '-' - '–'  // NDash
+            
+         case '\r':
+            if (expandNewLines)  {
+               if (*(sText+1) != '\n')  {
+                  BlockMove (sText+1, sText+2, *len);
+                  *(++sText) = '\n';
+                  retLen++;
+               }
+            }
+            break;
+      }
+      sText++;
+      (*len)--;
+   }
+   
+   *len = retLen;
+}
+
+/* ................................................... id_Convert1250ToText ........ */
+
+// Watch it! This thing can shorten the string by few characters...
+
+void  id_Convert1250ToText (
+ char   *sText,
+ short  *len,
+ short   expandNewLines
+)
+{
+   short  retLen = *len;
+   
+   while (*sText && *len)  {
+      switch ((unsigned char)*sText)  {
+      
+         //    Win             Mac
+
+         case 0xFB:  *sText = 0xC4;  break;  // 'ƒ' - 'ƒ'
+
+         case 0xC8:  *sText = 0xC8;  break;  // 'CC'
+         case 0xC6:  *sText = 0xC6;  break;  // 'CH'
+         case 0xD0:  *sText = 0xD0;  break;  // 'DJ'
+         case 0x8A:  *sText = 0xA9;  break;  // 'SH'
+         case 0x8E:  *sText = 0xAE;  break;  // 'ZH'
+         
+         case 0xE8:  *sText = 0xE8;  break;  // 'cc'
+         case 0xE6:  *sText = 0xE6;  break;  // 'ch'
+         case 0xF0:  *sText = 0xF0;  break;  // 'dj'
+         case 0x9A:  *sText = 0xB9;  break;  // 'sh'
+         case 0x9E:  *sText = 0xBE;  break;  // 'zh'
+
+         case 0x93:  *sText = 0xD2;  break;  // '“' - '//'
+         case 0x94:  *sText = 0xD3;  break;  // '”' - '//'
+         case 0x95:  *sText = 0xA5;  break;  // '•'
+
+         case 0xC4:  *sText = 0x80;  break;  // 'Ä' - ''
+         case 0xCB:  *sText = 0xFA;  break;  // 'Ë' - ''
+         case 0xD6:  *sText = 0x85;  break;  // 'Ö' - ''
+         case 0xDC:  *sText = 0x86;  break;  // 'Ü' - ''
+         case 0xE4:  *sText = 0x8A;  break;  // 'ä' - ''
+         case 0xEB:  *sText = 0x91;  break;  // 'ë' - ''
+         case 0xF6:  *sText = 0x9A;  break;  // 'ö' - ''
+         case 0xFC:  *sText = 0x9F;  break;  // 'ü' - ''
+
+         case 0xE9:  *sText = 0x8E;  break;  // 'é' - ''
+         case 0xE7:  *sText = 0x8D;  break;  // 'ç' - ''
+         case 0xC9:  *sText = 0x83;  break;  // 'É' - ''
+         case 0xC7:  *sText = 0x82;  break;  // 'Ç' - ''
+         case 0xB7:  *sText = 0x8F;  break;  // '·' - ''
+
+         case 0x96:  *sText = 0xE0;  break;  // '-' - '–'  // NDash
+
+         case '\r':
+            if (expandNewLines)  {
+               if (*(sText+1) == '\n')  {
+                  BlockMove (sText+2, sText+1, (*len)-1);
+                  retLen--;
+                  (*len)--;
+               }
+            }
+            break;
+      }
+      sText++;
+      (*len)--;
+   }
+
+   *len = retLen;
+}
+
 /* .......................................................... id_String2Mac ......... */
 
 // May shrink string by 1
@@ -1068,7 +1246,7 @@ char *id_CFString2Mac (const CFStringRef srcStr, char *dstStr, short *strLen)
    
    // tmpStr = id_TestReplacementCharacters (srcStr, FALSE);
    
-   CFStringGetBytes (tmpStr ? tmpStr : srcStr, CFRangeMake(0, len), kTextEncodingISOLatin1/*kTextEncodingWindowsLatin2*/, '?', FALSE, (UInt8 *) dstStr, maxLen, &usedBufLen);
+   CFStringGetBytes (tmpStr ? tmpStr : srcStr, CFRangeMake(0, len), kTextEncodingMacCroatian/*kTextEncodingWindowsLatin2*/, '?', FALSE, (UInt8 *) dstStr, maxLen, &usedBufLen);
    
    if (tmpStr)
       CFRelease (tmpStr);
@@ -1392,6 +1570,59 @@ void  pr_ListEncodings (void)
    }
 }
 
+/* .......................................................... TExSetText ............ */
+
+int  TExSetText (NSTextField *theCtl, char *theText, short txLen)
+{
+   OSErr        err = noErr;
+   CFStringRef  cfString;
+   
+   if (!theCtl)
+      return (paramErr);
+      
+   id_Mac2CFString (theText, &cfString, txLen);
+   
+   [theCtl setStringValue:(NSString *)cfString];
+
+   CFRelease (cfString);
+   
+   return (err);
+}
+
+/* .......................................................... TExGetText ............ */
+
+// maxLen is in & out
+
+int  TExGetText (NSTextField *theCtl, char *theText, short *maxLen)  // maxLen is in & out
+{
+   OSErr        err = noErr;
+   Size         actualSize;
+   CFStringRef  tmpCFStr;
+   
+   if (!theCtl)
+      return (paramErr);
+   
+   tmpCFStr = (CFStringRef)[theCtl stringValue];
+   
+   actualSize = ((NSString *)tmpCFStr).length;
+      
+   *maxLen = *maxLen > actualSize ? actualSize : *maxLen;
+   
+   id_CFString2Mac (tmpCFStr, theText, maxLen);  // changes maxLen to actual len
+ 
+   return (err);
+}
+
+/* .......................................................... TExGetTextLen ......... */
+
+int  TExGetTextLen (NSTextField *theCtl)
+{
+   if (!theCtl)
+      return (0);
+   
+   return ((int)[[theCtl stringValue] length]);
+}
+
 /* ................................................... TExMeasureText ............... */
 
 // This measures text with fixed font. Now we somehow need to send font decription here
@@ -1571,6 +1802,142 @@ int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
       DisposePtr (buffPtr);
    
    return (retVal);
+}
+
+/* ------------------------------------------------------- id_check_chr_edit_char ---- */
+
+// Used before field change
+
+int  id_check_chr_edit_char (
+ FORM_REC  *form,
+ short      index,
+ char       ch
+)
+{
+   EDIT_item  *f_edit_def = form->edit_def ? form->edit_def[index] : NULL;
+   long        fldEditFlags;
+   short       selStart, selEnd;
+   short       maxLen = form->edit_def ? form->edit_def[index]->e_maxlen : 0;
+   
+   if (!f_edit_def)
+      return (0);
+   
+   fldEditFlags = f_edit_def->e_fld_edits;
+   
+   switch (ch)  {
+      case  kLeftArrowCharCode:
+      case  kRightArrowCharCode:
+      case  kUpArrowCharCode:
+      case  kDownArrowCharCode:
+         // even protected fields
+         return (0);
+   }
+
+   if (((f_edit_def->e_fld_edits & ID_FE_PROTECT) && (ch != 27)) ||
+       (ch == 0x7F))  // Manual shit iz Bonce 10.01.03
+      return (-1);
+      
+   if (ch == '\r')  {
+      if (!id_isHighField(form, index+1))
+         return (-1);
+   }
+   else  if ((ch == kBackspaceCharCode) || (ch == kDeleteCharCode))  {
+      form->pen_flags |= ID_PEN_DIRTY;
+      NOT_YET //  id_UDEnable (form, index+1);
+      return (0);
+   }
+   else  if (iscntrl(ch))
+      return (0);
+   
+   if ((fldEditFlags & ID_FE_LETTERS) && (fldEditFlags & ID_FE_DIGITS))  {
+      if (!isdigit(ch) && !id_isCroAlpha(ch, TRUE))
+         return (-1);
+   }
+   else  {
+      if (fldEditFlags & ID_FE_DIGITS)
+         if (!isdigit(ch))
+            return (-1);
+      if (fldEditFlags & ID_FE_LETTERS)
+         if (!id_isCroAlpha (ch, TRUE))
+            return (-1);
+   }
+   if (fldEditFlags & ID_FE_NUMERIC)  {
+#ifdef _NIJE_IFCW_
+      if (strchr("+=", ch) && (form->w_procID != plainDBox) && (fldEditFlags & (ID_FE_CURRENCY | ID_FE_QUANT)))
+         *ifcFlag = TRUE;
+      else
+#endif  //  _NIJE_IFCW_
+      if (!strchr("0123456789-.+", ch))  {   // Plus izvaen 25.01.03
+         if (fldEditFlags & (ID_FE_CURRENCY | ID_FE_QUANT))  {
+            if ((ch != ',') && (ch != '%'))  {
+               if (dtGData->fDblEditCheckProc || form->edit_check_func)  {
+                  short  txLen = TExGetTextLen ((NSTextField *)form->ditl_def[index]->i_handle);
+                  
+                  TExGetSelection ((NSTextField *)form->ditl_def[index]->i_handle, &selStart, &selEnd);
+                  
+                  // Maybe, maybe, maybe we need to set the original savedPort here,
+                  // but we're not expected to draw anything in there anyway...
+                  if (form->edit_check_func && (*form->edit_check_func)(form, index+1, txLen, selStart, selEnd, ch))
+                     return (-1);
+                  else  if (dtGData->fDblEditCheckProc && (*dtGData->fDblEditCheckProc)(form, index+1, txLen, selStart, selEnd, ch))
+                     return (-1);
+               }
+               else
+                  return (-1);
+            }
+         }
+         else
+            return (-1);
+      }
+   }
+   
+   if ((fldEditFlags & ID_FE_DATE) || (fldEditFlags & ID_FE_DATE_MMYY))
+      if (!strchr("0123456789.,/+-DdJjGgSsPpMmZz", ch))
+         return (-1);
+   if (fldEditFlags & ID_FE_TIME)
+      if (!strchr("0123456789.,/+-:;", ch))
+         return (-1);
+   if (f_edit_def->e_regular)
+      if (!strchr(f_edit_def->e_regular, ch))   /* --- Regular expression --- */
+         return (-1);
+
+   return (0);
+}
+
+/* ------------------------------------------------------- id_check_chr_edit_size ---- */
+
+// Used after field change
+
+int  id_check_chr_edit_size (
+ FORM_REC  *form,
+ short      index,
+ short      newSize
+)
+{
+   short       maxLen;
+   EDIT_item  *f_edit_def = form->edit_def ? form->edit_def[index] : NULL;
+   // short       selStart, selEnd;
+
+   if (!f_edit_def)
+      return (0);
+
+   maxLen = form->edit_def[index]->e_maxlen;
+   
+   if (f_edit_def->e_fld_edits & ID_FE_EXTRA_LEN)  {
+      if (f_edit_def->e_precision)
+         maxLen = f_edit_def->e_precision;
+   }
+
+   if (newSize >= maxLen)  {
+      // TExGetSelection ((NSTextField *)form->ditl_def[index]->i_handle, &selStart, &selEnd);
+      // if (selStart == selEnd)
+      return (-1);
+   }
+      
+   NOT_YET// form->pen_flags |= (ID_PEN_DIRTY);
+   NOT_YET// id_UDEnable (form, index+1);
+         
+   return (0);
 }
 
 #pragma mark Fonts
@@ -3532,6 +3899,81 @@ void  id_same_edit_type (
       }
 }
 
+/* .................................................. id_set_field_buffer_text ....... */
+
+void  id_set_field_buffer_text (
+ FORM_REC  *form,
+ short      fldno,
+ char      *text,
+ short      txtLen
+)
+{
+   short  index = fldno - 1;
+
+   if (form->edit_def[index]->e_longText)  {
+      NOT_YET // id_DisposePtr (form->edit_def[index]->e_longText);
+      DisposePtr (form->edit_def[index]->e_longText);
+      form->edit_def[index]->e_longText = NULL;
+   }
+
+   if (txtLen <= 240)  {
+      form->ditl_def[index]->i_data_size = txtLen;
+      BlockMove (text, form->ditl_def[index]->i_data.d_text, txtLen);
+   }
+   else  {
+      NOT_YET // form->edit_def[index]->e_longText = id_malloc_or_exit (txtLen+1);
+      form->edit_def[index]->e_longText = NewPtr (txtLen+1);
+      
+      BlockMove (text, form->edit_def[index]->e_longText, txtLen);
+      form->edit_def[index]->e_longText[txtLen] = '\0';
+      form->ditl_def[index]->i_data_size = 255;
+   }
+}
+
+/* ..................................................... id_field_text_buffer ....... */
+
+char  *id_field_text_buffer (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short  index = fldno - 1;
+
+   return (form->edit_def[index]->e_longText ? form->edit_def[index]->e_longText : form->ditl_def[index]->i_data.d_text);
+}
+
+/* ........................................................ id_field_text_length .... */
+
+int  id_field_text_length (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short  index = fldno - 1;
+   
+   if (id_inpossible_item(form, index))  return (0);
+   
+   if (form->edit_def[index]->e_longText)
+      return ((int)strlen(form->edit_def[index]->e_longText));
+   
+   return (form->ditl_def[index]->i_data_size);
+}
+
+/* ........................................................ id_field_empty .......... */
+NOT_YET /*
+Boolean  id_field_empty (
+ FORM_REC *form,
+ short     fldno
+)
+{
+   short  index = fldno - 1;
+
+   if ((form->ditl_def[index]->i_type & editText) && (index==form->cur_fldno))
+      id_get_TE_str (form, index);
+   
+   return (id_field_text_length(form, fldno) ? FALSE : TRUE);
+}
+*/
 /* .......................................................... id_set_field_layout .... */
 
 int  id_set_field_layout (  // there is pr_SetFldEdits()
