@@ -16,7 +16,7 @@ There are these two lines:
     GetResource ('MENU', menu_id);
     GetResource ('DITL', ditl_id);
 
-CarbonCore lets you to read these resources but then you are on your own, parsing them requres information from old Inside Macintosh volumes from the eighties and this project contains an example how to do exactly that. Menus and windows are recreated from these two resource types.
+CarbonCore lets you to read these resources but then you are on your own, parsing them requires information from old Inside Macintosh volumes from the eighties and this project contains an example how to do exactly that. Menus and windows are recreated from these two resource types.
 
 I don't think this rsrc file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file.
 
