@@ -1680,6 +1680,12 @@ void   TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWra
    
    id_Mac2CFString (str, &cfStr, len);
    
+   if (eraseBackground)  {
+      NSBezierPath  *textPath = [NSBezierPath bezierPathWithRect:CGRectInset(strRect, -1, 0)];
+      [[NSColor whiteColor] setFill];
+      [textPath fill];
+   }
+   
    NSMutableParagraphStyle  *textStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
    
    textStyle.lineBreakMode = NSLineBreakByWordWrapping;
@@ -3870,9 +3876,9 @@ int  id_title_bounds (
    
    if (title_str && (len = strlen(title_str)))  {
       tx_len = id_TextWidth (form, title_str, 0, len);
-      tx_len += len;
-      SetRect (&tr1, frame_bounds.left + distance+1,  frame_bounds.top - distance/2 - 1,
-                     frame_bounds.left + distance+tx_len+3, frame_bounds.top + distance/2+2);
+      tx_len += len / 10;
+      SetRect (&tr1, frame_bounds.left + distance + 1,  frame_bounds.top - distance/2 - 1,
+                     frame_bounds.left + distance+tx_len + 3, frame_bounds.top + distance/2 + 2);
       tr1.right += len;
 
       TExTextBox (title_str, len, &tr1, teJustLeft, TRUE, TRUE);  // wrap, erase back
