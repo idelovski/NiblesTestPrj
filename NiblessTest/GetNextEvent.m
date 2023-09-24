@@ -6,8 +6,11 @@
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
-//  WindowPtr is 64bit, evt->message is 32bit so I need to put windowNumber in there on Cocoa
-//  ... and a function like winPtr = EvtMsg2WindowPtr(evt->message)
+// There is -runModalSession:
+// Typically, you use this method in situations where you want to do some additional processing on the current thread while the modal loop runs. For example, while processing a large data set, you might want to use a modal dialog to display progress and give the user a chance to cancel the operation.
+
+// Subclass of NSWindow can have -worksWhenModal
+// The value of this property is YES if the window is able to receive keyboard and mouse events even when some other window is being run modally; otherwise, NO. By default, the NSWindow value of this property is NO. Only subclasses of NSPanel should override this default.
 
 // updateEvt may be even just an info set after drawRect call so the outer code knows it happened,
 // I don't think it's needed before but if it's possible I wouldn't mind
