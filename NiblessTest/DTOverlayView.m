@@ -361,6 +361,53 @@ void  id_FrameRect (FORM_REC *form, Rect *theRect)
    CGPathRelease (path);   
 }
 
+/* ----------------------------------------------------- id_FrameRect ---------------- */
+
+// ATM - only if ctx exist
+
+void  id_FrameRoundRect (FORM_REC *form, Rect *theRect)
+{
+   CGRect   clipFrame, frame = id_Rect2CGRect (theRect);
+   CGFloat  cRadius = 7.;
+
+   // Upper part
+   
+   clipFrame = frame;  clipFrame.size.height = cRadius;
+   
+   CGContextRef  context = [NSGraphicsContext currentContext].graphicsPort;
+   
+   CGContextSetShouldAntialias (context, YES);
+   
+   
+   NSBezierPath  *clipPath = [NSBezierPath bezierPathWithRect:clipFrame];
+   [clipPath setClip];
+   
+   NSBezierPath  *path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:cRadius yRadius:cRadius];
+   
+   path.lineWidth = 2.1;
+   
+   [[NSColor lightGrayColor] setStroke];
+   [path stroke];
+   
+   // Lower part
+   
+   // CGContextSetShouldAntialias (context, NO);
+   
+   clipFrame = frame;  clipFrame.origin.y += cRadius; clipFrame.size.height -= cRadius;
+   
+   clipPath = [NSBezierPath bezierPathWithRect:clipFrame];
+   [clipPath setClip];
+   
+   // frame.size.width -= 1.;
+   path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:cRadius yRadius:cRadius];
+   
+   path.lineWidth = 1.5;
+   
+   [[NSColor lightGrayColor] setStroke];
+   [path stroke];
+
+}
+
 /* ----------------------------------------------------- id_FrameEditRect ------------ */
 
 void  id_FrameEditRect (FORM_REC *form, Rect *theRect)  // context must be available

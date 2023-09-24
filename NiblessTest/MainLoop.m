@@ -3871,7 +3871,7 @@ int  id_title_bounds (
    // DrawThemePrimaryGroup (&frame_bounds, kThemeStateActive);
    CGContextSaveGState (form->drawRectCtx);
    CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor grayColor].toCGColor);  // Right
-   id_FrameRect (form, &frame_bounds);
+   id_FrameRoundRect (form, &frame_bounds);
    CGContextRestoreGState (form->drawRectCtx);
    
    if (title_str && (len = strlen(title_str)))  {
