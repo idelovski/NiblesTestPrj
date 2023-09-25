@@ -127,12 +127,24 @@ int  TExSetAlignment (NSTextField *theCtl, short teJust);
 int  TExSetSelection (NSTextField *theCtl, short selStart, short selEnd);
 int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd);
 
+int  TExIdle (WindowPtr windowPtr, NSTextField *editInput);
+int  TExActivate (WindowPtr windowPtr, NSTextField *editInput);
+int  TExDeactivate (WindowPtr windowPtr, NSTextField *editInput);
+int  TExUpdate (NSTextField  *editInput, Rect *fldRect);
+int  id_put_TE_str (FORM_REC *form, short index);
+int  id_get_TE_str (FORM_REC *form, short index);
+
 NSTextAlignment  TExAlignment (short teJust);
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len);
 
 int  id_check_chr_edit_char (FORM_REC *form, short index, char ch);
 int  id_check_chr_edit_size (FORM_REC *form, short index, short newSize);
+
+int  id_TE_change (FORM_REC *form, short index, FontInfo *fntInfo, WindowPtr savedPort, short sel, short mouseFlag);
+void id_post_TE_change (FORM_REC *form, short index);
+
+int  id_gofield (FORM_REC *form, short fldno, short sel);
 
 int  GetFontNum (char *fontName, short *fontNum);
 int  GetFontName (short fontNum, char *fontName, short maxLen);
@@ -152,6 +164,11 @@ void  id_set_list_layout (FORM_REC *form, short index);
 void  id_my_list_layout (FORM_REC *form, short index);
 void  id_my_popUp_layout (FORM_REC *form, short index);
 void  id_set_system_layout (FORM_REC *form, short index);
+
+void   id_pen_down  (FORM_REC *, short);
+void   id_pen_up  (FORM_REC *);
+int    id_get_pen  (FORM_REC *, short);
+int    id_set_pen  (FORM_REC *, short, short);
 
 #define  HiWord(x) ((short)((long)(x) >> 16))
 #define  LoWord(x) ((short)(x))
@@ -331,6 +348,9 @@ CGColorRef  QD_Gray (void);
 CGColorRef  QD_Black (void);
 CGColorRef  QD_White (void);
 
+int   id_GetCursor (void);
+void  id_SetCursor (FORM_REC *form, short cursID);
+
 void id_GetClientRect (FORM_REC *form, Rect *rect);
 void id_get_form_rect (Rect *rect, FORM_REC *form, short clientFlag);
 int  id_get_fld_rect (FORM_REC *form, short fldno, Rect *fldRect);
@@ -376,6 +396,12 @@ int  id_enable_field (FORM_REC *form, short fldno);
 
 Boolean  id_field_enabled (FORM_REC *form, short fldno);
 
+void  id_redraw_field (FORM_REC *form, short fldno);
+void _id_redraw_field (FORM_REC *form, Rect *fldRect, DITL_item *fDitl_def, EDIT_item *fEdit_def);
+
+int  id_check_entry (FORM_REC *form, short index, WindowPtr savedPort);
+int  id_check_exit (FORM_REC *form, short index, WindowPtr savedPort);
+
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 
 #define  kSBAR_BACKGROUND 701
@@ -407,6 +433,10 @@ RgnHandle  id_ClipRect (FORM_REC *form, Rect *clipRect);
 int        id_RestoreClip (FORM_REC *form, RgnHandle savedClipRgn);
 
 int  id_DrawStatusbar (FORM_REC *form, short drawNow);
+void id_RedrawStatusbar (FORM_REC *form);
+int  id_SetStatusbarText (FORM_REC *form, short statPart, char *statText);
+
+int  id_show_comment (FORM_REC *form, short index, short mode);
 
 void id_create_toolbar (FORM_REC *form);
 int  id_DrawIconToolbar (FORM_REC *form);

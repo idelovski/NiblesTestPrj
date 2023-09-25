@@ -346,6 +346,7 @@ struct  FormRecord  {
    
    DITL_item     **ditl_def;
    EDIT_item     **edit_def;
+   NSTextField    *TE_handle;
    
    int           (*update_func)(struct FormRecord *, EventRecord *, short, short);
    int           (*edit_check_func)(struct FormRecord *, short fldNo, short txLen, short selStart, short selEnd, char ch);
@@ -353,6 +354,7 @@ struct  FormRecord  {
    void          (*hover_check_func)(struct FormRecord *, short fldNo, short mode, Point mousePt);
 
    Handle          toolBarHandle;
+   Handle          statusBarHandle;
    
    struct
     FormRecord    *parentForm;

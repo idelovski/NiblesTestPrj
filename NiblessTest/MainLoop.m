@@ -1788,6 +1788,130 @@ int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd)
    return (err);
 }
 
+/* ................................................... id_TEIdle .................... */
+
+// txn version
+
+int  TExIdle (
+ WindowPtr     windowPtr,
+ NSTextField  *editInput
+)
+{
+   NOT_YET // TXNIdle ((TXNObject)editInput);
+   
+   return (0);
+}
+
+/* ................................................... TExActivate .................. */
+
+// txn version
+
+int  TExActivate (
+ WindowPtr     windowPtr,
+ NSTextField  *editInput
+)
+{
+   NOT_YET // TXNFocus ((TXNObject)editInput, TRUE);
+   
+   return (0);
+}
+
+/* ................................................... TExDeactivate ................ */
+
+// txn version
+
+int  TExDeactivate (
+ WindowPtr     windowPtr,
+ NSTextField  *editInput
+)
+{
+   NOT_YET // TXNFocus ((TXNObject)editInput, FALSE);
+   
+   return (0);
+}
+
+/* ................................................... TExUpdate .................... */
+
+// txn version
+
+int  TExUpdate (NSTextField  *editInput, Rect *fldRect)
+{
+   NOT_YET // TXNDrawObject ((TXNObject)editInput, NULL, kTXNDrawItemTextAndSelectionMask);
+   
+   return (0);
+}
+
+/* ................................................... id_put_TE_str ................ */
+
+int  id_put_TE_str (
+ FORM_REC    *form,
+ short        index
+)
+{
+   short  selStart, selEnd, txtSize, i;
+   char   tmpStr[256];
+   // char  *tmpBullets = tmpStr;
+   char  *txtPtr = id_field_text_buffer (form, index+1);
+   
+   TExGetSelection ((NSTextField *)form->ditl_def[index]->i_handle, &selStart, &selEnd);
+   
+   txtSize = id_field_text_length (form, index+1);
+      
+   if (txtSize && (form->edit_def[index]->e_fld_edits & ID_FE_BULLETS) && !id_get_pen(form, ID_PEN_DOWN))  {
+      for (i=0; i<txtSize; i++)
+         tmpStr[i] = '.';  // '•';
+      txtPtr = tmpStr;
+   }      
+
+   TExSetText ((NSTextField *)form->ditl_def[index]->i_handle, txtPtr, txtSize);
+
+   if (id_get_pen(form, ID_PEN_DOWN) && form->cur_fldno == index)  {
+      if (selStart > txtSize)
+         selStart = txtSize;
+      if (selEnd > txtSize)
+         selEnd = txtSize;
+      TExSetSelection ((NSTextField *)form->ditl_def[index]->i_handle, selStart, selEnd);
+   }
+   else
+      TExSetSelection ((NSTextField *)form->ditl_def[index]->i_handle, 0, 0);
+      
+   return (0);     
+}
+
+/* ................................................... id_get_TE_str ................ */
+
+int  id_get_TE_str (
+ FORM_REC    *form,
+ short        index
+)
+{
+   short  len = 240;
+   short  neededLen = TExGetTextLen ((NSTextField *)form->ditl_def[index]->i_handle);
+   char  *txtBuffPtr = form->ditl_def[index]->i_data.d_text;
+   
+   if (form->edit_def[index]->e_longText)  {
+      DisposePtr (form->edit_def[index]->e_longText);
+      form->edit_def[index]->e_longText = NULL;
+   }
+   
+   if ((neededLen > 240) && (neededLen > form->edit_def[index]->e_maxlen))
+      neededLen = form->edit_def[index]->e_maxlen;
+   
+   if (neededLen <= 240)  {
+      TExGetText ((NSTextField *)form->ditl_def[index]->i_handle, txtBuffPtr, &len);
+      form->ditl_def[index]->i_data_size = len;
+   }
+   else  {
+      txtBuffPtr = form->edit_def[index]->e_longText = NewPtr ((len = neededLen)+1);
+
+      TExGetText ((NSTextField *)form->ditl_def[index]->i_handle, txtBuffPtr, &len);
+      BlockMoveData (txtBuffPtr, form->ditl_def[index]->i_data.d_text, 240);
+      form->ditl_def[index]->i_data_size = 255;
+   }
+   
+   return (len);
+}
+
 /* ----------------------------------------------------- id_TextWidth ---------------- */
 
 int  id_TextWidth (FORM_REC *form, char *txtPtr, short startOffset, short len)
@@ -1950,10 +2074,107 @@ int  id_check_chr_edit_size (
       return (-1);
    }
       
-   NOT_YET// form->pen_flags |= (ID_PEN_DIRTY);
+   form->pen_flags |= (ID_PEN_DIRTY);
    NOT_YET// id_UDEnable (form, index+1);
          
    return (0);
+}
+
+/* ................................................... id_TE_change ................. */
+
+// txn version
+
+int  id_TE_change (
+ FORM_REC  *form,
+ short      index,
+ FontInfo  *fntInfo,  // NOT USED ON OS X
+ WindowPtr  savedPort,
+ short      sel,
+ short      mouseFlag
+)
+{
+   short  txLen, retValue = 0;
+   short  atOpen   = FALSE;
+   Rect   tmpRect;
+   
+   if (form->TE_handle)  {
+      id_get_TE_str (form, form->cur_fldno);
+      if (retValue=id_check_exit(form, form->cur_fldno, savedPort))
+         return (retValue);
+      else
+        TExDeactivate ((WindowPtr)form->my_window, (NSTextField *)form->TE_handle);
+   }
+   else
+      atOpen = TRUE;
+      
+   if ((form->ditl_def[index]->i_type & editText))  {
+
+      dtGData->theInput = (NSTextField *)form->ditl_def[index]->i_handle;
+      form->TE_handle = (NSTextField *)form->ditl_def[index]->i_handle;
+      
+      form->cur_fldno = index;
+
+      id_put_TE_str (form, index);
+      if (!atOpen)
+         id_check_entry (form, index, savedPort);
+
+      id_itemsRect (form, index, &tmpRect);
+      
+      txLen = id_field_text_length (form, index+1);
+      if (sel)
+         TExSetSelection ((NSTextField *)form->TE_handle, 0, txLen);
+      else  if (!mouseFlag)
+         TExSetSelection ((NSTextField *)form->TE_handle, txLen, txLen);
+
+      TExActivate ((WindowPtr)form->my_window, (NSTextField *)form->TE_handle);                   /* Make it active */
+      TExUpdate ((NSTextField *)form->TE_handle, &tmpRect);
+      if (!atOpen)
+         id_post_TE_change (form, index);
+   }
+   else
+      return (-1);
+   
+   return (retValue);
+}
+
+void  id_post_TE_change (
+ FORM_REC  *form,
+ short      index
+)
+{
+   char  shortText[32];
+   
+   if (id_field_text_length(form, index+1))
+      sprintf (shortText, "%hd", (short)id_field_text_length (form, index+1));
+   else
+      shortText[0] = '\0';
+   id_SetStatusbarText (form, 1, shortText);
+}
+
+/* .......................................................... id_gofield ............ */
+
+int  id_gofield (
+ FORM_REC  *form,
+ short      fldno, 
+ short      sel
+)
+{
+   short      retVal = 0, index = fldno-1;
+   WindowPtr  savedPort;
+         
+   if (id_inpossible_item (form, index))  {
+      return (-1);
+   }
+   
+   id_GetPort (form, &savedPort);
+   id_SetPort (form, (WindowPtr)form->my_window);
+   
+   if ((form->ditl_def[index]->i_type & editText))
+      retVal = id_TE_change (form, index, NULL, savedPort, sel, FALSE);
+   
+   id_SetPort (form, savedPort);
+   
+   return (retVal);
 }
 
 #pragma mark Fonts
@@ -2229,6 +2450,132 @@ void  id_my_popUp_layout (
 void  id_set_system_layout (FORM_REC *form, short index)
 {
    id_SetFont (form, index, geneva, form ? id_GetScaledFontSize(form, 12) : 12, normal);
+}
+
+/* ----------------------------------------------------------- id_pen_down ---------- */
+
+void  id_pen_down (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short   index;
+
+   id_set_pen (form, ID_PEN_DOWN, TRUE);
+   if (fldno > 0)  {
+      id_gofield (form, fldno, 0);
+      NOT_YET // id_UDSet (form, fldno);
+   }
+   
+   for (index=0; index<form->last_fldno+1; index++)  {          /* Mind Icons */
+      if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+         if (form->edit_def[index]->e_type == ID_UT_ICON_ITEM)  {
+            if (form->edit_def[index]->e_fld_edits & ID_FE_UP_ONLY)  {
+               id_disable_field (form, index+1);
+               id_redraw_field (form, index+1);
+            }
+         }
+         else  if (form->edit_def[index]->e_type & ID_UT_TEPOP)  {
+            if (form->edit_def[index]->e_fld_edits & ID_FE_DOWN_ONLY)  {
+               id_enable_field (form, index+1);
+               id_redraw_field (form, index+1);
+            }
+         }
+      }
+      else
+         if (form->ditl_def[index]->i_type & ctrlItem)  {
+            if (form->edit_def[index]->e_fld_edits & ID_FE_UP_ONLY)
+               id_disable_field (form, index+1);
+            else  if (form->edit_def[index]->e_fld_edits & ID_FE_DOWN_ONLY)
+               id_enable_field (form, index+1);
+         }
+   }
+
+   if (form->update_func)
+      (*form->update_func)(form, NULL, ID_PEN_DOWN_UPDATE, 0);
+}
+
+/* ----------------------------------------------------------- id_pen_up ------------ */
+
+void  id_pen_up (
+ FORM_REC  *form
+)
+{
+   short  index;
+   short  selStart, selEnd;
+   Rect   tmpRect;
+
+   NSTextField  *tmpTEH;
+   WindowPtr     savedPort;
+
+   id_set_pen (form, ID_PEN_DOWN | ID_PEN_DIRTY /*| ID_PEN_FLDIRT*/, FALSE);
+   NOT_YET // id_UDDisable ();
+   
+   if (form->TE_handle && ((index=form->cur_fldno) >= 0))  {
+      id_GetPort (form, &savedPort);
+      id_SetPort (form, (WindowPtr)form->my_window);
+      tmpTEH = form->TE_handle;
+      TExGetSelection ((NSTextField *)tmpTEH, &selStart, &selEnd);
+      if ((selEnd >= id_field_text_length(form, index+1)) || (selStart > selEnd))
+         TExSetSelection ((NSTextField *)tmpTEH, 0, 0);
+
+      TExDeactivate ((WindowPtr)form->my_window, (NSTextField *)tmpTEH);
+      id_itemsRect (form, index, &tmpRect);
+      TExUpdate ((NSTextField *)tmpTEH, &tmpRect);
+      id_SetPort (form, savedPort);
+      
+      id_SetStatusbarText (form, 1, "");
+   }
+   
+   for (index=0; index<form->last_fldno+1; index++)  {
+      if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+         /*if (form->edit_def[index]->e_type == ID_UT_ICON_ITEM)*/
+            if (form->edit_def[index]->e_fld_edits & ID_FE_DOWN_ONLY)  {
+               id_disable_field (form, index+1);
+               id_redraw_field (form, index+1);
+            }
+            else if (form->edit_def[index]->e_fld_edits & ID_FE_UP_ONLY)  {
+               id_enable_field (form, index+1);
+               id_redraw_field (form, index+1);
+            }
+      }
+      else
+         if (form->ditl_def[index]->i_type & ctrlItem)  {
+            if (form->edit_def[index]->e_fld_edits & ID_FE_DOWN_ONLY)
+               id_disable_field (form, index+1);
+            else  if (form->edit_def[index]->e_fld_edits & ID_FE_UP_ONLY)
+               id_enable_field (form, index+1);
+         }
+   }
+   
+   id_SetCursor (form, 0);
+   
+   if (form->update_func)
+      (*form->update_func)(form, NULL, ID_PEN_UP_UPDATE, 0);
+}
+
+/* ----------------------------------------------------------- id_get_pen ----------- */
+
+int  id_get_pen (
+ FORM_REC  *form,
+ short      chk_flag
+)
+{
+   return (form->pen_flags & chk_flag);
+}
+
+/* ----------------------------------------------------------- id_set_pen ----------- */
+
+int  id_set_pen (
+ FORM_REC  *form,
+ short      my_flag,
+ short      state
+)
+{
+   if (state)
+      return (form->pen_flags |= my_flag);
+   else
+      return (form->pen_flags &= (~my_flag));
 }
 
 #pragma mark -
@@ -3224,6 +3571,45 @@ CGColorRef  QD_White (void)
    return ([NSColor whiteColor].toCGColor);
 }
 
+static short  lastCursSet = 0;
+
+int  id_GetCursor (void)
+{
+   return (lastCursSet);
+}
+
+void id_SetCursor (
+ FORM_REC  *form,
+ short      cursID
+)
+{
+   if (cursID == lastCursSet)
+      return;
+#ifdef _NOT_YET_
+   switch (cursID)  {
+      case  0:
+         SetCursor (QD_Arrow());
+         break;
+      case  iBeamCursor:
+         if (!form)  {
+            SetCursor (QD_Arrow());
+            cursID = 0;
+         }
+         else  if (form->pen_flags & ID_PEN_DOWN)
+            SetCursor (&editCursor);
+         else
+            return;
+         break;
+      case  watchCursor:
+         SetCursor (&waitCursor);
+         break;
+      default:
+         return;
+   }
+#endif   
+   lastCursSet = cursID;
+}
+
 #pragma mark Fields
 
 /* ----------------------------------------------------------- id_get_form_rect ------ */
@@ -3976,7 +4362,7 @@ int  id_field_text_length (
 }
 
 /* ........................................................ id_field_empty .......... */
-NOT_YET /*
+
 Boolean  id_field_empty (
  FORM_REC *form,
  short     fldno
@@ -3989,7 +4375,7 @@ Boolean  id_field_empty (
    
    return (id_field_text_length(form, fldno) ? FALSE : TRUE);
 }
-*/
+
 /* .......................................................... id_set_field_layout .... */
 
 int  id_set_field_layout (  // there is pr_SetFldEdits()
@@ -4093,6 +4479,147 @@ Boolean  id_field_enabled (
       return (FALSE);
    else
       return (TRUE);
+}
+
+/* .......................................................... id_redraw_field ....... */
+
+void  id_redraw_field (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short       index = fldno-1;
+   Rect        tmpRect;
+   DITL_item  *fDitl_def;
+   EDIT_item  *fEdit_def;
+   
+   if (id_inpossible_item (form, index))  return;
+      
+   fDitl_def = form->ditl_def[index];
+   fEdit_def = form->edit_def[index];
+
+   // tmpRect = fDitl_def->i_rect;
+   id_itemsRect (form, index, &tmpRect);
+   
+   _id_redraw_field (form, &tmpRect, fDitl_def, fEdit_def);
+}
+
+/* .......................................................... _id_redraw_field ...... */
+
+void _id_redraw_field (
+ FORM_REC  *form,
+ Rect      *fldRect,
+ DITL_item *fDitl_def,
+ EDIT_item *fEdit_def
+)
+{
+   NSControl  *theCtl = (NSControl *)fDitl_def->i_handle;
+
+   if (theCtl)
+      [theCtl setNeedsDisplay:YES];
+}
+
+/* --------------------------------------------------- entry & exit calls ---------- */
+
+#pragma mark -
+
+/* --------------------------------------------------- id_check_entry -------------- */
+
+int  id_check_entry (
+ FORM_REC  *form,
+ short      index,
+ WindowPtr  savedPort
+)
+{
+   EDIT_item  *f_edit_def;
+   short       retVal = 0;
+   
+   if (f_edit_def=form->edit_def[index])  {
+      if (form->ditl_def[index]->i_type & editText)  {
+         id_show_comment (form, index, TRUE);
+         if (id_field_empty(form, index+1))  {       // 28/04/04
+            NOT_YET // if (f_edit_def->e_fld_edits & ID_FE_SYS_DATE)   /* SysDate */
+               NOT_YET // id_put_editText (form, index, id_form_date(id_sys_date (), _DD_MM_YY));
+            NOT_YET // if (f_edit_def->e_fld_edits & ID_FE_SYS_TIME)   /* SysTime */
+               NOT_YET // id_put_editText (form, index, id_form_time(id_sys_time (), _HH_MI_SS));
+         }
+      }
+      if (f_edit_def->e_entry_func)  {
+         id_SetPort (form, savedPort);
+         retVal = (*f_edit_def->e_entry_func)(form, index+1, f_edit_def->e_occur, ID_ENTRY_FLAG);
+         id_SetPort (form, (WindowPtr)form->my_window);
+      }
+      if (form->ditl_def[index]->i_type & editText)  {
+         id_set_pen (form, ID_PEN_FLDIRT, FALSE);
+         NOT_YET // id_UDSet (form, index+1);
+         NOT_YET // id_CheckCommandsMenu (form, index, TRUE);
+      }
+   }
+   return (retVal);
+}
+
+/* --------------------------------------------------- id_check_exit --------------- */
+
+int  id_check_exit (
+ FORM_REC  *form,
+ short      index,
+ WindowPtr  savedPort
+)
+{
+   EDIT_item  *f_edit_def;
+   short       retVal;
+   char        dChar;
+   
+   if (f_edit_def=form->edit_def[index])  {
+      if (form->ditl_def[index]->i_type & editText)  {
+         id_show_comment (form, index, FALSE);
+         if (f_edit_def->e_fld_edits & ID_FE_DATE)  {
+            dChar = *form->ditl_def[index]->i_data.d_text;
+            if (!strchr("+DdJjGgSsPpMmZz", dChar))  {
+               char  tmpDate[16];
+               
+               id_SetPort (form, savedPort);
+               NOT_YET // id_getfield (form, index+1, tmpDate, 10);
+               NOT_YET // if (!id_checkDateIntegrity (tmpDate, TRUE))
+                  NOT_YET // id_putdate (form, index+1, 
+                       NOT_YET // id_CheckDateFrame (id_getdate(form, index+1),
+                       NOT_YET // f_edit_def->e_fld_edits & ID_FE_DATECHK));
+               id_SetPort (form, (WindowPtr)form->my_window);
+            }
+            NOT_YET // else  if (dChar != '+')  {    // Slovni datumi
+               NOT_YET // id_SetPort (form, savedPort);
+               NOT_YET // id_putdate (form, index+1, id_GetMacroDate(dChar));
+               NOT_YET // id_SetPort (form, form->my_window);
+            NOT_YET // }
+         }
+         NOT_YET // if ((f_edit_def->e_fld_edits & ID_FE_SYS_DATE) && id_field_empty(form, index+1)) /* SysDate */
+            NOT_YET // id_put_editText (form, index, id_form_date(id_sys_date (), _DD_MM_YY));
+      }
+      if (f_edit_def->e_exit_func || dtGData->fDblExitCheckProc)  {
+         id_SetPort (form, savedPort);
+         if (f_edit_def->e_exit_func && (f_edit_def->e_fld_edits & ID_FE_EXTRA_LEN))
+            retVal = (*f_edit_def->e_exit_func)(form, index+1, f_edit_def->e_occur, ID_EXTRA_FLAG);
+         else
+            retVal = 0;
+         if (!retVal)  {
+            if (form->exit_check_func)
+               retVal = (*form->exit_check_func)(form, index+1);
+            else  if (dtGData->fDblExitCheckProc)
+               retVal = (*dtGData->fDblExitCheckProc)(form, index+1);
+         }
+         
+         if (!retVal && f_edit_def->e_exit_func)
+            retVal = (*f_edit_def->e_exit_func)(form, index+1, f_edit_def->e_occur, ID_EXIT_FLAG);
+         id_SetPort (form, (WindowPtr)form->my_window);
+         NOT_YET // if (!retVal && form->ditl_def[index]->i_type & editText)
+            NOT_YET // id_CheckCommandsMenu (form, index, FALSE);
+         return (retVal);
+      }
+      NOT_YET // else  if (form->ditl_def[index]->i_type & editText)
+         NOT_YET // id_CheckCommandsMenu (form, index, FALSE);
+   }
+   
+   return (0);
 }
 
 #pragma mark PDF
@@ -4575,6 +5102,155 @@ static int  id_DrawStatusbarText (
    return (0);
 }
 
+/* ....................................................... id_RedrawStatusBar ....... */
+
+void  id_RedrawStatusbar (FORM_REC *form)
+{
+   WindowPtr  savedPort;
+
+   id_GetPort (form, &savedPort);
+   id_SetPort (form, (WindowPtr)form->my_window);
+
+   if ((form->pen_flags & ID_PEN_DOWN) && (form->cur_fldno >= 0))
+      id_show_comment (form,  form->cur_fldno, TRUE);
+   else
+      id_show_comment (form, -1, 0);
+
+   id_SetPort (form, savedPort);
+}
+
+/* ....................................................... id_SetStatusbarText ...... */
+
+int  id_SetStatusbarText (
+ FORM_REC *form,
+ short     statPart,
+ char     *statText
+)
+{
+   IDStatusbarHandle  sbHandle = (IDStatusbarHandle) form->statusBarHandle;
+   
+   if (!sbHandle)
+      return (-1);
+      
+   HLock (form->statusBarHandle);
+   
+   switch (statPart)  {
+      case  0:
+         // con_printf ("%s\n", statText);
+         strNCpy ((*sbHandle)->sbPrimaryMsg, statText, 240);
+         break;
+      case  1:
+         strNCpy ((*sbHandle)->sbCharCountMsg, statText, 15);
+         break;
+      case  2:
+         strNCpy ((*sbHandle)->sbSecondaryMsg, statText, 240);
+         break;
+      default:
+         strNCpy ((*sbHandle)->sbTernaryMsg, statText, 240);
+         break;
+   }
+   HUnlock (form->statusBarHandle);
+   
+   return (id_DrawStatusbar (form, FALSE));  // drawNow
+}
+
+/* ----------------------------------------------------------- id_show_comment ------- */
+
+// We don't have the FB struct defined so none of this would work
+
+int  id_show_comment (
+ FORM_REC    *form,
+ short        index,
+ short        mode
+)
+{
+#ifdef _NOT_YET_
+   EDIT_item  *f_edit_def;
+   FBPtr       theFB = id_FBFindByForm (form);
+   short       dfltFlag = TRUE;
+   short       statusBarFlag = FALSE;
+   char        tmpStr[256];
+   WindowPtr   savedPort;
+   
+   if (theFB || form->status_fldno < 0)
+      statusBarFlag = TRUE;
+   
+   if (index >= 0 && index<=form->last_fldno)  {
+      if (f_edit_def=form->edit_def[index])  {
+         if (f_edit_def->e_status_line)  {
+            if (mode && (form->pen_flags & ID_PEN_DOWN))  {
+
+               if (!statusBarFlag)  {
+                  GetWinPort (&savedPort);
+                  SetWinPort (form->my_window);
+                  ForeColor (blueColor);
+                  // SetWinPort (savedPort);
+                  id_putfield (form, form->status_fldno+1, f_edit_def->e_status_line);
+                  // GetWinPort (&savedPort);
+                  // SetWinPort (form->my_window);
+                  ForeColor (blackColor);
+                  SetWinPort (savedPort);
+               }
+               else  {
+                  if (theFB && theFB->fbExtraComment[0])  {
+                     char  statusText[256];
+                     
+                     sprintf (statusText, "%s ... %s", f_edit_def->e_status_line, theFB->fbExtraComment);
+                     id_SetStatusbarText (form, 0, statusText);  // See id_DrawStatusbar()
+                  }
+                  else
+                     id_SetStatusbarText (form, 0, f_edit_def->e_status_line);
+               }
+               dfltFlag = FALSE;
+            }
+            else  if (!statusBarFlag && (form->pen_flags & ID_PEN_DOWN))
+               id_putfield (form, form->status_fldno+1, "");
+         }
+      }
+   }
+   
+   if (dfltFlag)  {
+      char  statusText[256], *txtStatusOK = "Status: OK";
+      
+      if (form->formFlags & ID_F_ERROR_STATE)
+         sprintf (statusText, "Status: PROBLEM");
+      else  if (form->formFlags & ID_F_STATUS_MARK)
+         sprintf (statusText, "(•) %s", txtStatusOK);
+      else  if (theFB && theFB->fbExtraComment[0])
+         sprintf (statusText, " %s", theFB->fbExtraComment);
+      else
+         sprintf (statusText, "%s", txtStatusOK);
+      
+      id_SetStatusbarText (form, 0, statusText);
+   }
+   
+   if (theFB && theFB->fbSFHandle)  {
+      short  first, last;
+      
+      first = id_FBFirstEmptyLine(theFB, FALSE);
+      last  = id_FBLastEmptyLine(theFB, FALSE);
+      
+      if (!first && !last)
+         sprintf (tmpStr, "%s", "");
+      else  if (first != last)
+         sprintf (tmpStr, "%hd [%hd]", first, last);
+      else
+         sprintf (tmpStr, "%hd", first);
+                  
+      id_SetStatusbarText (form, 2, tmpStr);
+   }
+   else
+      id_SetStatusbarText (form, 2, "");
+
+   if (theFB && theFB->fbShortComment[0])  {
+      id_SetStatusbarText (form, 3, theFB->fbShortComment);
+   }
+   else
+      id_SetStatusbarText (form, 3, "");
+#endif  // _NOT_YET_
+   return (0);
+}
+
 #pragma mark -
 
 /* ....................................................... id_CreateIconToolbar ..... */
@@ -4730,7 +5406,7 @@ static int  id_CoreDrawTBItem (FORM_REC *form, short idx, short hiFlag, short in
          if ((*tbHandle)->imbNormal[idx])  {
             imageButton = (*tbHandle)->imbNormal[idx];
             
-            if ((*tbHandle)->tbDisabled)
+            if ((*tbHandle)->tbDisabled /*|| !(*tbHandle)->tbMenu[idx]*/)  // Nope, it gets lighter
                [imageButton setEnabled:NO];
             else  if (invalFlag)
                [imageButton setNeedsDisplay:YES];
