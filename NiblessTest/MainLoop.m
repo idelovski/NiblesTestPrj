@@ -370,10 +370,15 @@ static FORM_REC  theMainForm;
 
 @end
 
-BOOL  id_MainLoop (FORM_REC *form)
+#pragma mark -
+
+BOOL  id_MainLoop (FORM_REC *mainForm)
 {
+   short        index;
    EventRecord  evtRecord;
    BOOL         done = FALSE;
+   
+   FORM_REC  *form = NULL;
    
    do  {
       
@@ -384,9 +389,24 @@ BOOL  id_MainLoop (FORM_REC *form)
       if (evtRecord.what == keyDown)  {
          UniChar  uch;
          
+         form = id_FindForm (FrontWindow());
+         
          id_CharToUniChar (evtRecord.message, &uch);
          
          NSLog (@"Key in keyDown: %C %hu", uch, (unsigned short)evtRecord.message);
+         
+         if ((form->TE_handle && form->ditl_def) && (form->pen_flags & ID_PEN_DOWN) && (evtRecord.message == '\t'))  {
+            
+            if (evtRecord.modifiers & shiftKey)
+               index = id_find_prev_fld (form);
+            else               
+               index = id_find_next_fld (form);
+            
+            if (index != form->cur_fldno)
+               id_TE_change (form, index, NULL, NULL/*savedPort*/, TRUE, FALSE);  // sel, mouse
+            
+            // retValue = form->cur_fldno+1;
+         }
       }
       if (evtRecord.what == activateEvt)
          NSLog (@"ActivateEvt: %@", evtRecord.modifiers ? @"Activate" : @"Deactivate");
@@ -397,12 +417,12 @@ BOOL  id_MainLoop (FORM_REC *form)
       // This is wrong as it only works with initial form, so I need a concept of top form...
       // Until then, use FrontWindow();
       
-      if (id_FindForm(FrontWindow()) == form)  {
+      if ((form=id_FindForm(FrontWindow())) == mainForm)  {
       
          if (evtRecord.what == keyDown && evtRecord.message == '\t')  {
             NSLog (@"Tab!");
             
-            /*if (form->leftField.currentEditor == form->my_window.firstResponder)  {
+            /*if (mainForm->leftField.currentEditor == form->my_window.firstResponder)  {
                NSLog (@"Left had Focus");
                [form->my_window makeFirstResponder:form->rightField];
                // [form->rightField becomeFirstResponder];
@@ -762,6 +782,8 @@ FORM_REC  *id_init_form (FORM_REC *form)
    form->pdfsArray = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
    
    form->currentFont = [NSFont systemFontOfSize:9.];
+   
+   form->cur_fldno = form->status_fldno = form->aDefItem = -1;      /* Initialy */
    
    return (form);
 }
@@ -1678,13 +1700,15 @@ void   TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWra
    NSFont   *textFont = [NSFont messageFontOfSize:10];
    NSColor  *theColor = [NSColor blackColor];
    
-   id_Mac2CFString (str, &cfStr, len);
-   
    if (eraseBackground)  {
+      NSLog (@"TExTextBox: %@", NSStringFromRect(strRect));
+
       NSBezierPath  *textPath = [NSBezierPath bezierPathWithRect:CGRectInset(strRect, -1, 0)];
       [[NSColor whiteColor] setFill];
       [textPath fill];
    }
+   
+   id_Mac2CFString (str, &cfStr, len);
    
    NSMutableParagraphStyle  *textStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
    
@@ -1807,11 +1831,12 @@ int  TExIdle (
 // txn version
 
 int  TExActivate (
- WindowPtr     windowPtr,
+ NSWindow     *aWindow,
  NSTextField  *editInput
 )
 {
    NOT_YET // TXNFocus ((TXNObject)editInput, TRUE);
+   [aWindow makeFirstResponder:editInput];
    
    return (0);
 }
@@ -2126,7 +2151,7 @@ int  id_TE_change (
       else  if (!mouseFlag)
          TExSetSelection ((NSTextField *)form->TE_handle, txLen, txLen);
 
-      TExActivate ((WindowPtr)form->my_window, (NSTextField *)form->TE_handle);                   /* Make it active */
+      TExActivate (form->my_window, (NSTextField *)form->TE_handle);                   /* Make it active */
       TExUpdate ((NSTextField *)form->TE_handle, &tmpRect);
       if (!atOpen)
          id_post_TE_change (form, index);
@@ -2145,7 +2170,7 @@ void  id_post_TE_change (
    char  shortText[32];
    
    if (id_field_text_length(form, index+1))
-      sprintf (shortText, "%hd", (short)id_field_text_length (form, index+1));
+      sprintf (shortText, "%hd", (short)id_field_text_length(form, index+1));
    else
       shortText[0] = '\0';
    id_SetStatusbarText (form, 1, shortText);
@@ -2175,6 +2200,157 @@ int  id_gofield (
    id_SetPort (form, savedPort);
    
    return (retVal);
+}
+
+#pragma mark -
+
+int  id_find_next_fld (
+ FORM_REC  *form
+)
+{
+   short       i, index, level = 0;
+   Rect        tmpRect;
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   index = form->cur_fldno;
+   
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+   
+   if (f_edit_def->e_next_field && (f_edit_def->e_next_field <= form->last_fldno+1))  {
+      id_base_fldno (form, index+1, &level);
+      if (form->sfPage)  {
+         // See if we need to move to the next level
+         if ((f_edit_def->e_next_field == form->sfStart) && (index+1 - level == form->sfEnd))
+            if (level+1 < form->sfPage)
+               return (f_edit_def->e_next_field-1+level+1);
+      }
+      return (f_edit_def->e_next_field-1+level);
+   }
+   
+   if (f_edit_def->e_type & ID_UT_ARRAY)  {                // TextEdit Arrays
+      tmpRect = f_ditl_def->i_rect;                        // Must be naked rect!
+      
+      if (form->sfPage)  {
+         i = index + form->sfPage;
+         f_ditl_def = form->ditl_def[i];
+         f_edit_def = form->edit_def[i];
+         if ((f_ditl_def->i_type == editText) && (f_edit_def->e_type & ID_UT_ARRAY))
+            return (i);
+         else  {
+            level = (index - (form->sfStart - 1)) % form->sfPage + 1;
+            if (level < form->sfPage)  {
+               i = form->sfStart - 1 + level;
+               f_ditl_def = form->ditl_def[i];
+               f_edit_def = form->edit_def[i];
+               if ((f_ditl_def->i_type == editText) && (f_edit_def->e_type & ID_UT_ARRAY))
+                  return (i);
+            }
+         }
+            
+      }
+      
+      for (i=form->cur_fldno+1; i<=form->last_fldno; i++)  {
+         f_ditl_def = form->ditl_def[i];
+         f_edit_def = form->edit_def[i];
+         if ((f_ditl_def->i_type == editText) && (f_edit_def->e_type & ID_UT_ARRAY) && !(f_edit_def->e_fld_edits & ID_FE_ANY_SKIP))
+            if ((f_ditl_def->i_rect.top == tmpRect.top)/* && (f_ditl_def->i_rect.bottom == tmp_rect.bottom)*/)
+               return (i);
+      }
+
+      if (form->cur_fldno < form->last_fldno)  {      /* Za zadnji stupac -> poËetak sljedeÊeg reda */
+         index = form->cur_fldno+1;
+         f_ditl_def = form->ditl_def[index];
+         f_edit_def = form->edit_def[index];
+         if ((f_ditl_def->i_type == editText) && (f_edit_def->e_type & ID_UT_ARRAY) /*&& !(f_edit_def->e_fld_edits & ID_FE_ANY_SKIP)*/)  {
+            // 09.12.2015 - ugaπena ova skip provjera, nije vaæno dal je tekuÊe polje skip nego iduÊe
+            // short  prevFld = 0;
+            // short  baseFldno = id_base_fldno (form, form->cur_fldno+1, &level);
+            
+            tmpRect = f_ditl_def->i_rect;
+
+            for (i=0; i<form->cur_fldno; i++)  {
+               f_ditl_def = form->ditl_def[i];
+               f_edit_def = form->edit_def[i];
+               if ((f_ditl_def->i_type == editText) && (f_edit_def->e_type & ID_UT_ARRAY) && !(f_edit_def->e_fld_edits & ID_FE_ANY_SKIP))  {
+                  if ((f_ditl_def->i_rect.top == tmpRect.top) /*&& (f_ditl_def->i_rect.bottom == tmp_rect.bottom)*/)
+                     return (i);
+#ifdef _NIJE_
+                  else  if (!prevFld && (f_edit_def->e_next_field == form->cur_fldno+1))
+                     prevFld = i+1;
+#endif
+               }
+            }
+            
+            // Now try with the upper fild when paired (two lines of fields, like in joppd)
+#ifdef _NIJE_
+            tmpRect = form->ditl_def[prevFld-1+level]->i_rect;
+            
+            for (i=0; i<form->cur_fldno; i++)  {
+               f_ditl_def = form->ditl_def[i];
+               f_edit_def = form->edit_def[i];
+               if ((f_ditl_def->i_type == editText) && (f_edit_def->e_type & ID_UT_ARRAY) && !(f_edit_def->e_fld_edits & ID_FE_ANY_SKIP))  {
+                  if ((f_ditl_def->i_rect.top == tmpRect.top) /*&& (f_ditl_def->i_rect.bottom == tmp_rect.bottom)*/)
+                     return (i);
+               }
+            }
+#endif
+         }
+      }
+   }
+
+   for (i=form->cur_fldno+1; i<=form->last_fldno; i++)  {   /* Standard TextEdit */
+      if (form->ditl_def[i]->i_type == editText &&
+          !(form->edit_def[i]->e_fld_edits & ID_FE_ANY_SKIP))
+         return (i);
+   }
+   
+   for (i=0; i<=form->last_fldno; i++)  {
+      if (form->ditl_def[i]->i_type == editText &&
+          !(form->edit_def[i]->e_fld_edits & ID_FE_ANY_SKIP))
+         return (i);
+   }
+
+   return (form->cur_fldno);
+}
+
+/* ----------------------------------------------------------- id_find_prev_fld ------ */
+
+int  id_find_prev_fld (
+ FORM_REC   *form
+)
+{
+   short  i, nowGet, savedCurFldno, lastGet;
+   
+   savedCurFldno = lastGet = form->cur_fldno;
+   
+   /*
+   for (i=form->cur_fldno-1; i>=0; i--)  {
+      if (form->ditl_def[i]->i_type == editText)
+         return (i);
+   }
+   */
+   
+   for (i=0; i<=form->last_fldno; i++)  {
+      if ((form->ditl_def[i]->i_type != editText) || (form->edit_def[i]->e_fld_edits & ID_FE_ANY_SKIP))
+         continue;
+      lastGet = i;
+      form->cur_fldno = i;
+      nowGet = id_find_next_fld (form);
+      if (nowGet == savedCurFldno)  {
+         form->cur_fldno = savedCurFldno;
+         return (lastGet);
+      }
+   }
+   form->cur_fldno = savedCurFldno;
+
+   for (i=form->last_fldno; i>=form->cur_fldno; i--)  {
+      if (form->ditl_def[i]->i_type == editText && !(form->edit_def[i]->e_fld_edits & ID_FE_ANY_SKIP))
+         return (i);
+   }
+
+   return (form->cur_fldno);
 }
 
 #pragma mark Fonts
@@ -4258,6 +4434,7 @@ int  id_title_bounds (
    CGContextSaveGState (form->drawRectCtx);
    CGContextSetStrokeColorWithColor (form->drawRectCtx, [NSColor grayColor].toCGColor);  // Right
    id_FrameRoundRect (form, &frame_bounds);
+   // id_FrameRect (form, &frame_bounds);
    CGContextRestoreGState (form->drawRectCtx);
    
    if (title_str && (len = strlen(title_str)))  {
@@ -4517,6 +4694,50 @@ void _id_redraw_field (
 
    if (theCtl)
       [theCtl setNeedsDisplay:YES];
+}
+
+/* .......................................................... id_base_fldno ......... */
+
+// GET
+
+int  id_base_fldno (
+ FORM_REC  *form,
+ short      fldno,
+ short     *offset
+)
+{
+   short  i, index = fldno-1;
+   short  retFldno = fldno;
+   short  testBottom = 0;
+   Rect   fldRect;
+   
+   if (offset)
+      *offset = 0;
+   
+   if (id_inpossible_item (form, index) || !(form->edit_def[index]->e_type & ID_UT_ARRAY))
+      return (retFldno);
+
+   fldRect = form->ditl_def[index]->i_rect;                        // Must be naked rect!
+   
+   testBottom = fldRect.bottom;  // Only fields above this
+
+   for (i=index-1; i>0; i--)  {
+      if (form->ditl_def[i]->i_rect.bottom > testBottom)
+         break;
+      if ((form->ditl_def[i]->i_type == editText) && (form->edit_def[i]->e_type & ID_UT_ARRAY))  {
+         if ((form->ditl_def[i]->i_rect.left == fldRect.left) && (form->ditl_def[i]->i_rect.right == fldRect.right))  {
+            retFldno = i + 1;
+            testBottom = form->ditl_def[i]->i_rect.bottom;
+         }
+         else
+            break;
+      }
+   }
+
+   if (offset)
+      *offset = fldno - retFldno;
+      
+   return (retFldno);
 }
 
 /* --------------------------------------------------- entry & exit calls ---------- */

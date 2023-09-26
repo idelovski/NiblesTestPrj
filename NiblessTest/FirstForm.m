@@ -966,6 +966,8 @@ int  pr_CreateDitlWindow (
       form->my_window = newWin; 
       // self.otherWindow = newWin;
       
+      form->pen_flags |= ID_PEN_DOWN;
+      
       dtRenderedForm = form;
       
       if (form->update_func)
@@ -997,6 +999,11 @@ int  pr_CreateDitlWindow (
             ((NSTextField *)f_ditl_def->i_handle).tag = index + 1;
             
             id_my_edit_layout (form, index);
+            
+            if (form->cur_fldno < 0)
+               form->cur_fldno = index;
+            if (!form->TE_handle)
+               form->TE_handle = f_ditl_def->i_handle;
          }
          else  if (f_ditl_def->i_type & statText)  {              /* If static text / label */
             

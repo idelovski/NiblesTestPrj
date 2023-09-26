@@ -120,7 +120,7 @@ extern  FORM_REC  *dtRenderedForm;
       }
       
       CFArrayRemoveAllValues (form->pathsArray);
-   }      
+   }    
 
    if (form->pdfsArray)  {
       CFIndex  count = CFArrayGetCount (form->pdfsArray);
@@ -374,13 +374,15 @@ void  id_FrameRoundRect (FORM_REC *form, Rect *theRect)
    
    clipFrame = frame;  clipFrame.size.height = cRadius;
    
-   CGContextRef  context = [NSGraphicsContext currentContext].graphicsPort;
+   CGContextRef  context = form->drawRectCtx ? form->drawRectCtx : [NSGraphicsContext currentContext].graphicsPort;
    
+   CGContextSaveGState (context);
+
    CGContextSetShouldAntialias (context, YES);
    
    
    NSBezierPath  *clipPath = [NSBezierPath bezierPathWithRect:clipFrame];
-   [clipPath setClip];
+   [clipPath addClip];
    
    NSBezierPath  *path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:cRadius yRadius:cRadius];
    
@@ -388,15 +390,17 @@ void  id_FrameRoundRect (FORM_REC *form, Rect *theRect)
    
    [[NSColor lightGrayColor] setStroke];
    [path stroke];
+   CGContextRestoreGState (context);
    
-   // Lower part
+  // Lower part
    
+   CGContextSaveGState (context);
    // CGContextSetShouldAntialias (context, NO);
    
    clipFrame = frame;  clipFrame.origin.y += cRadius; clipFrame.size.height -= cRadius;
    
    clipPath = [NSBezierPath bezierPathWithRect:clipFrame];
-   [clipPath setClip];
+   [clipPath addClip];
    
    // frame.size.width -= 1.;
    path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:cRadius yRadius:cRadius];
@@ -406,6 +410,7 @@ void  id_FrameRoundRect (FORM_REC *form, Rect *theRect)
    [[NSColor lightGrayColor] setStroke];
    [path stroke];
 
+   CGContextRestoreGState (context);
 }
 
 /* ----------------------------------------------------- id_FrameEditRect ------------ */

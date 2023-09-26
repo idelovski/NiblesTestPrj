@@ -33,7 +33,7 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
 {
    BOOL  dontSendEvent = NO;
    
-   evtRec->what = 0;
+   id_SetBlockToZeros (evtRec, sizeof(EventRecord));
    
    NSEvent  *event = [NSApp nextEventMatchingMask:NSAnyEventMask
                                         untilDate:expiration
@@ -53,16 +53,32 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
       return (NO);
    }
 
-   if (event.type == NSKeyDown)  {
+   if (event.type == NSKeyDown)  {  // see NSUndoFunctionKey etc.
       char  ch;
       
       evtRec->what = keyDown;
       evtRec->message = event.keyCode;
-      evtRec->modifiers = (UInt16)event.modifierFlags;  // See if this actually works - altKey, ctrlKey, cmdKey etc
-      NSLog (@"Key: '%@'", event.characters);
+      if (event.modifierFlags)  {
+         if (event.modifierFlags & NSAlternateKeyMask)
+            evtRec->modifiers |= optionKey;
+         if (event.modifierFlags & NSShiftKeyMask)
+            evtRec->modifiers |= shiftKey;
+         if (event.modifierFlags & NSControlKeyMask)
+            evtRec->modifiers |= controlKey;
+         if (event.modifierFlags & NSCommandKeyMask)
+            evtRec->modifiers |= cmdKey;
+      }
+      
+      
+      
+      NSLog (@"Key: (code:%d)[%d] - '%@'", (int)event.keyCode, (int)event.characters.length, event.characters);
       
       if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))
          evtRec->message = (unsigned char)ch;
+      if ((evtRec->message == '\t') || (evtRec->message == 25))  {  // Well, yes, Shift+Tab
+         evtRec->message = '\t';
+         dontSendEvent = YES;
+      }
    }
    else  if (event.type == NSLeftMouseDown)  {
       evtRec->what = mouseDown;

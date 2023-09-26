@@ -54,7 +54,7 @@
 {
    static short  once = FALSE;
    NSLog (@"applicationDidBecomeActive:");
-   // Call this only if there are more than one window acive or I don't know...
+   // Call this only if there are more than one window acive or I don't know... well, if there's a modal window!
    // For some reason at startup if I call -activateWithOptions: my window becomes inactive
    if (!once)
       once = TRUE;

@@ -128,7 +128,7 @@ int  TExSetSelection (NSTextField *theCtl, short selStart, short selEnd);
 int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd);
 
 int  TExIdle (WindowPtr windowPtr, NSTextField *editInput);
-int  TExActivate (WindowPtr windowPtr, NSTextField *editInput);
+int  TExActivate (NSWindow *aWindow, NSTextField *editInput);
 int  TExDeactivate (WindowPtr windowPtr, NSTextField *editInput);
 int  TExUpdate (NSTextField  *editInput, Rect *fldRect);
 int  id_put_TE_str (FORM_REC *form, short index);
@@ -145,6 +145,9 @@ int  id_TE_change (FORM_REC *form, short index, FontInfo *fntInfo, WindowPtr sav
 void id_post_TE_change (FORM_REC *form, short index);
 
 int  id_gofield (FORM_REC *form, short fldno, short sel);
+
+int  id_find_next_fld (FORM_REC *form);
+int  id_find_prev_fld (FORM_REC *form);
 
 int  GetFontNum (char *fontName, short *fontNum);
 int  GetFontName (short fontNum, char *fontName, short maxLen);
@@ -398,9 +401,10 @@ Boolean  id_field_enabled (FORM_REC *form, short fldno);
 
 void  id_redraw_field (FORM_REC *form, short fldno);
 void _id_redraw_field (FORM_REC *form, Rect *fldRect, DITL_item *fDitl_def, EDIT_item *fEdit_def);
+int   id_base_fldno (FORM_REC *form, short fldno, short *offset);
 
-int  id_check_entry (FORM_REC *form, short index, WindowPtr savedPort);
-int  id_check_exit (FORM_REC *form, short index, WindowPtr savedPort);
+int   id_check_entry (FORM_REC *form, short index, WindowPtr savedPort);
+int   id_check_exit (FORM_REC *form, short index, WindowPtr savedPort);
 
 CGContextRef  id_createPDFContext (CGRect pdfFrame, CFMutableDataRef *pdfData);
 

@@ -302,6 +302,7 @@ typedef struct  {                /* -------------------- Edit data for an item -
 struct  FormRecord  {
    short         itemHit;
    short         creationIndex;
+   short         status_fldno;  // use id_status_fldno() to set!
    short         cur_fldno;  // Tag Minus One
    short         prev_cur_fldno;
    short         scaleRatio;
@@ -332,6 +333,9 @@ struct  FormRecord  {
    Rect            w_rect;      // win first, since 27/10/2008 on Mac
    short           w_procID;
    short           pen_flags;
+
+   short           aDefItem;
+   short           sfStart, sfEnd, sfPage;
 
    ID_LAYOUT      *edit_layout,
                   *stat_layout, 
@@ -369,6 +373,8 @@ struct  FormRecord  {
 
 };
 typedef struct  FormRecord  FORM_REC;
+
+// --------------------------------------------------------------------------------------------
 
 typedef struct  {
    // DTMBarInfo   mbi;
