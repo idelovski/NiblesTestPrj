@@ -1003,7 +1003,7 @@ int  pr_CreateDitlWindow (
             if (form->cur_fldno < 0)
                form->cur_fldno = index;
             if (!form->TE_handle)
-               form->TE_handle = f_ditl_def->i_handle;
+               form->TE_handle = (NSTextField *)f_ditl_def->i_handle;
          }
          else  if (f_ditl_def->i_type & statText)  {              /* If static text / label */
             
