@@ -22,6 +22,7 @@
 #import  "MainLoop.h"
 
 static BOOL  id_handleRightMouse (NSEvent *event);
+static BOOL  id_TextFieldsHitTest (NSWindow *window, NSPoint locationInWindow, short *retIndex);
 
 // /*extern*/ EventRecord  gGSavedEventRecord = { 0 };
 
@@ -69,19 +70,22 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
             evtRec->modifiers |= cmdKey;
       }
       
-      
       NSLog (@"Key: (code:%d)[%d] - '%@' / '%@'",
              (int)event.keyCode, (int)event.characters.length, event.characters, event.charactersIgnoringModifiers);
       
+      // if (!id_UniCharToChar([event.charactersIgnoringModifiers characterAtIndex:0], &ch))
+      //    evtRec->message = (unsigned char)ch;
       if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))
          evtRec->message = (unsigned char)ch;
       if ((evtRec->message == '\t') || (evtRec->message == 25))  {  // Well, yes, Shift+Tab
-         evtRec->message = '\t';
+         evtRec->message = kTabCharCode;  // '\t';
          dontSendEvent = YES;
       }
    }
    else  if (event.type == NSLeftMouseDown)  {
       evtRec->what = mouseDown;
+      NSPoint  globalPt = id_LocationInWindow2Global (event.window, event.locationInWindow);
+      SetPt (&evtRec->where, globalPt.x, globalPt.y);
       NSLog (@"Mouse: %@, %@ (%.0f, %.0f)",
              event.window, event.window? event.window.title : @"#",
              event.locationInWindow.x, event.locationInWindow.x);
@@ -98,6 +102,8 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
             }
             else  if ([subview isKindOfClass:[NSControl class]])
                NSLog (@"We hit something");
+            if (id_TextFieldsHitTest(event.window, event.locationInWindow, NULL))
+               NSLog (@"We definetely hit text control");
          }
          if (dtGData->modalFormsCount)  {
             NSWindow  *frontWin = FrontWindow ();
@@ -121,6 +127,9 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
       if (id_handleRightMouse(event))
          dontSendEvent = YES;
    }
+   else  if (event.type == NSMouseMoved)  {
+      // NSLog (@"Mouse Moved!");
+   }
       
    // Pass events down to AppDelegate to be handled in sendEvent:
    
@@ -142,6 +151,24 @@ BOOL  id_GetNextEvent (EventRecord *evtRec, long timeout)
       else
          return (id_CoreGetNextEvent(evtRec, [NSDate distantFuture]));
    // }
+}
+
+#pragma mark -
+
+// Well, this thing converts loc in win to global coordinates where 0,0 is upper left corner
+// But it probably falls apart if event location is not on the same screen as the windows screen
+// there is a property screen of each window so check what happens if I move a mouse on another screen
+
+NSPoint  id_LocationInWindow2Global (NSWindow *window, NSPoint locationInWindow)
+{
+   NSPoint  point;
+   NSRect   windowFrame = window.frame;
+   NSRect   screenFrame = [[NSScreen mainScreen] frame];
+   
+   point.x = windowFrame.origin.x + locationInWindow.x;
+   point.y = screenFrame.size.height - (locationInWindow.y + windowFrame.origin.y);
+
+   return (point);
 }
 
 #pragma mark -
@@ -174,6 +201,45 @@ NSEvent  *id_mouseEventInModalFromEvent (NSEvent *event, NSWindow *modalWindow)
                                               clickCount:clickCount
                                                 pressure:pressure];
    return (newMouseEvent);
+}
+
+static BOOL  id_TextFieldsHitTest (
+ NSWindow  *window,
+ NSPoint    locationInWindow,
+ short     *retIndex  // Optional
+) 
+{
+   short       index;
+   NSPoint     location = [[window contentView] convertPoint:locationInWindow fromView:nil/*frontWindow.contentView*/];
+
+   FORM_REC   *form = id_FindForm (window);
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   if (retIndex)
+      *retIndex = -1;
+
+   if (form && form->ditl_def)  {
+      for (index=0; index<=form->last_fldno; index++)  {
+         
+         f_ditl_def = form->ditl_def[index];
+         f_edit_def = form->edit_def[index];
+         
+         if (!form->ditl_def[index]->i_handle)   continue;
+         
+         if ((f_ditl_def->i_type & editText) || (f_ditl_def->i_type & statText))  {
+            NSRect  fldRect = [(NSControl *)form->ditl_def[index]->i_handle frame];
+            
+            if (NSPointInRect(location, fldRect))  {
+               if (retIndex)
+                  *retIndex = index;
+               return (YES);
+            }
+         }
+      }
+   }
+   
+   return (NO);
 }
 
 static BOOL  id_handleRightMouse (NSEvent *event)

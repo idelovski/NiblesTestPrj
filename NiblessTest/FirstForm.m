@@ -88,6 +88,9 @@ static double  gYOffset = 30.;
    
    [foreView release];
    */
+   
+   // Well, this is called only once.
+   
    id_frame_fields (form, form->radioButton[0], form->radioButton[2], 0, NULL);
    
    [MainLoop finalizeFormWindow:form];
@@ -429,7 +432,6 @@ static double  gYOffset = 30.;
 {
    int  x = gXOffset + 410;  //possition x
    int  y = 116 + gYOffset;  //possition y
-
    
    NSInteger  width = 100, height = 24;
    

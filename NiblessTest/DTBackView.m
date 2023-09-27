@@ -145,7 +145,7 @@
 
 int  id_get_max_rect (Rect *rect)
 {
-   Rect     screenBounds;
+   Rect  screenBounds;
 
    id_CGRect2Rect ([[NSScreen mainScreen] frame], &screenBounds);
    // GetQDGlobalsScreenBounds (&screenBounds);

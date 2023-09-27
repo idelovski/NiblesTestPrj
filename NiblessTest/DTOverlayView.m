@@ -68,6 +68,7 @@ extern  FORM_REC  *dtRenderedForm;
 
 // So in the real project check if there's a default button and ...
 // ... see if dirtyRect is basically just that and then ignore everything
+// Then again, on newer versions of mac os default button is not glowing so...
 
 - (void)drawRect:(NSRect)dirtyRect
 {
@@ -76,7 +77,7 @@ extern  FORM_REC  *dtRenderedForm;
    FORM_REC  *form = id_FindForm (win);
    
    // NSLog (@"drawRect: %@", NSStringFromRect(dirtyRect));
-   
+      
    rect = CGRectOffset (rect, 0, 20);
    
    smallRect = CGRectInset (rect, 40, 60);
@@ -100,7 +101,7 @@ extern  FORM_REC  *dtRenderedForm;
 #endif
    
    if (form->update_func)
-      (*form->update_func)(form, NULL, ID_BEGIN_OF_UPDATE, 0);
+      (*form->update_func)(form, NULL, ID_BEGIN_OF_UPDATE, 0);  // Somehow, provide the dirtyRect to update_func()
 
    // if (form == dtRenderedForm)
    //    id_FrameCard (form, 12);
@@ -115,7 +116,7 @@ extern  FORM_REC  *dtRenderedForm;
          CGRect     boundingBox = CGPathGetBoundingBox (path);
          
          if (CGRectIntersectsRect(boundingBox, dirtyRect))  {
-            
+
             CGContextAddPath (form->drawRectCtx, path);
             CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
             
@@ -138,7 +139,7 @@ extern  FORM_REC  *dtRenderedForm;
          CGDataProviderRelease (provider);  // almost same as CFRelease(currentPage);
          
          CGPDFPageRef  currentPage = CGPDFDocumentGetPage (pdfDocument, 1);
-         CGRect mediaBox = CGPDFPageGetBoxRect(currentPage, kCGPDFMediaBox);
+         CGRect        mediaBox = CGPDFPageGetBoxRect (currentPage, kCGPDFMediaBox);
          // CGContextSaveGState(cgContext);
          // Calculate the transform to position the page
          // float suggestedHeight = viewBounds.size.height * 2.0 / 3.0;
@@ -147,6 +148,7 @@ extern  FORM_REC  *dtRenderedForm;
          //                                        suggestedHeight);
          // CGAffineTransform pageTransform = CGPDFPageGetDrawingTransform (currentPage, kCGPDFMediaBox, suggestedPageRect, 0, true);
          // CGContextConcatCTM (cgContext, pageTransform);
+         
          if (CGRectIntersectsRect(mediaBox, dirtyRect))
             CGContextDrawPDFPage (form->drawRectCtx, currentPage);
          // CGContextRestoreGState (cgContext);

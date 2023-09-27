@@ -474,6 +474,7 @@ int  id_InitDTool (   // rev. 13.04.05
    
    if (!dtGData)
       if ((dtGData = (DTGlobalData*)NewPtr (sizeof(DTGlobalData))) == NULL)  ExitToShell ();
+   
    id_SetBlockToZeros (dtGData, sizeof(DTGlobalData));
    
    if (!id_GetApplicationExeFSRef(&appParentFolderFSRef))  {
@@ -1702,7 +1703,7 @@ void   TExTextBox (char *str, long len, Rect *txtRect, short teJust, short teWra
    NSColor  *theColor = [NSColor blackColor];
    
    if (eraseBackground)  {
-      NSLog (@"TExTextBox: %@", NSStringFromRect(strRect));
+      // NSLog (@"TExTextBox: %@", NSStringFromRect(strRect));
 
       NSBezierPath  *textPath = [NSBezierPath bezierPathWithRect:CGRectInset(strRect, -1, 0)];
       [[NSColor whiteColor] setFill];
@@ -2188,7 +2189,7 @@ int  id_gofield (
    short      retVal = 0, index = fldno-1;
    WindowPtr  savedPort;
          
-   if (id_inpossible_item (form, index))  {
+   if (id_inpossible_item(form, index))  {
       return (-1);
    }
    
@@ -3848,8 +3849,8 @@ Boolean  id_isHighField (
 /* .......................................................... id_inpossible_item .... */
 
 int  id_inpossible_item (/*form, index*/
- FORM_REC *form,
- short     index
+ FORM_REC  *form,
+ short      index
 )
 {
    char  tmpStr[256];
@@ -4181,7 +4182,7 @@ int id_itemsRect (FORM_REC *form, short index, Rect *fldRect)
 {
    short  scalePercent = 0;
    
-   if (id_inpossible_item (form, index))  {
+   if (id_inpossible_item(form, index))  {
       SetRect (fldRect, 0, 0, 0, 0);
       return (-1);
    }
@@ -4201,14 +4202,16 @@ int id_itemsRect (FORM_REC *form, short index, Rect *fldRect)
 
 /* ....................................................... id_controlsRect .......... */
 
+// temp function, non needed in ditl world
+
 int id_controlsRect (FORM_REC *form, NSControl *field, Rect *fldRect)
 {
    // short  scalePercent = 0;
    
-   // if (id_inpossible_item (form, index))  {
-   //    SetRect (fldRect, 0, 0, 0, 0);
-   //    return (-1);
-   // }
+   /*if (id_inpossible_item(form, index))  {
+      SetRect (fldRect, 0, 0, 0, 0);
+      return (-1);
+   }*/
    
    id_CGRect2Rect (field.frame, fldRect);
    
@@ -4249,7 +4252,7 @@ int  id_frame_fields (
    SetRect (&frameBounds, fldRect1.left,  fldRect1.top,     /* LT */
                           fldRect2.right, fldRect2.bottom); /* RB */
    
-   InsetRect (&frameBounds, -distance, -distance);
+   InsetRect (&frameBounds, -distance-1.5, -distance-1.5);
 
    /*PenPat (frPatPtr);
    FrameRect (&frameBounds);
