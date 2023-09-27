@@ -70,8 +70,8 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
       }
       
       
-      
-      NSLog (@"Key: (code:%d)[%d] - '%@'", (int)event.keyCode, (int)event.characters.length, event.characters);
+      NSLog (@"Key: (code:%d)[%d] - '%@' / '%@'",
+             (int)event.keyCode, (int)event.characters.length, event.characters, event.charactersIgnoringModifiers);
       
       if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))
          evtRec->message = (unsigned char)ch;
@@ -87,8 +87,18 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
              event.locationInWindow.x, event.locationInWindow.x);
       if (event.window)  {
          NSView  *subview = [event.window.contentView hitTest:event.locationInWindow];
-         if (subview && [subview isKindOfClass:[NSControl class]])
-            NSLog (@"We hit something");
+         if (subview)  {
+            if ([subview isKindOfClass:[NSTextField class]])  {
+               NSTextField  *fld = (NSTextField *)subview;
+               
+               NSLog (@"We hit NSTextField");
+               
+               [fld mouseDown:event];
+               dontSendEvent = YES;
+            }
+            else  if ([subview isKindOfClass:[NSControl class]])
+               NSLog (@"We hit something");
+         }
          if (dtGData->modalFormsCount)  {
             NSWindow  *frontWin = FrontWindow ();
             NSWindow  *eventWin = event.window;

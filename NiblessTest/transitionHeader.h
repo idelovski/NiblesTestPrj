@@ -311,6 +311,7 @@ struct  FormRecord  {
    
    NSButton     *okButton;
    NSButton     *newWinButton;
+   NSButton     *ditlButton;
    NSButton     *imgButton;
    
    NSImageView  *imgView;

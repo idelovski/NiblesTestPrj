@@ -111,7 +111,8 @@
 {
    [MainLoop resizeControl:form->okButton inForm:form toNewRatio:ratio];
    [MainLoop resizeControl:form->newWinButton inForm:form toNewRatio:ratio];
-   
+   [MainLoop resizeControl:form->ditlButton inForm:form toNewRatio:ratio];
+
    [MainLoop resizeControl:form->imgButton inForm:form toNewRatio:ratio];
    [MainLoop resizeControl:form->imgView inForm:form toNewRatio:ratio];
    

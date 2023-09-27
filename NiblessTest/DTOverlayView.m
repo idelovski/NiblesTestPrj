@@ -112,9 +112,14 @@ extern  FORM_REC  *dtRenderedForm;
 
       for (CFIndex i=0; i<count; i++)  {
          CGPathRef  path = CFArrayGetValueAtIndex (form->pathsArray, i);
-
-         CGContextAddPath (form->drawRectCtx, path);
-         CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+         CGRect     boundingBox = CGPathGetBoundingBox (path);
+         
+         if (CGRectIntersectsRect(boundingBox, dirtyRect))  {
+            
+            CGContextAddPath (form->drawRectCtx, path);
+            CGContextDrawPath (form->drawRectCtx, kCGPathStroke);
+            
+         }
          
          // CGPathRelease (path); -> release it where you create it
       }
@@ -133,7 +138,7 @@ extern  FORM_REC  *dtRenderedForm;
          CGDataProviderRelease (provider);  // almost same as CFRelease(currentPage);
          
          CGPDFPageRef  currentPage = CGPDFDocumentGetPage (pdfDocument, 1);
-         // CGRect mediaBox = CGPDFPageGetBoxRect(currentPage, kCGPDFMediaBox);
+         CGRect mediaBox = CGPDFPageGetBoxRect(currentPage, kCGPDFMediaBox);
          // CGContextSaveGState(cgContext);
          // Calculate the transform to position the page
          // float suggestedHeight = viewBounds.size.height * 2.0 / 3.0;
@@ -142,7 +147,8 @@ extern  FORM_REC  *dtRenderedForm;
          //                                        suggestedHeight);
          // CGAffineTransform pageTransform = CGPDFPageGetDrawingTransform (currentPage, kCGPDFMediaBox, suggestedPageRect, 0, true);
          // CGContextConcatCTM (cgContext, pageTransform);
-         CGContextDrawPDFPage (form->drawRectCtx, currentPage);
+         if (CGRectIntersectsRect(mediaBox, dirtyRect))
+            CGContextDrawPDFPage (form->drawRectCtx, currentPage);
          // CGContextRestoreGState (cgContext);
          
          // CFRelease (currentPage);

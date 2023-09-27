@@ -35,6 +35,8 @@
 - (NSButton *)createButtonInForm:(FORM_REC *)form;
 - (void)buttonPressed:(id)button;
 - (NSButton *)createNewWindowButtonInForm:(FORM_REC *)form;
+- (NSButton *)createDITLButtonInForm:(FORM_REC *)form;
+- (void)ditlButtonPressed:(id)button;
 
 - (NSButton *)coreCreateCheckBoxWithFrame:(CGRect)frame
                                    inForm:(FORM_REC *)form

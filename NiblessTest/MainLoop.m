@@ -474,6 +474,7 @@ int  id_InitDTool (   // rev. 13.04.05
    
    if (!dtGData)
       if ((dtGData = (DTGlobalData*)NewPtr (sizeof(DTGlobalData))) == NULL)  ExitToShell ();
+   id_SetBlockToZeros (dtGData, sizeof(DTGlobalData));
    
    if (!id_GetApplicationExeFSRef(&appParentFolderFSRef))  {
       if (FSRefMakePath(&appParentFolderFSRef, (UInt8 *)pathStr, 256))
@@ -5072,7 +5073,7 @@ void  id_create_iconItem (FORM_REC *form, short index, WindowPtr savedPort)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 #endif
-   [myButton setAction:@selector(ditlButtonPressed:)];
+   [myButton setAction:@selector(buttonInDitlPressed:)];
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif

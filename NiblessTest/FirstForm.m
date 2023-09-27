@@ -11,6 +11,7 @@
 
 #import  "MainLoop.h"
 #import  "GetNextEvent.h"
+#import  "Bouquet.h"
 
 extern FORM_REC  *dtMainForm;
 
@@ -56,6 +57,7 @@ static double  gYOffset = 30.;
    
    form->okButton = [self createButtonInForm:form];
    form->newWinButton = [self createNewWindowButtonInForm:form];
+   form->ditlButton = [self createDITLButtonInForm:form];
    
    form->imgButton = [self createImgButtonInForm:form withImageName:@"Bouquet512"];
    
@@ -270,6 +272,40 @@ static double  gYOffset = 30.;
    [newWin release];
 }
 
+- (NSButton *)createDITLButtonInForm:(FORM_REC *)form
+{
+   NSString  *buttonTitle = @"DITL Window";
+   
+   //Start from bottom left corner
+   
+   int  x = gXOffset; //possition x
+   int  y = 76 + gYOffset; //possition y
+   
+   int  width = 130;
+   int  height = 24; 
+   
+   NSButton  *myButton = [[self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
+                                                   inForm:form
+                                                    title:buttonTitle] autorelease];
+   
+   // [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
+   // [myButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
+   
+   [myButton setTarget:self];
+   [myButton setAction:@selector(ditlButtonPressed:)];
+      
+   return (myButton);
+}
+
+- (void)ditlButtonPressed:(id)button
+{
+   NSEvent  *event = [NSApp currentEvent];
+   
+   NSLog (@"ditlButtonPressed pressed!");
+   
+   pr_OpenKupdob ();
+}
+
 #pragma mark -
 
 - (NSButton *)createImgButtonInForm:(FORM_REC *)form withImageName:(NSString *)imgName
@@ -391,8 +427,9 @@ static double  gYOffset = 30.;
 
 - (NSButton *)createCheckBoxInForm:(FORM_REC *)form
 {
-   int  x = gXOffset;  //possition x
-   int  y = 76 + gYOffset;  //possition y
+   int  x = gXOffset + 410;  //possition x
+   int  y = 116 + gYOffset;  //possition y
+
    
    NSInteger  width = 100, height = 24;
    
@@ -793,7 +830,7 @@ static double  gYOffset = 30.;
 
 #pragma mark -
 
-- (void)ditlButtonPressed:(id)sender
+- (void)buttonInDitlPressed:(id)sender
 {
    NSLog (@"Button pressed!"); 
 }
