@@ -97,8 +97,10 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
                
                NSLog (@"We hit NSTextField");
                
-               [fld mouseDown:event];
-               dontSendEvent = YES;
+               if (event.window == FrontWindow())  {
+                  [fld mouseDown:event];
+                  dontSendEvent = YES;
+               }
             }
             else  if ([subview isKindOfClass:[NSControl class]])
                NSLog (@"We hit something");

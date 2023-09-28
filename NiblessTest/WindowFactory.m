@@ -226,6 +226,8 @@ extern  FORM_REC  *dtRenderedForm;
 
    NSLog (@"windowDidBecomeKey: [%@]", form ? aWindow.title : @"No name");
    
+   id_printWindowsOrder ();
+   
    if (form)
       id_BuildActivateEvent (form, TRUE);
 }

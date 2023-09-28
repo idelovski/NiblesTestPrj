@@ -888,7 +888,47 @@ void  SelectWindow (NSWindow *win)
       frontWindow = [NSApp keyWindow];
    
    if (win != frontWindow)
-      [win makeKeyAndOrderFront:NSApp];
+      [win makeKeyAndOrderFront:NSApp]; // There is - (void)orderWindow:(NSWindowOrderingMode)place relativeTo:(NSInteger)otherWin;
+}
+
+// ATM this does not work properly as the Carbon f() as I can't find out what is the my window at the bottom
+// -orderWindow:relativeTo: on zero puts my window behind all other apps and I don't need that
+// Therefore, I need my own array of windows that is ordered the way they ar on the screen
+// Add window on create, remove on close. Plus, as it goes to the front, remove it from array and add so it is the last one
+
+void  SendBehind (NSWindow *ourWin, NSWindow *otherWin)
+{
+   NSArray  *allWindows = [NSApp windows];
+   
+   NSWindow  *firstWindow = [allWindows objectAtIndex:0];
+   NSWindow  *lastWindow  = allWindows.lastObject;
+   
+   NSLog (@"Before - Main: %@, Key: %@", [NSApp mainWindow].title, [NSApp keyWindow].title);
+   
+   id_printWindowsOrder ();
+   
+   if (allWindows.count > 1)  {
+      
+      if (!otherWin)
+         otherWin = lastWindow;
+      
+      if (ourWin != otherWin)
+         [ourWin orderWindow:NSWindowBelow relativeTo:otherWin.windowNumber];
+      NSLog (@"After - Main: %@, Key: %@", [NSApp mainWindow].title, [NSApp keyWindow].title);
+      id_printWindowsOrder ();
+      if (otherWin)
+         [otherWin makeKeyAndOrderFront:NSApp];
+   }
+}
+
+void  id_printWindowsOrder (void)
+{
+   NSArray  *allWindows = [NSApp windows];
+   
+   if (allWindows.count > 1)  {
+      for (int i=0; i< allWindows.count; i++)
+         NSLog (@"WindowsOrder - Window %d: %@", i, ((NSWindow *)[allWindows objectAtIndex:i]).title);
+   }
 }
 
 OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef)
@@ -2685,6 +2725,8 @@ void  id_pen_down (
 }
 
 /* ----------------------------------------------------------- id_pen_up ------------ */
+
+// Pen up should go through all edit fields and remove editability and focus/first responder, pen down should restore it
 
 void  id_pen_up (
  FORM_REC  *form

@@ -13,6 +13,8 @@
 #import  "GetNextEvent.h"
 #import  "FirstForm.h"
 
+#import  "NiblessTestAppDelegate.h"
+
 ID_LAYOUT     gLayGeneva9     = { geneva, 9, 0 };
 ID_LAYOUT     gLayGeneva9bold = { geneva, 9, bold };
 ID_LAYOUT     gLayGeneva10    = { geneva, 10, 0 };
@@ -349,6 +351,11 @@ void  pr_OpenKupdob (void)
       id_move_field (&kupdobForm, K_KTO_12x, 24, 0);
       id_move_field (&kupdobForm, K_KTO_22x, 24, 0);
    }
-   else
+   else  {
+      // This does not work because nil sends it behind all of the windows of all other applications - so, back to SelectWindow()
+      // NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
+
+      // SendBehind (appDelegate.window, nil/*kupdobForm.my_window*/);
       SelectWindow (kupdobForm.my_window);
+   }
 }

@@ -49,6 +49,10 @@ void  id_SysBeep (short numb);
 
 NSWindow  *FrontWindow (void);
 void       SelectWindow (NSWindow *win);
+void       SendBehind (NSWindow *ourWin, NSWindow *otherWin);
+
+void  id_printWindowsOrder (void);  // Stupid utility f()
+
 FORM_REC  *id_FindForm (NSWindow *nsWindow);
 FORM_REC  *id_init_form (FORM_REC *form);
 
