@@ -10,6 +10,8 @@
 
 #import  "transitionHeader.h"
 
+extern  DTGlobalData  *dtGData;
+
 @implementation NiblessTestAppDelegate
 
 @synthesize  window, menuDict, firstFormHandler;
@@ -50,6 +52,7 @@
 {
    NSLog (@"applicationWillBecomeActive:");
 }
+
 - (void)applicationDidBecomeActive:(NSNotification *)notification;
 {
    static short  once = FALSE;
@@ -58,17 +61,23 @@
    // For some reason at startup if I call -activateWithOptions: my window becomes inactive
    if (!once)
       once = TRUE;
-   else
+   else  if (dtGData->modalFormsCount)
       [[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows];
+   dtGData->appInBackground = FALSE;
 }
+
 - (void)applicationWillResignActive:(NSNotification *)notification;
 {
    NSLog (@"applicationWillResignActive:");
 }
+
 - (void)applicationDidResignActive:(NSNotification *)notification;
 {
    NSLog (@"applicationDidResignActive:");
+   
+   dtGData->appInBackground = TRUE;
 }
+
 - (void)applicationWillUpdate:(NSNotification *)notification;
 {
    // NSLog (@"applicationWillUpdate:");  - Too chatty

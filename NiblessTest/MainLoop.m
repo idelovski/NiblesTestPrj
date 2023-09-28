@@ -407,9 +407,21 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
             
             // retValue = form->cur_fldno+1;
          }
+         else  if (evtRecord.message == kEscapeCharCode)
+            [form->my_window performClose:NSApp];
+
       }
-      if (evtRecord.what == activateEvt)
-         NSLog (@"ActivateEvt: %@", evtRecord.modifiers ? @"Activate" : @"Deactivate");
+      if (evtRecord.what == activateEvt)  {
+         // Well, this was an attempt but in vain!
+         // If we're coming back from behind SelectWindow will not change anything for some reason so just put everything behind remarks
+         NSWindow  *window = (NSWindow *)evtRecord.message;
+         NSLog (@"ActivateEvt: %@ [%@]", evtRecord.modifiers ? @"Activate" : @"Deactivate", window.title);
+         /* form = id_FindForm (window);
+         if (evtRecord.modifiers && form->my_window != [NSApp keyWindow])  {
+            if (!dtGData->appInBackground)
+               SelectWindow (form->my_window);
+         } */
+      }
       
       // if (evtRecord.what == keyDown && evtRecord.message == 'q')
       //   done = TRUE;
@@ -549,6 +561,8 @@ int  id_InitDTool (   // rev. 13.04.05
       NSLog (@"Computer: %s", compName);
    if (!id_InitComputerUserName (userName, 128))
       NSLog (@"User: %s", userName);
+   
+   dtGData->appInBackground = FALSE;
    
    dtGData->modalFormsCount = 0;
    

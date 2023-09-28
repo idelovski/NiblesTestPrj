@@ -93,13 +93,30 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
          NSView  *subview = [event.window.contentView hitTest:event.locationInWindow];
          if (subview)  {
             if ([subview isKindOfClass:[NSTextField class]])  {
+               // Now, if we're coming back as user hits a field, the app is activated here
                NSTextField  *fld = (NSTextField *)subview;
                
                NSLog (@"We hit NSTextField");
                
                if (event.window == FrontWindow())  {
-                  [fld mouseDown:event];
+                  // So, this will make the app active if we're coming from behind with this click
+                  if (![NSApp isActive])
+                     [NSApp activateIgnoringOtherApps:YES];
+                  else
+                     [fld mouseDown:event];
                   dontSendEvent = YES;
+                  // Add -> And if we're in the background then need to SelectWindow()!
+               }
+               else  if (![NSApp isActive])  {
+                  // This doesn't really work as the window behind stays behind even as our app goes to the front
+                  // so I need to recreate the event with a click to some othe place and send that to NSApp
+                  [NSApp activateIgnoringOtherApps:YES];
+                  // SelectWindow (event.window);
+                  dontSendEvent = YES;
+                  
+                  FORM_REC *form = id_FindForm (event.window);
+                  
+                  // id_BuildActivateEvent (form, TRUE); -> nope, more trouble than 
                }
             }
             else  if ([subview isKindOfClass:[NSControl class]])
@@ -528,7 +545,7 @@ void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window
    evtPtr->modifiers = 1 << (activeFlagBit+1);  // This flag is unused by OS - hope so
 }
 
-void  id_BuildActivateEvent (FORM_REC *form, short fActive)
+void  id_BuildActivateEvent (FORM_REC *form, short fActive) // Why form? Send only window
 {
    EventRecord  *evtPtr = id_GetFreeEventRecord (); // &dtGData->eventRecord;
    
