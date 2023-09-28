@@ -349,4 +349,6 @@ void  pr_OpenKupdob (void)
       id_move_field (&kupdobForm, K_KTO_12x, 24, 0);
       id_move_field (&kupdobForm, K_KTO_22x, 24, 0);
    }
+   else
+      SelectWindow (kupdobForm.my_window);
 }

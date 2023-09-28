@@ -880,6 +880,17 @@ NSWindow  *FrontWindow (void)
    return (savedFrontWindow = frontWindow);
 }
 
+void  SelectWindow (NSWindow *win)
+{
+   NSWindow  *frontWindow = [NSApp mainWindow];
+   
+   if (!frontWindow)
+      frontWindow = [NSApp keyWindow];
+   
+   if (win != frontWindow)
+      [win makeKeyAndOrderFront:NSApp];
+}
+
 OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef)
 {
    OSErr osErr = FSGetCatalogInfo (fileFSRef, kFSCatInfoNone, NULL, NULL, NULL, parentFSRef);
