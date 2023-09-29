@@ -109,7 +109,7 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
                   // I need TExClick() that will receive the click if we're front window
                   // And for that, I need to save this nsevent or ... bum tss ... create a new one!
                   // Just translate the where point to locationInWindow and send it ... or I can can save this one
-                  // But first, create a new one ... ha, ha
+                  // But first, create a new one ... ha, ha, ha
                   if (![NSApp isActive])
                      [NSApp activateIgnoringOtherApps:YES];
                   else
