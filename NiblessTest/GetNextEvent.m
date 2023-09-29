@@ -84,11 +84,15 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
    }
    else  if (event.type == NSLeftMouseDown)  {
       evtRec->what = mouseDown;
+      
       NSPoint  globalPt = id_LocationInWindow2Global (event.window, event.locationInWindow);
+      NSPoint  localPt = id_GlobalLocation2Window (event.window, globalPt);
+      
       SetPt (&evtRec->where, globalPt.x, globalPt.y);
-      NSLog (@"Mouse: %@, %@ (%.0f, %.0f)",
+      NSLog (@"Mouse: %@, %@ (%.0f, %.0f) (%.0f, %.0f)",
              event.window, event.window? event.window.title : @"#",
-             event.locationInWindow.x, event.locationInWindow.x);
+             event.locationInWindow.x, event.locationInWindow.y,
+             localPt.x, localPt.y);
       if (event.window)  {
          NSView  *subview = [event.window.contentView hitTest:event.locationInWindow];
          if (subview)  {
@@ -108,15 +112,20 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
                   // Add -> And if we're in the background then need to SelectWindow()!
                }
                else  if (![NSApp isActive])  {
-                  // This doesn't really work as the window behind stays behind even as our app goes to the front
+                  // 1. This doesn't really work as the window behind stays behind even as our app goes to the front
                   // so I need to recreate the event with a click to some othe place and send that to NSApp
-                  [NSApp activateIgnoringOtherApps:YES];
+
+                  // [NSApp activateIgnoringOtherApps:YES];
                   // SelectWindow (event.window);
-                  dontSendEvent = YES;
                   
+                  // 2. But, with a fake event I managed to do it, he, he
+
                   FORM_REC *form = id_FindForm (event.window);
+                  NSEvent  *newMouseEvent = id_mouseEventForWindowFromEvent (event, event.window);
                   
-                  // id_BuildActivateEvent (form, TRUE); -> nope, more trouble than 
+                  [NSApp sendEvent:newMouseEvent];
+                  
+                  dontSendEvent = YES;
                }
             }
             else  if ([subview isKindOfClass:[NSControl class]])
@@ -131,7 +140,7 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
             // Well, I'll be damned....
             
             if (eventWin != frontWin)  {
-               NSEvent  *newMouseEvent = id_mouseEventInModalFromEvent (event, frontWin);
+               NSEvent  *newMouseEvent = id_mouseEventForWindowFromEvent (event, frontWin);
                
                [NSApp sendEvent:newMouseEvent];
 
@@ -190,9 +199,51 @@ NSPoint  id_LocationInWindow2Global (NSWindow *window, NSPoint locationInWindow)
    return (point);
 }
 
+// Global upper-left coordinates to window's local lower-left coordinates
+
+NSPoint  id_GlobalLocation2Window (NSWindow *window, NSPoint point)
+{
+   NSPoint  locationInWindow;
+   NSRect   windowFrame = window.frame;
+   NSRect   screenFrame = [[NSScreen mainScreen] frame];
+   
+   locationInWindow.x = point.x - windowFrame.origin.x;
+   locationInWindow.y = screenFrame.size.height - point.y - windowFrame.origin.y;
+   
+   return (locationInWindow);
+}
+
+// Global screen upper-left coordinates to window's local upper-left coordinates
+
+void  id_GlobalToLocal (FORM_REC *form, Point *pt)
+{
+   NSPoint  point = NSMakePoint (pt->h, pt->v);
+   NSPoint  locPt = id_GlobalLocation2Window (form->my_window, point);
+
+   NSView  *contentView = [form->my_window contentView];
+   CGRect   contentRect = contentView.bounds;
+
+   locPt.y = contentRect.size.height - locPt.y;
+   
+   SetPt (pt, locPt.x, locPt.y);
+}
+
+// Local window's upper-left coordinates to global screen upper-left coordinates
+
+void  id_LocalToGlobal (FORM_REC *form, Point *pt)
+{
+   NSView  *contentView = [form->my_window contentView];
+   CGRect   contentRect = contentView.bounds;
+
+   NSPoint  point = NSMakePoint (pt->h, contentRect.size.height - pt->v);
+   NSPoint  globPt = id_LocationInWindow2Global (form->my_window, point);
+
+   SetPt (pt, globPt.x, globPt.y);
+}
+
 #pragma mark -
 
-NSEvent  *id_mouseEventInModalFromEvent (NSEvent *event, NSWindow *modalWindow)
+NSEvent  *id_mouseEventForWindowFromEvent (NSEvent *event, NSWindow *modalWindow)
 {
    // NSPoint    windowLocation = [event locationInWindow];
    // NSPoint    location = [[frontWin contentView] convertPoint:windowLocation fromView:nil/*frontWindow.contentView*/];

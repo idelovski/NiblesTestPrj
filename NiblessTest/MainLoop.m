@@ -374,19 +374,50 @@ static FORM_REC  theMainForm;
 
 BOOL  id_MainLoop (FORM_REC *mainForm)
 {
-   short        index;
+   short  index;
+   Point  myPt;
+   Rect   tmpRect;
+   BOOL   done = FALSE;
+   
    EventRecord  evtRecord;
-   BOOL         done = FALSE;
-   
-   FORM_REC  *form = NULL;
-   
+   FORM_REC    *form = NULL;
+
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+
    do  {
       
       id_GetNextEvent (&evtRecord, 500.);
 
       // NSLog (@"One tick!...");
       
-      if (evtRecord.what == keyDown)  {
+      if (evtRecord.what == mouseDown)  {
+         
+         form = id_FindForm (FrontWindow());
+         
+         dtGData->lastEventTick = evtRecord.when;
+         GetDateTime (&dtGData->lastEventDateTime);
+         
+         if (form->ditl_def)  {
+            
+            myPt = evtRecord.where;
+            id_GlobalToLocal (form, &myPt);
+            
+            for (index=0; index<=form->last_fldno; index++)  {
+               f_ditl_def = form->ditl_def[index];
+               f_edit_def = form->edit_def[index];
+               
+               if (f_ditl_def->i_type == editText && form->TE_handle)  {
+                  
+                  id_itemsRect (form, index, &tmpRect);
+                  if (PtInRect(myPt, &tmpRect))  {
+                     NSLog (@"Hey, click inside an edit field!");
+                  }
+               }
+            }
+         }
+      }
+      else  if (evtRecord.what == keyDown)  {
          UniChar  uch;
          
          form = id_FindForm (FrontWindow());
@@ -3323,6 +3354,14 @@ void  GetTime (DateTimeRec *dtRec)
    dtRec->dayOfWeek = CFAbsoluteTimeGetDayOfWeek (nowTimeInterval, gGSystemTimeZone);
 }
 
+void  GetDateTime (unsigned long *secs)
+{
+   DateTimeRec  dtRec;
+   
+   GetTime (&dtRec);
+   DateToSeconds (&dtRec, secs);
+}
+
 #pragma mark -
 
 /* .......................................................... id_secs2Short ......... */
@@ -3743,6 +3782,17 @@ void  SetPt (Point *pt, short h, short v)
 {
    pt->v = v;
    pt->h = h;
+}
+
+Boolean  PtInRect (Point pt, const Rect *r)
+{
+   if (pt.h < r->left)  return (FALSE);
+   if (pt.h >= r->right)  return (FALSE);
+
+   if (pt.v < r->top)  return (FALSE);
+   if (pt.v >= r->bottom)  return (FALSE);
+   
+   return (TRUE);
 }
 
 #endif

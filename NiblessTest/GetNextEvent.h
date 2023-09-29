@@ -29,8 +29,13 @@
 BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration);
 BOOL  id_GetNextEvent (EventRecord *evtRec, long timeout);
 
-NSPoint   id_LocationInWindow2Global (NSWindow *window, NSPoint locationInWindow);  // Origin is upperLeft corner
-NSEvent  *id_mouseEventInModalFromEvent (NSEvent *event, NSWindow *modalWindow);
+NSPoint  id_LocationInWindow2Global (NSWindow *window, NSPoint locationInWindow);  // Origin is upperLeft corner
+NSPoint  id_GlobalLocation2Window (NSWindow *window, NSPoint point);
+
+void  id_GlobalToLocal (FORM_REC *form, Point *pt);
+void  id_LocalToGlobal (FORM_REC *form, Point *pt);
+
+NSEvent  *id_mouseEventForWindowFromEvent (NSEvent *event, NSWindow *modalWindow);
 
 // -------------------
 

@@ -119,6 +119,8 @@ void  InsetRect (Rect *rect, short h, short v);
 void  UnionRect (Rect *rect1, Rect *rect2, Rect *targetRect);
 void  SetPt (Point *pt, short h, short v);
 
+Boolean  PtInRect (Point pt, const Rect *r);
+
 #endif
 
 int  TExSetText (NSTextField *theCtl, char *theText, short txLen);
@@ -328,6 +330,12 @@ void   id_free_array (char **aPtr);
 #define   IS_LEAP_YEAR(yr)   (!((yr)%4) && (yr)%100 || !((yr)%400))
 
 unsigned short  id_sys_date (void);
+
+void  GetTime (DateTimeRec *dtRec);
+void  GetDateTime (unsigned long *secs);
+void  SecondsToDate (unsigned long secs, DateTimeRec *dtRec);
+void  DateToSeconds (const DateTimeRec *dtRec, unsigned long *secs);
+
 
 unsigned short id_secs2Short (unsigned long totalSecs);
 unsigned long  id_short2Secs (unsigned short dateShort);
