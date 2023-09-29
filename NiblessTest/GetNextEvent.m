@@ -103,7 +103,13 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
                NSLog (@"We hit NSTextField");
                
                if (event.window == FrontWindow())  {
-                  // So, this will make the app active if we're coming from behind with this click
+                  // So, this will make the app active if we're coming from behind with this click...
+                  // But we shouldn't send this mouseDown to the field. Instead...
+                  // WELL, WELL, WELL,
+                  // I need TExClick() that will receive the click if we're front window
+                  // And for that, I need to save this nsevent or ... bum tss ... create a new one!
+                  // Just translate the where point to locationInWindow and send it ... or I can can save this one
+                  // But first, create a new one ... ha, ha
                   if (![NSApp isActive])
                      [NSApp activateIgnoringOtherApps:YES];
                   else
