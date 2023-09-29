@@ -446,7 +446,11 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
          // Well, this was an attempt but in vain!
          // If we're coming back from behind SelectWindow will not change anything for some reason so just put everything behind remarks
          NSWindow  *window = (NSWindow *)evtRecord.message;
-         NSLog (@"ActivateEvt: %@ [%@]", evtRecord.modifiers ? @"Activate" : @"Deactivate", window.title);
+         NSLog (@"ActivateEvt: %@ [%@] %d",
+                evtRecord.modifiers ? @"Activate" : @"Deactivate",
+                window.title,
+                evtRecord.when
+                );
          /* form = id_FindForm (window);
          if (evtRecord.modifiers && form->my_window != [NSApp keyWindow])  {
             if (!dtGData->appInBackground)

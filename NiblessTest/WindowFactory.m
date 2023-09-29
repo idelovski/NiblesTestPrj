@@ -181,6 +181,7 @@ extern  FORM_REC  *dtRenderedForm;
    id_BuildCloseWindowEvent (form, NULL);
    
    if (form == dtRenderedForm)  {
+      id_FlushUsedEvents (form);
       id_release_form (form);
    }
    
@@ -228,7 +229,7 @@ extern  FORM_REC  *dtRenderedForm;
    
    id_printWindowsOrder ();
    
-   if (form)
+   if (form && form->my_window)
       id_BuildActivateEvent (form, TRUE);
 }
 
@@ -239,7 +240,7 @@ extern  FORM_REC  *dtRenderedForm;
 
    NSLog (@"windowDidResignKey: [%@]", form ? aWindow.title : @"No name");
    
-   if (form)
+   if (form && form->my_window)
       id_BuildActivateEvent (form, FALSE);
 }
 
