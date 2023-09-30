@@ -1261,6 +1261,98 @@ int  id_GetApplicationDataDir (FSRef *appDataFSRef) // out, appData folder, ther
    return (osStatus ? -1 : 0);
 }
 
+/* ......................................................... id_FileExists .......... */
+
+Boolean  id_FileExists (char *filePath)
+{
+   char          posixPath[256];
+   struct  stat  sBuffer;
+   
+   NOT_YET  // id_Mac2UTF8String (filePath, posixPath, 255);
+
+   if (!stat(filePath/*posixPath*/, &sBuffer))  {
+      // if (sBuffer.st_mode & S_IFDIR)
+      return (TRUE);
+   }
+   
+   return (FALSE);
+}
+
+/* ......................................................... id_PathIsFolder ........ */
+
+Boolean  id_PathIsFolder (char *filePath)
+{
+   struct  stat  sBuffer;
+   
+   if (!stat(filePath, &sBuffer))  {
+      if (sBuffer.st_mode & S_IFDIR)
+         return (TRUE);
+   }
+   
+   return (FALSE);
+}
+
+/* ......................................................... id_BreakFullPath ....... */
+
+int  id_BreakFullPath (
+ char  *fullPath,     // in
+ char  *driveLetter,  // out, no op on Mac
+ char  *purePath,     // out, contains drive, optional
+ char  *fileName,     // out, with or without extension, YES, without if lasta param is not NULL
+ char  *fileExtension // out, optional
+)
+{
+   char        *dotPtr, *lbsPtr;
+   char   separatorChar = '/';
+
+#ifdef _NOT_YET_   
+   if (id_pathIsSqlPath(fullPath))  {
+      if (purePath)
+         strNCpy (purePath, fullPath, 255);
+      if (fileName)
+         id_sqlPathToSqlDBName (fullPath, fileName, 127);
+      if (fileExtension)
+         *fileExtension = '\0';
+      return (0);
+   }
+#endif
+   
+   lbsPtr = strrchr (fullPath, separatorChar);    // Last backSlash
+   
+   if (lbsPtr)  {
+      *lbsPtr = '\0';
+
+      if (purePath)
+         strNCpy (purePath, fullPath, 256-1);
+   }
+   else  {
+      if (purePath)
+         purePath[0] = '\0';
+      lbsPtr = fullPath;
+   }
+
+   if (lbsPtr)  {
+      if (lbsPtr != fullPath)
+         *lbsPtr++ = separatorChar;      // put it back
+      strNCpy (fileName, lbsPtr, 256-1);
+      if (fileExtension)  {
+         if (dotPtr = strrchr(fileName, '.'))  {
+            *dotPtr++ = '\0';
+            strNCpy (fileExtension, dotPtr, 3);    // More ???
+         }
+         else
+            fileExtension[0] = '\0';
+      }
+   }
+   else  {
+      fileName[0] = '\0';
+      if (fileExtension)
+         fileExtension[0] = '\0';
+   }
+   
+   return (0);
+}
+
 /* ......................................................... id_ConcatPath .......... */
 
 int  id_ConcatPath (
@@ -1298,6 +1390,163 @@ int  id_CoreConcatPath (
       morePath++;                   // skip it!
    
    strcpy (startPtr, morePath);
+   
+   return (0);
+}
+
+int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
+{
+   int           returnCode = 0;
+   NSOpenPanel  *panel = [[NSOpenPanel alloc] init];
+
+   CFStringRef  cfStringAction = id_CreateCFString ("Otvori");
+   CFStringRef  cfStringTitle = id_CreateCFString ("Otvori datoteku");
+   // CFStringRef  cfStringFile = id_CreateCFString ("No Name");
+   CFStringRef  cfStringMessage = id_CreateCFString ("Izaberite jednu datoteku sa popisa");
+   
+   panel.prompt = (NSString *)cfStringAction;
+   panel.title  = (NSString *)cfStringTitle;  // Is this used?
+   panel.message = (NSString *)cfStringMessage;
+   
+   // panel.nameFieldLabel = @"nameFieldLabel"; -> only save
+   // panel.nameFieldStringValue = @"nameFieldStringValue"; -> not used for open panel
+
+   // This eisted in Carbon
+   // CFStringRef  cfStringClient = id_CreateCFString ("Bouquet");
+   // CFStringRef  cfStringCancel = id_CreateCFString ("Odustani");
+   
+   panel.allowedFileTypes = allowedTypes;  // [NSArray arrayWithObjects:@"jpg", @"png", @"xls", @"doc", @"rtf", @"txt", @"xlsx", @"docx", nil];
+
+   panel.directoryURL = nil;
+   panel.allowsOtherFileTypes = NO;
+   panel.canCreateDirectories = YES;
+   panel.extensionHidden = NO;
+   
+   panel.treatsFilePackagesAsDirectories = NO;
+   
+   panel.canChooseFiles = YES;
+   panel.resolvesAliases = YES;
+   panel.allowsMultipleSelection = NO;
+
+   returnCode = (int)[panel runModal];
+   
+   CFRelease (cfStringTitle);
+   CFRelease (cfStringAction);
+   // CFRelease (cfStringFile);
+   CFRelease (cfStringMessage);
+   
+   if (!returnCode)  {
+      char      fullPath[PATH_MAX];
+      CFURLRef  urlRef = CFURLCreateCopyDeletingLastPathComponent (NULL, (CFURLRef)panel.URL);
+      
+      CFURLGetFSRef (urlRef, parentFSRef);  // or use id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef);
+      
+      CFRelease (urlRef);
+      
+      if (FSRefMakePath(parentFSRef, (UInt8 *)fullPath, PATH_MAX))
+         fullPath[0] = '\0';
+      NSLog (@"Filepath with FSRefMakePath(): %s", fullPath);
+      
+      if (CFURLGetFileSystemRepresentation((CFURLRef)panel.URL, TRUE, (UInt8 *)fullPath, PATH_MAX))  {
+         NSLog (@"Filepath with CFURLGetFileSystemRepresentation(): %s", fullPath);
+         id_BreakFullPath (fullPath, NULL, NULL, fileName, NULL);
+         
+         return (0);
+      }
+   }
+      
+   return (-1);
+}
+
+/* ......................................................... id_CreateAliasToPath ... */
+
+int  id_CreateAliasToPath (char *cTargetFileOrFolderPath, char *cParentFolderPath, char *cFileName, OSType fileType)
+{
+   Boolean        isFolder = FALSE;
+   FSRef          targetRef, parentRef, aliasRef;
+   CFURLRef       cfTargetUrl = NULL, cfParentUrl = NULL;
+   CFStringRef    cfFileName = NULL;
+   HFSUniStr255   aliasName;
+   AliasHandle    aliasHandle = NULL;
+   ResFileRefNum  fileReference = -1;
+   FSCatalogInfo  catalogInfo;
+   FileInfo      *theFileInfo = NULL;
+   CFStringRef    cfParentFolderPath = NULL;
+   CFStringRef    cfTargetFolderPath = NULL;
+   CFStringRef    cfeParentFolderPath = NULL;
+   CFStringRef    cfeTargetFolderPath = NULL;
+   // Create a resource file for the alias.
+   // CFURLGetFSRef ((CFURLRef)[NSURL fileURLWithPath:parentFolder], &parentRef);
+   // There is id_CreateURLForFile() but I'm not sure it works with spec characters
+   id_Mac2CFString (cParentFolderPath, &cfParentFolderPath, strlen(cParentFolderPath));
+   cfeParentFolderPath = CFURLCreateStringByAddingPercentEscapes (kCFAllocatorDefault, cfParentFolderPath, NULL, NULL, kCFStringEncodingUTF8);
+   cfParentUrl = CFURLCreateWithString (kCFAllocatorDefault, cfeParentFolderPath, NULL);
+   
+   if (!fileType)  {
+      if (id_FileExists(cTargetFileOrFolderPath) && id_PathIsFolder(cTargetFileOrFolderPath))
+         fileType = kContainerFolderAliasType;
+   }
+   
+   if (cfParentUrl)  {
+      CFURLGetFSRef (cfParentUrl, &parentRef);
+   
+      id_Mac2CFString (cFileName, &cfFileName, strlen(cFileName));
+      FSGetHFSUniStrFromString (cfFileName, &aliasName);
+      
+      FSCreateResFile (&parentRef, aliasName.length, aliasName.unicode, 0, NULL, &aliasRef, NULL);
+   }
+   
+   // Construct alias data to write to resource fork.
+   
+   // CFURLGetFSRef ((CFURLRef)[NSURL fileURLWithPath:destFolder], &targetRef);
+   id_Mac2CFString (cTargetFileOrFolderPath, &cfTargetFolderPath, strlen(cTargetFileOrFolderPath));
+   cfeTargetFolderPath = CFURLCreateStringByAddingPercentEscapes (kCFAllocatorDefault, cfTargetFolderPath, NULL, NULL, kCFStringEncodingUTF8);
+   cfTargetUrl = CFURLCreateWithString (kCFAllocatorDefault, cfeTargetFolderPath, NULL);
+
+   if (cfTargetUrl)  {
+      CFURLGetFSRef (cfTargetUrl, &targetRef);
+   
+      FSNewAlias (NULL, &targetRef, &aliasHandle);
+   
+      // Add the alias data to the resource fork and close it.
+      fileReference = FSOpenResFile (&aliasRef, fsRdWrPerm);
+   }
+   
+   if (fileReference != -1)  {
+      UseResFile (fileReference);
+      AddResource ((Handle)aliasHandle, 'alis', 0, NULL);
+      CloseResFile (fileReference);
+   
+      // Update finder info.
+      FSGetCatalogInfo (&aliasRef, kFSCatInfoFinderInfo, &catalogInfo, NULL, NULL, NULL);
+   
+      theFileInfo = (FileInfo*)(&catalogInfo.finderInfo);
+   
+      theFileInfo->finderFlags |= kIsAlias;        // Set the alias bit.
+      theFileInfo->finderFlags &= ~kHasBeenInited; // Clear the inited bit to tell Finder to recheck the file.
+      theFileInfo->fileType = fileType;            // kContainerFolderAliasType -> folders
+   
+      FSSetCatalogInfo (&aliasRef, kFSCatInfoFinderInfo, &catalogInfo);
+   }
+   
+   if (aliasHandle)
+      DisposeHandle ((Handle)aliasHandle);
+   
+   if (cfParentUrl)
+      CFRelease (cfParentUrl);
+   if (cfTargetUrl)
+      CFRelease (cfTargetUrl);
+   
+   if (cfFileName)
+      CFRelease (cfFileName);
+   if (cfTargetFolderPath)
+      CFRelease (cfTargetFolderPath);
+   if (cfParentFolderPath)
+      CFRelease (cfParentFolderPath);
+   if (cfeTargetFolderPath)
+      CFRelease (cfeTargetFolderPath);
+   if (cfeParentFolderPath)
+      CFRelease (cfeParentFolderPath);
    
    return (0);
 }
@@ -1655,6 +1904,20 @@ CFStringRef  id_Mac2CFString (const char *srcStr, CFStringRef *dstStr, long strL
    }*/
    
    return (*dstStr);  // needs CFRelease()
+}
+
+/* .......................................................... id_CreateCFString ..... */
+
+// later, call CFRelease (cfString);
+
+CFStringRef  id_CreateCFString (const char *srcStr)
+{
+   short        usedLen = strlen(srcStr);
+   CFStringRef  cfString = NULL;
+   
+   id_Mac2CFString (srcStr, &cfString, usedLen);
+   
+   return (cfString);
 }
 
 // -----------------------

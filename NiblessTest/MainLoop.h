@@ -10,6 +10,9 @@
 #import  <Carbon/Carbon.h>
 #import  <AppKit/AppKit.h>
 
+#include  <sys/types.h>
+#include  <sys/stat.h>
+
 #import  "NSFont+CFTraits.h"
 
 // #import <CarbonCore/CarbonCore.h>
@@ -91,8 +94,16 @@ OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsR
 int  id_GetApplicationDataDir (FSRef *appDataFSRef); // out, appData folder, there is id_GetAppDataVolume()
 int  id_SetInitialDefaultDir (FSRef *appFolderFSRef); // out, applications folder inside the bundle
 
+int   id_BreakFullPath (char  *fullPath,     // in
+                        char  *driveLetter,  // out, no op on Mac
+                        char  *purePath,     // out, contains driveLetter
+                        char  *fileName,     // out, with or without extension
+                        char  *fileExtension // out, optional
+                        );
 int  id_ConcatPath (char *fullPath, char *morePath);
 int  id_CoreConcatPath (char *fullPath, char *morePath, short webFlag);
+int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef);
+int  id_CreateAliasToPath (char *cTargetFolderPath, char *cParentFolderPath, char *cFileName, OSType fileType);
 
 int  id_UniCharToUpper (UniChar *uch);
 int  id_CharToUniChar (char ch, UniChar *uch);
@@ -100,6 +111,7 @@ int  id_UniCharToChar (UniChar uch, char *ch);
 
 char        *id_CFString2Mac (const CFStringRef srcStr, char *dstStr, short *strLen);
 CFStringRef  id_Mac2CFString (const char *srcStr, CFStringRef *dstStr, long strLen);
+CFStringRef  id_CreateCFString (const char *srcStr);
 
 OSStatus  id_FSDeleteFile (FSRef *parentFSRef, char *fileName);  // fileName may be NULL
 OSStatus  id_FSRenameFile (FSRef *theFileRef, char *newFileName);
