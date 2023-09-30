@@ -75,20 +75,24 @@ int   id_GetApplicationExeFSRef (FSRef *appParentFolderFSRef);  // out, exe fold
 int   id_GetApplicationParentFSRef (FSRef *appParentFolderFSRef);  // out, bundle folder
 int   id_GetMyApplicationResourcesFSRef (FSRef *rsrcFolderFSRef);  // put them into dTOOL_INT.C, add these fsRefs to dtGlobals!
 
-int   id_GetDefaultDir (FSRef *fsRef); // out
-int   id_SetDefaultDir (FSRef *fsRef);  // in
-
-short  OpenResFile (char *resFileName);  // c string
-
-int   id_ExtractFSRef (FSRef *srcFSref, char *fileName, FSRef *parentFSRef);
-
-OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef);
-
+int  id_GetDefaultDir (FSRef *fsRef); // out
+int  id_SetDefaultDir (FSRef *fsRef);  // in
+int  id_GetDesktopDir (FSRef *desktopFSRef); // out, Desktop folder
+int  id_GetDocumentsDir (FSRef *desktopFSRef); // out, Desktop folder
 int  id_GetDefaultDir (FSRef *fsRef); // out
 int  id_SetDefaultDir (FSRef *fsRef);  // in
 
+short  OpenResFile (char *resFileName);  // c string
+
+int  id_ExtractFSRef (FSRef *srcFSref, char *fileName, FSRef *parentFSRef);
+
+OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef);
+
 int  id_GetApplicationDataDir (FSRef *appDataFSRef); // out, appData folder, there is id_GetAppDataVolume()
 int  id_SetInitialDefaultDir (FSRef *appFolderFSRef); // out, applications folder inside the bundle
+
+int  id_ConcatPath (char *fullPath, char *morePath);
+int  id_CoreConcatPath (char *fullPath, char *morePath, short webFlag);
 
 int  id_UniCharToUpper (UniChar *uch);
 int  id_CharToUniChar (char ch, UniChar *uch);

@@ -1074,6 +1074,234 @@ int  id_ExtractFSRef (FSRef *srcFSref, char *fileName, FSRef *parentFSRef)
    return (retVal);
 }
 
+#pragma mark -
+
+int  id_GetDefaultDir (FSRef *fsRef) // out
+{
+   short  retVal = -1;
+   char   cwd[256];
+   
+   if (getcwd(cwd, 256))  {
+      if (!FSPathMakeRef((const UInt8 *)cwd, fsRef, NULL))
+         retVal = 0;
+   }
+
+   return (retVal);
+}
+
+int  id_SetDefaultDir (FSRef *fsRef)  // in
+{
+   short               err, retVal = -1;
+   char                tmpStr[256];
+   
+   if (!FSRefMakePath(fsRef, (UInt8 *)tmpStr, 256))  {
+      err = chdir (tmpStr);
+      retVal = 0;
+   }
+   else
+      err = -1;
+   
+   return (retVal);
+}
+
+short  OpenResFile (char *resFileName)  // c string
+{
+   short  /*vRefNum,*/ resRefNum = -1;
+   FSRef  fsRef;
+   // char   tmpStr[256];
+   
+   // if (!id_GetDefaultDir(&fsRef))
+   if (!FSPathMakeRef((const UInt8 *)resFileName, &fsRef, NULL))
+      resRefNum = FSOpenResFile (&fsRef, fsRdPerm);
+   
+   // To open a resource in data fork:
+   // err = FSOpenResourceFile (&fsRef, 0, NULL, fsRdPerm, &resRefNum);
+   
+   return (resRefNum);
+}
+
+int  id_OpenInternalResFile (void)
+{
+   char   rsrcName[256], pathStr[256];
+   char   appName[256];
+   FSRef  appParentFolderFSRef;
+   FSRef  rsrcFSRef, appRsrcFSRef;
+   
+   if (!id_GetApplicationExeFSRef(&appParentFolderFSRef))  {
+      if (!id_ExtractFSRef(&appParentFolderFSRef, appName, nil/*&parentFSRef*/))
+         NSLog (@"AppName: %s", appName);
+   
+      if (!id_GetMyApplicationResourcesFSRef(&rsrcFSRef))  {
+         if (id_ExtractFSRef(&rsrcFSRef, rsrcName, nil))
+            rsrcName[0] = '\0';
+         if (FSRefMakePath(&rsrcFSRef, (UInt8 *)pathStr, 256))
+            pathStr[0] = '\0';
+         snprintf (pathStr+strlen(pathStr), 256-strlen(pathStr), "/%s.rsrc", appName);
+         NSLog (@"Resource path: %s %s", pathStr, rsrcName);
+         
+         if (!FSPathMakeRef((const UInt8 *)pathStr, &appRsrcFSRef, NULL))  {
+            ResFileRefNum  resRefNum;
+            
+            OSErr  err = FSOpenResourceFile (&appRsrcFSRef, 0, NULL, fsRdPerm, &resRefNum);
+            
+            if (!err)
+               return ((short)resRefNum);
+         }
+      }
+   }
+   
+   return (-1);
+}
+
+int  id_SetInitialDefaultDir (FSRef *appFolderFSRef) // out, applications folder inside the bundle
+{
+   short               retVal = -1;
+   ProcessSerialNumber procSerNum = { 0, kCurrentProcess };
+   ProcessInfoRec      procInfo;
+   // FSSpec              appFSSpec;
+   // WDPBRec             wpb;
+   
+   id_SetBlockToZeros (&procInfo, sizeof(ProcessInfoRec));
+   procInfo.processInfoLength = sizeof (ProcessInfoRec);
+   procInfo.processAppRef = appFolderFSRef;
+
+   if (!GetProcessInformation(&procSerNum, &procInfo))  {
+      retVal = 0;
+      
+      // Carbon tu postavi taj dir as current! -> id_SetDefaultDir (FSRef *fsRef)
+
+      // zar nema sad neka fora sa GetVol za napravit i fsspec iz ovog!
+   }
+
+   return (retVal);
+}
+
+OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef)
+{
+   OSStatus      result = coreFoundationUnknownErr;
+   CFStringRef   fileNameRef;
+   UniCharCount  srcLength;
+   UniChar       fNameUStr[256];
+   
+   // fileNameRef = CFStringCreateWithCString (NULL, fileName, kTextEncodingISOLatin2);  // or kTextEncodingMacRoman
+   
+   id_Mac2CFString (fileName, &fileNameRef, strlen(fileName));
+   
+   if (fileNameRef)  {
+      srcLength = (UniCharCount) CFStringGetLength (fileNameRef);
+      CFStringGetCharacters (fileNameRef, CFRangeMake(0, srcLength), &fNameUStr[0]);
+      
+      result = FSMakeFSRefUnicode (parentFSRef, srcLength, fNameUStr, kTextEncodingUnicodeDefault, fsRef);
+      
+      CFRelease (fileNameRef);
+   }
+   
+   return (result);
+}
+
+OSStatus  id_FSDeleteFile (FSRef *parentFSRef, char *fileName)  // fileName may be NULL
+{
+   OSStatus      result;
+   FSRef         fsRefToDelete;
+   
+   if (fileName)  {
+      result = id_GetFilesFSRef (parentFSRef, fileName, &fsRefToDelete);
+      
+      if (!result)
+         result = FSDeleteObject (&fsRefToDelete);
+   }
+   else
+      // parent is actually the file that should be deleted!
+      result = FSDeleteObject (parentFSRef);
+   
+   return (result);
+}
+
+OSStatus  id_FSRenameFile (FSRef *theFileRef, char *newFileName)
+{
+   OSStatus      osErr = paramErr;
+   CFStringRef   fileNameRef;
+   UniCharCount  srcLength;
+   UniChar       fNameUStr[256];
+ 
+   // fileNameRef = CFStringCreateWithCString (NULL, newFileName, kTextEncodingISOLatin2);  // or kTextEncodingMacRoman
+   
+   id_Mac2CFString (newFileName, &fileNameRef, strlen(newFileName));
+
+   if (fileNameRef)  {
+      srcLength = (UniCharCount) CFStringGetLength (fileNameRef);
+      CFStringGetCharacters (fileNameRef, CFRangeMake(0, srcLength), &fNameUStr[0]);
+
+      osErr = FSRenameUnicode (theFileRef, srcLength, fNameUStr, kTextEncodingUnicodeDefault, NULL);  // or kTextEncodingUnknown
+
+      CFRelease (fileNameRef);
+   }
+      
+   return (osErr);
+}
+
+int  id_GetDesktopDir (FSRef *desktopFSRef) // out, Desktop folder
+{
+   OSStatus  osStatus = FSFindFolder (kOnSystemDisk, kDesktopFolderType, kDontCreateFolder, desktopFSRef);
+   
+   return (osStatus ? -1 : 0);
+}
+
+int  id_GetDocumentsDir (FSRef *desktopFSRef) // out, Desktop folder
+{
+   OSStatus  osStatus = FSFindFolder (kOnSystemDisk, kDocumentsFolderType, kDontCreateFolder, desktopFSRef);
+
+   return (osStatus ? -1 : 0);
+}
+
+int  id_GetApplicationDataDir (FSRef *appDataFSRef) // out, appData folder, there is id_GetAppDataVolume()
+{
+   OSStatus  osStatus = FSFindFolder (kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, appDataFSRef);
+   
+   return (osStatus ? -1 : 0);
+}
+
+/* ......................................................... id_ConcatPath .......... */
+
+int  id_ConcatPath (
+ char  *fullPath,     // in/out
+ char  *morePath      // in, ending or file name
+)
+{
+   return (id_CoreConcatPath(fullPath, morePath, FALSE));
+}
+
+/* ......................................................... id_ConcatPath .......... */
+
+int  id_CoreConcatPath (
+ char  *fullPath,     // in/out
+ char  *morePath,     // in, ending or file name
+ short  webFlag       // because of Win or MacOS9
+)
+{
+   char   separatorChar = '/';
+   char  *startPtr;
+   short  len;
+   
+   if ((len = strlen(fullPath)) + strlen(morePath) >= MAX_PATH-1)  // 256 or PATH_MAX of 1024 - /usr/include/sys/syslimits.h
+      return (-1);
+   
+   if (len)  {
+      startPtr = &fullPath[len-1];  // lastChar
+      if (*startPtr++ != separatorChar)
+         *startPtr++ = separatorChar;
+   }
+   else
+      startPtr = fullPath;          // first
+   
+   if (morePath[0] == separatorChar)
+      morePath++;                   // skip it!
+   
+   strcpy (startPtr, morePath);
+   
+   return (0);
+}
+
 #pragma mark strings
 
 int  id_UniCharToUpper (UniChar *uch)
@@ -1430,191 +1658,6 @@ CFStringRef  id_Mac2CFString (const char *srcStr, CFStringRef *dstStr, long strL
 }
 
 // -----------------------
-
-int  id_GetDefaultDir (FSRef *fsRef) // out
-{
-   short  retVal = -1;
-   char   cwd[256];
-   
-   if (getcwd(cwd, 256))  {
-      if (!FSPathMakeRef((const UInt8 *)cwd, fsRef, NULL))
-         retVal = 0;
-   }
-
-   return (retVal);
-}
-
-int  id_SetDefaultDir (FSRef *fsRef)  // in
-{
-   short               err, retVal = -1;
-   char                tmpStr[256];
-   
-   if (!FSRefMakePath(fsRef, (UInt8 *)tmpStr, 256))  {
-      err = chdir (tmpStr);
-      retVal = 0;
-   }
-   else
-      err = -1;
-   
-   return (retVal);
-}
-
-short  OpenResFile (char *resFileName)  // c string
-{
-   short  /*vRefNum,*/ resRefNum = -1;
-   FSRef  fsRef;
-   // char   tmpStr[256];
-   
-   // if (!id_GetDefaultDir(&fsRef))
-   if (!FSPathMakeRef((const UInt8 *)resFileName, &fsRef, NULL))
-      resRefNum = FSOpenResFile (&fsRef, fsRdPerm);
-   
-   // To open a resource in data fork:
-   // err = FSOpenResourceFile (&fsRef, 0, NULL, fsRdPerm, &resRefNum);
-   
-   return (resRefNum);
-}
-
-int  id_OpenInternalResFile (void)
-{
-   char   rsrcName[256], pathStr[256];
-   char   appName[256];
-   FSRef  appParentFolderFSRef;
-   FSRef  rsrcFSRef, appRsrcFSRef;
-   
-   if (!id_GetApplicationExeFSRef(&appParentFolderFSRef))  {
-      if (!id_ExtractFSRef(&appParentFolderFSRef, appName, nil/*&parentFSRef*/))
-         NSLog (@"AppName: %s", appName);
-   
-      if (!id_GetMyApplicationResourcesFSRef(&rsrcFSRef))  {
-         if (id_ExtractFSRef(&rsrcFSRef, rsrcName, nil))
-            rsrcName[0] = '\0';
-         if (FSRefMakePath(&rsrcFSRef, (UInt8 *)pathStr, 256))
-            pathStr[0] = '\0';
-         snprintf (pathStr+strlen(pathStr), 256-strlen(pathStr), "/%s.rsrc", appName);
-         NSLog (@"Resource path: %s %s", pathStr, rsrcName);
-         
-         if (!FSPathMakeRef((const UInt8 *)pathStr, &appRsrcFSRef, NULL))  {
-            ResFileRefNum  resRefNum;
-            
-            OSErr  err = FSOpenResourceFile (&appRsrcFSRef, 0, NULL, fsRdPerm, &resRefNum);
-            
-            if (!err)
-               return ((short)resRefNum);
-         }
-      }
-   }
-   
-   return (-1);
-}
-
-int  id_GetApplicationDataDir (FSRef *appDataFSRef) // out, appData folder, there is id_GetAppDataVolume()
-{
-   short               retVal = -1;
-   // FSSpec              appDataFSSpec;
-   OSStatus            osStatus;
-   
-   osStatus = FSFindFolder (kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, appDataFSRef);
-   
-   // osStatus = FindFolder (kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder,
-   //                        &appDataFSSpec.vRefNum, &appDataFSSpec.parID);
-   
-   if (!osStatus)  {
-      // appDataFSSpec.name[0] = '\0';
-
-      // if (!FSpMakeFSRef(&appDataFSSpec, appDataFSRef))
-         retVal = 0;
-   }
-   
-   return (retVal);
-}
-
-int  id_SetInitialDefaultDir (FSRef *appFolderFSRef) // out, applications folder inside the bundle
-{
-   short               retVal = -1;
-   ProcessSerialNumber procSerNum = { 0, kCurrentProcess };
-   ProcessInfoRec      procInfo;
-   // FSSpec              appFSSpec;
-   // WDPBRec             wpb;
-   
-   id_SetBlockToZeros (&procInfo, sizeof(ProcessInfoRec));
-   procInfo.processInfoLength = sizeof (ProcessInfoRec);
-   procInfo.processAppRef = appFolderFSRef;
-
-   if (!GetProcessInformation(&procSerNum, &procInfo))  {
-      retVal = 0;
-      
-      // Carbon tu postavi taj dir as current! -> id_SetDefaultDir (FSRef *fsRef)
-
-      // zar nema sad neka fora sa GetVol za napravit i fsspec iz ovog!
-   }
-
-   return (retVal);
-}
-
-OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef)
-{
-   OSStatus      result = coreFoundationUnknownErr;
-   CFStringRef   fileNameRef;
-   UniCharCount  srcLength;
-   UniChar       fNameUStr[256];
-   
-   // fileNameRef = CFStringCreateWithCString (NULL, fileName, kTextEncodingISOLatin2);  // or kTextEncodingMacRoman
-   
-   id_Mac2CFString (fileName, &fileNameRef, strlen(fileName));
-   
-   if (fileNameRef)  {
-      srcLength = (UniCharCount) CFStringGetLength (fileNameRef);
-      CFStringGetCharacters (fileNameRef, CFRangeMake(0, srcLength), &fNameUStr[0]);
-      
-      result = FSMakeFSRefUnicode (parentFSRef, srcLength, fNameUStr, kTextEncodingUnicodeDefault, fsRef);
-      
-      CFRelease (fileNameRef);
-   }
-   
-   return (result);
-}
-
-OSStatus  id_FSDeleteFile (FSRef *parentFSRef, char *fileName)  // fileName may be NULL
-{
-   OSStatus      result;
-   FSRef         fsRefToDelete;
-   
-   if (fileName)  {
-      result = id_GetFilesFSRef (parentFSRef, fileName, &fsRefToDelete);
-      
-      if (!result)
-         result = FSDeleteObject (&fsRefToDelete);
-   }
-   else
-      // parent is actually the file that should be deleted!
-      result = FSDeleteObject (parentFSRef);
-   
-   return (result);
-}
-
-OSStatus  id_FSRenameFile (FSRef *theFileRef, char *newFileName)
-{
-   OSStatus      osErr = paramErr;
-   CFStringRef   fileNameRef;
-   UniCharCount  srcLength;
-   UniChar       fNameUStr[256];
- 
-   // fileNameRef = CFStringCreateWithCString (NULL, newFileName, kTextEncodingISOLatin2);  // or kTextEncodingMacRoman
-   
-   id_Mac2CFString (newFileName, &fileNameRef, strlen(newFileName));
-
-   if (fileNameRef)  {
-      srcLength = (UniCharCount) CFStringGetLength (fileNameRef);
-      CFStringGetCharacters (fileNameRef, CFRangeMake(0, srcLength), &fNameUStr[0]);
-
-      osErr = FSRenameUnicode (theFileRef, srcLength, fNameUStr, kTextEncodingUnicodeDefault, NULL);  // or kTextEncodingUnknown
-
-      CFRelease (fileNameRef);
-   }
-      
-   return (osErr);
-}
 
 int  id_InitComputerName (char *compName, short buffSize)
 {
