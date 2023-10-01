@@ -980,11 +980,67 @@ void  id_printWindowsOrder (void)
    }
 }
 
+/* ......................................................... id_ExtractFSRef ........ */
+
+int  id_ExtractFSRef (FSRef *srcFSref, char *fileName, FSRef *parentFSRef)
+{
+   short         maxLen = 255, retVal = -1;
+   HFSUniStr255  hfsFileName;
+   CFStringRef   cfFileName;
+   OSStatus      result;
+
+   result = FSGetCatalogInfo (srcFSref, kFSCatInfoNone, NULL, &hfsFileName, NULL, parentFSRef);
+   
+   if (!result)  {
+      cfFileName = CFStringCreateWithCharacters (NULL, hfsFileName.unicode, hfsFileName.length);
+      
+      if (cfFileName)  {
+         NSLog (@"File path: %@", (NSString *)cfFileName);
+         id_CFString2Mac (cfFileName, fileName, &maxLen);
+
+         CFRelease (cfFileName);
+
+         retVal = 0;
+      }
+   }
+   else
+      return (result);
+
+   return (retVal);
+}
+
+/* ......................................................... id_GetParentFSRef ...... */
+
 OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef)
 {
    OSErr osErr = FSGetCatalogInfo (fileFSRef, kFSCatInfoNone, NULL, NULL, NULL, parentFSRef);
    
    return (osErr);
+}
+
+/* ......................................................... id_GetFilesFSRef ....... */
+
+OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef)
+{
+   OSStatus      result = coreFoundationUnknownErr;
+   CFStringRef   fileNameRef;
+   UniCharCount  srcLength;
+   UniChar       fNameUStr[256];
+
+   // fileNameRef = CFStringCreateWithCString (NULL, fileName, kTextEncodingISOLatin2);  // or kTextEncodingMacRoman
+   
+   id_Mac2CFString (fileName, &fileNameRef, strlen(fileName));
+         
+   if (fileNameRef)  {
+      srcLength = (UniCharCount) CFStringGetLength (fileNameRef);
+      CFStringGetCharacters (fileNameRef, CFRangeMake(0, srcLength), &fNameUStr[0]);
+      
+      result = FSMakeFSRefUnicode (parentFSRef, srcLength, fNameUStr, kTextEncodingUnicodeDefault, fsRef);
+
+      CFRelease (fileNameRef);
+   }
+   
+   return (result);
 }
 
 int  id_GetApplicationParentFSRef (FSRef *appParentFolderFSRef)  // out, bundle folder
@@ -1042,35 +1098,6 @@ int  id_GetMyApplicationResourcesFSRef (FSRef *rsrcFolderFSRef)  // put them int
    
    // eventualno, onaj trik za napravit i fsspec iz ovog!
    
-   return (retVal);
-}
-
-/* ......................................................... id_ExtractFSRef ........ */
-
-int  id_ExtractFSRef (FSRef *srcFSref, char *fileName, FSRef *parentFSRef)
-{
-   short         maxLen = 255, retVal = -1;
-   HFSUniStr255  hfsFileName;
-   CFStringRef   cfFileName;
-   OSStatus      result;
-
-   result = FSGetCatalogInfo (srcFSref, kFSCatInfoNone, NULL, &hfsFileName, NULL, parentFSRef);
-   
-   if (!result)  {
-      cfFileName = CFStringCreateWithCharacters (NULL, hfsFileName.unicode, hfsFileName.length);
-      
-      if (cfFileName)  {
-         NSLog (@"File path: %@", (NSString *)cfFileName);
-         id_CFString2Mac (cfFileName, fileName, &maxLen);
-
-         CFRelease (cfFileName);
-
-         retVal = 0;
-      }
-   }
-   else
-      return (result);
-
    return (retVal);
 }
 
@@ -1174,29 +1201,6 @@ int  id_SetInitialDefaultDir (FSRef *appFolderFSRef) // out, applications folder
    }
 
    return (retVal);
-}
-
-OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef)
-{
-   OSStatus      result = coreFoundationUnknownErr;
-   CFStringRef   fileNameRef;
-   UniCharCount  srcLength;
-   UniChar       fNameUStr[256];
-   
-   // fileNameRef = CFStringCreateWithCString (NULL, fileName, kTextEncodingISOLatin2);  // or kTextEncodingMacRoman
-   
-   id_Mac2CFString (fileName, &fileNameRef, strlen(fileName));
-   
-   if (fileNameRef)  {
-      srcLength = (UniCharCount) CFStringGetLength (fileNameRef);
-      CFStringGetCharacters (fileNameRef, CFRangeMake(0, srcLength), &fNameUStr[0]);
-      
-      result = FSMakeFSRefUnicode (parentFSRef, srcLength, fNameUStr, kTextEncodingUnicodeDefault, fsRef);
-      
-      CFRelease (fileNameRef);
-   }
-   
-   return (result);
 }
 
 OSStatus  id_FSDeleteFile (FSRef *parentFSRef, char *fileName)  // fileName may be NULL
@@ -1415,7 +1419,7 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
    // CFStringRef  cfStringClient = id_CreateCFString ("Bouquet");
    // CFStringRef  cfStringCancel = id_CreateCFString ("Odustani");
    
-   panel.allowedFileTypes = allowedTypes;  // [NSArray arrayWithObjects:@"jpg", @"png", @"xls", @"doc", @"rtf", @"txt", @"xlsx", @"docx", nil];
+   panel.allowedFileTypes = allowedTypes;
 
    panel.directoryURL = nil;
    panel.allowsOtherFileTypes = NO;
@@ -1425,7 +1429,7 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
    panel.treatsFilePackagesAsDirectories = NO;
    
    panel.canChooseFiles = YES;
-   panel.resolvesAliases = YES;
+   panel.resolvesAliases = NO;  // YES;
    panel.allowsMultipleSelection = NO;
 
    returnCode = (int)[panel runModal];
@@ -1435,9 +1439,11 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
    // CFRelease (cfStringFile);
    CFRelease (cfStringMessage);
    
-   if (!returnCode)  {
+   if (returnCode == NSModalResponseOK)  {  // alternative is NSModalResponseCancel
       char      fullPath[PATH_MAX];
       CFURLRef  urlRef = CFURLCreateCopyDeletingLastPathComponent (NULL, (CFURLRef)panel.URL);
+      FSRef     fsRef;
+      Boolean   aliasFileFlag, folderFlag;
       
       CFURLGetFSRef (urlRef, parentFSRef);  // or use id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef);
       
@@ -1446,7 +1452,17 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
       if (FSRefMakePath(parentFSRef, (UInt8 *)fullPath, PATH_MAX))
          fullPath[0] = '\0';
       NSLog (@"Filepath with FSRefMakePath(): %s", fullPath);
+      if (!FSIsAliasFile(parentFSRef, &aliasFileFlag, &folderFlag))
+         NSLog (@"Parent - Alias: %@;  Folder: %@", aliasFileFlag ? @"Yes" :  @"NO", folderFlag ? @"Yes" :  @"NO");
       
+      CFURLGetFSRef ((CFURLRef)panel.URL, &fsRef);
+      
+      id_ExtractFSRef (&fsRef, fileName, parentFSRef);
+      NSLog (@"FileName with id_ExtractFSRef(): %s", fileName);
+      
+      if (!FSIsAliasFile(&fsRef, &aliasFileFlag, &folderFlag))
+         NSLog (@"File - Alias: %@;  Folder: %@", aliasFileFlag ? @"Yes" :  @"NO", folderFlag ? @"Yes" :  @"NO");
+
       if (CFURLGetFileSystemRepresentation((CFURLRef)panel.URL, TRUE, (UInt8 *)fullPath, PATH_MAX))  {
          NSLog (@"Filepath with CFURLGetFileSystemRepresentation(): %s", fullPath);
          id_BreakFullPath (fullPath, NULL, NULL, fileName, NULL);

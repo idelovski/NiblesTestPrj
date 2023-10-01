@@ -72,7 +72,10 @@ void   id_ConvertTextTo1250 (char *sText, short *len, short expandNewLines);
 void   id_ConvertTextTo1250L (char *sText, long *len, short expandNewLines);  // expands \r
 void   id_Convert1250ToText (char *sText, short *len, short expandNewLines);  // shrinks \r\n
 
-OSErr id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef);
+// Ha, ha, who wrote these functions? Total mess with similar stuff
+OSErr     id_GetParentFSRef (const FSRef *fileFSRef, FSRef *parentFSRef);
+OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef);
+int       id_ExtractFSRef (FSRef *srcFSref, char *fileName, FSRef *parentFSRef);
 
 int   id_GetApplicationExeFSRef (FSRef *appParentFolderFSRef);  // out, exe folder
 int   id_GetApplicationParentFSRef (FSRef *appParentFolderFSRef);  // out, bundle folder
@@ -86,10 +89,6 @@ int  id_GetDefaultDir (FSRef *fsRef); // out
 int  id_SetDefaultDir (FSRef *fsRef);  // in
 
 short  OpenResFile (char *resFileName);  // c string
-
-int  id_ExtractFSRef (FSRef *srcFSref, char *fileName, FSRef *parentFSRef);
-
-OSStatus  id_GetFilesFSRef (const FSRef *parentFSRef, char *fileName, FSRef *fsRef);
 
 int  id_GetApplicationDataDir (FSRef *appDataFSRef); // out, appData folder, there is id_GetAppDataVolume()
 int  id_SetInitialDefaultDir (FSRef *appFolderFSRef); // out, applications folder inside the bundle

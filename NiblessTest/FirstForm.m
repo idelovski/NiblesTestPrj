@@ -58,6 +58,7 @@ static double  gYOffset = 30.;
    form->okButton = [self createButtonInForm:form];
    form->newWinButton = [self createNewWindowButtonInForm:form];
    form->ditlButton = [self createDITLButtonInForm:form];
+   form->aliasButton = [self createOpenAliasButtonInForm:form];
    
    form->imgButton = [self createImgButtonInForm:form withImageName:@"Bouquet512"];
    
@@ -302,11 +303,59 @@ static double  gYOffset = 30.;
 
 - (void)ditlButtonPressed:(id)button
 {
-   NSEvent  *event = [NSApp currentEvent];
+   // NSEvent  *event = [NSApp currentEvent];
    
    NSLog (@"ditlButtonPressed pressed!");
    
    pr_OpenKupdob ();
+}
+
+- (NSButton *)createOpenAliasButtonInForm:(FORM_REC *)form
+{
+   NSString  *buttonTitle = @"Open Alias";
+   
+   //Start from bottom left corner
+   
+   int  x = 370 + gXOffset; //possition x
+   int  y = 236 + gYOffset; //possition y
+   
+   int  width = 130;
+   int  height = 24; 
+   
+   NSButton  *myButton = [[self coreCreateButtonWithFrame:NSMakeRect(x, y, width, height)
+                                                   inForm:form
+                                                    title:buttonTitle] autorelease];
+   
+   // [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
+   // [myButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
+   
+   [myButton setTarget:self];
+   [myButton setAction:@selector(aliasButtonPressed:)];
+      
+   return (myButton);
+}
+
+- (void)aliasButtonPressed:(id)button
+{
+   FSRef  parentFSRef;
+   char   fileName[256];
+   
+   NSArray  *allowedTypes = [NSArray arrayWithObjects:@"jpg", @"png", @"xls", @"doc", @"rtf", @"txt", @"xlsx", @"docx", @"jpeg", @"m", @"h", nil];
+   
+   NSLog (@"aliasButtonPressed pressed!");
+   
+   if (!id_NavGetFile(allowedTypes, fileName, &parentFSRef))  {
+      NSAlert *alert = [NSAlert alertWithMessageText:@"Alert Title" 
+                                       defaultButton:@"Default Button" 
+                                     alternateButton:@"Cancel" 
+                                         otherButton:nil 
+                           informativeTextWithFormat:@"Something bad has happened."];
+   
+      NSInteger  result = [alert runModal];
+      
+      NSLog (@"alertWithMessageText...runModal: %d - %@", (int)result, id_Result2Msg((int)result));
+   }
+
 }
 
 #pragma mark -
@@ -842,27 +891,27 @@ static double  gYOffset = 30.;
 - (void)showAlertsButtonHit:(id)sender
 {
    NSInteger  result = NSRunAlertPanel (@"Title",
-                                       @"Message",
-                                       @"Default Button",
-                                       @"Alternate Button",
-                                       @"Other Button");
+                                        @"Message",
+                                        @"Default Button",
+                                        @"Alternate Button",
+                                        @"Other Button");
    
    NSLog (@"NSRunAlertPanel: %d - %@", (int)result, id_Result2Msg((int)result));
-
-	
-   result = NSRunCriticalAlertPanel(@"Title",
-                                    @"Message",
-                                    @"Default Button",
-                                    @"Alternate Button",
-                                    @"Other Button");
-	
+   
+   
+   result = NSRunCriticalAlertPanel (@"Title",
+                                     @"Message",
+                                     @"Default Button",
+                                     @"Alternate Button",
+                                     @"Other Button");
+   
    NSLog (@"NSRunCriticalAlertPanel: %d - %@", (int)result, id_Result2Msg((int)result));
-	
-   result = NSRunInformationalAlertPanel(@"Title",
-                                         @"Message",
-                                         @"Default Button",
-                                         @"Alternate Button",
-                                         @"Other Button");
+   
+   result = NSRunInformationalAlertPanel (@"Title",
+                                          @"Message",
+                                          @"Default Button",
+                                          @"Alternate Button",
+                                          @"Other Button");
 
    NSLog (@"NSRunInformationalAlertPanel: %d - %@", (int)result, id_Result2Msg((int)result));
 
