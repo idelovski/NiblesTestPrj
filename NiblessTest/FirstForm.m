@@ -350,7 +350,7 @@ static double  gYOffset = 30.;
    if (!id_NavGetFile(allowedTypes, fileName, &parentFSRef, &aliasFlag))  {
       
       if (!aliasFlag)
-         alert = [NSAlert alertWithMessageText:@"Regular Title" 
+         alert = [NSAlert alertWithMessageText:@"Regular File" 
                                  defaultButton:@"Create Alias" 
                                alternateButton:@"Cancel" 
                                    otherButton:nil 
