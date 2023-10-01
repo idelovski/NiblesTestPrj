@@ -1398,7 +1398,7 @@ int  id_CoreConcatPath (
    return (0);
 }
 
-int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
+int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, Boolean *aliasFlag)
 {
    int           returnCode = 0;
    NSOpenPanel  *panel = [[NSOpenPanel alloc] init];
@@ -1407,6 +1407,9 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
    CFStringRef  cfStringTitle = id_CreateCFString ("Otvori datoteku");
    // CFStringRef  cfStringFile = id_CreateCFString ("No Name");
    CFStringRef  cfStringMessage = id_CreateCFString ("Izaberite jednu datoteku sa popisa");
+   
+   if (aliasFlag)
+      *aliasFlag = FALSE;
    
    panel.prompt = (NSString *)cfStringAction;
    panel.title  = (NSString *)cfStringTitle;  // Is this used?
@@ -1439,6 +1442,8 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
    // CFRelease (cfStringFile);
    CFRelease (cfStringMessage);
    
+   // So, here we play with different ways of getting parent folder's fsRef and the file name. All methods should get the same result
+   
    if (returnCode == NSModalResponseOK)  {  // alternative is NSModalResponseCancel
       char      fullPath[PATH_MAX];
       CFURLRef  urlRef = CFURLCreateCopyDeletingLastPathComponent (NULL, (CFURLRef)panel.URL);
@@ -1460,8 +1465,11 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
       id_ExtractFSRef (&fsRef, fileName, parentFSRef);
       NSLog (@"FileName with id_ExtractFSRef(): %s", fileName);
       
-      if (!FSIsAliasFile(&fsRef, &aliasFileFlag, &folderFlag))
+      if (!FSIsAliasFile(&fsRef, &aliasFileFlag, &folderFlag))  {
          NSLog (@"File - Alias: %@;  Folder: %@", aliasFileFlag ? @"Yes" :  @"NO", folderFlag ? @"Yes" :  @"NO");
+         if (aliasFlag)
+            *aliasFlag = aliasFileFlag;
+      }
 
       if (CFURLGetFileSystemRepresentation((CFURLRef)panel.URL, TRUE, (UInt8 *)fullPath, PATH_MAX))  {
          NSLog (@"Filepath with CFURLGetFileSystemRepresentation(): %s", fullPath);
@@ -1475,6 +1483,10 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef)
 }
 
 /* ......................................................... id_CreateAliasToPath ... */
+
+// cTargetFileOrFolderPath - original, file that will be target of our alias
+// cParentFolderPath - place where we put our alias
+// cFileName - alias file name
 
 int  id_CreateAliasToPath (char *cTargetFileOrFolderPath, char *cParentFolderPath, char *cFileName, OSType fileType)
 {
@@ -1491,9 +1503,11 @@ int  id_CreateAliasToPath (char *cTargetFileOrFolderPath, char *cParentFolderPat
    CFStringRef    cfTargetFolderPath = NULL;
    CFStringRef    cfeParentFolderPath = NULL;
    CFStringRef    cfeTargetFolderPath = NULL;
+   
    // Create a resource file for the alias.
    // CFURLGetFSRef ((CFURLRef)[NSURL fileURLWithPath:parentFolder], &parentRef);
    // There is id_CreateURLForFile() but I'm not sure it works with spec characters
+   
    id_Mac2CFString (cParentFolderPath, &cfParentFolderPath, strlen(cParentFolderPath));
    cfeParentFolderPath = CFURLCreateStringByAddingPercentEscapes (kCFAllocatorDefault, cfParentFolderPath, NULL, NULL, kCFStringEncodingUTF8);
    cfParentUrl = CFURLCreateWithString (kCFAllocatorDefault, cfeParentFolderPath, NULL);

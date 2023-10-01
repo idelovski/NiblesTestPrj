@@ -101,7 +101,7 @@ int   id_BreakFullPath (char  *fullPath,     // in
                         );
 int  id_ConcatPath (char *fullPath, char *morePath);
 int  id_CoreConcatPath (char *fullPath, char *morePath, short webFlag);
-int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef);
+int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, Boolean *aliasFlag);
 int  id_CreateAliasToPath (char *cTargetFolderPath, char *cParentFolderPath, char *cFileName, OSType fileType);
 
 int  id_UniCharToUpper (UniChar *uch);

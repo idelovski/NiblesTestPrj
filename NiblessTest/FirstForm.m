@@ -340,22 +340,48 @@ static double  gYOffset = 30.;
    FSRef  parentFSRef;
    char   fileName[256];
    
+   Boolean  aliasFlag = FALSE;
+   
+   NSAlert  *alert = nil;
    NSArray  *allowedTypes = [NSArray arrayWithObjects:@"jpg", @"png", @"xls", @"doc", @"rtf", @"txt", @"xlsx", @"docx", @"jpeg", @"m", @"h", nil];
    
    NSLog (@"aliasButtonPressed pressed!");
    
-   if (!id_NavGetFile(allowedTypes, fileName, &parentFSRef))  {
-      NSAlert *alert = [NSAlert alertWithMessageText:@"Alert Title" 
-                                       defaultButton:@"Default Button" 
-                                     alternateButton:@"Cancel" 
-                                         otherButton:nil 
-                           informativeTextWithFormat:@"Something bad has happened."];
-   
+   if (!id_NavGetFile(allowedTypes, fileName, &parentFSRef, &aliasFlag))  {
+      
+      if (!aliasFlag)
+         alert = [NSAlert alertWithMessageText:@"Regular Title" 
+                                 defaultButton:@"Create Alias" 
+                               alternateButton:@"Cancel" 
+                                   otherButton:nil 
+                     informativeTextWithFormat:@"Create alias on desktop?"];
+      else  {
+         alert = [NSAlert alertWithMessageText:@"Alias File" 
+                                 defaultButton:@"OK" 
+                               alternateButton:nil
+                                   otherButton:nil 
+                     informativeTextWithFormat:@"Picked file seems to be an alias. There's nothing to do."];
+      }
+      
       NSInteger  result = [alert runModal];
       
-      NSLog (@"alertWithMessageText...runModal: %d - %@", (int)result, id_Result2Msg((int)result));
+      NSLog (@"alertWithMessageText...runModal: %d - %@; alias: %@", (int)result, id_Result2Msg((int)result), aliasFlag ? @"Yes" : @"No");
+      
+      if (!aliasFlag && (result == NSAlertDefaultReturn))  {
+         char   parentPath[PATH_MAX], aliasPath[PATH_MAX];
+         FSRef  desktopFSRef;
+         
+         NSLog (@"Here we create an alias!");
+         if (!FSRefMakePath(&parentFSRef, (UInt8 *)parentPath, PATH_MAX))  {
+            id_ConcatPath (parentPath, fileName);
+            if (!id_GetDesktopDir(&desktopFSRef))  {
+               if (!FSRefMakePath(&desktopFSRef, (UInt8 *)aliasPath, PATH_MAX))  {
+                  id_CreateAliasToPath (parentPath, aliasPath, fileName, '????');
+               }
+            }
+         }
+      }
    }
-
 }
 
 #pragma mark -
