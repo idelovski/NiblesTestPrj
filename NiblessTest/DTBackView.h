@@ -10,6 +10,7 @@
 
 #import  "MainLoop.h"
 #import  "WindowFactory.h"
+#import  "GetNextEvent.h"
 
 @interface  DTBackView : NSView
 {

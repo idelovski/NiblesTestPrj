@@ -189,6 +189,32 @@ BOOL  id_GetNextEvent (EventRecord *evtRec, long timeout)
 
 #pragma mark -
 
+/* ........................................................... id_IsMenuEvent ....... */
+
+// This is created via id_PostMenuEvent()
+
+int  id_IsMenuEvent (
+ EventRecord  *myEvent,
+ short         partWind,  // ignored in Cocoa
+ short        *theMenu,
+ short        *theItem
+)
+{
+   if ((myEvent->what == nullEvent) && dtGData->postedMenu)  {
+      *theMenu = dtGData->postedMenu;
+      *theItem = dtGData->postedItem;
+      
+      dtGData->postedMenu = 0;
+      dtGData->postedItem = 0;
+      
+      return (TRUE);
+   }
+
+   return (FALSE);
+}   
+
+#pragma mark -
+
 // Well, this thing converts loc in win to global coordinates where 0,0 is upper left corner
 // But it probably falls apart if event location is not on the same screen as the windows screen
 // there is a property screen of each window so check what happens if I move a mouse on another screen
@@ -510,6 +536,16 @@ void  id_FlushParentActivations (FORM_REC *form)
          }
       }
    }
+}
+
+#pragma mark -
+
+/* ........................................................... id_PostMenuEvent ..... */
+
+void  id_PostMenuEvent (short theMenu, short theItem)
+{
+   dtGData->postedMenu = theMenu;
+   dtGData->postedItem = theItem;
 }
 
 #pragma mark -

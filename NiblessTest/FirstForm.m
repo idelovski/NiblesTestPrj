@@ -376,7 +376,9 @@ static double  gYOffset = 30.;
             id_ConcatPath (parentPath, fileName);
             if (!id_GetDesktopDir(&desktopFSRef))  {
                if (!FSRefMakePath(&desktopFSRef, (UInt8 *)aliasPath, PATH_MAX))  {
-                  id_CreateAliasToPath (parentPath, aliasPath, fileName, '????');
+                  OSType  cfCreator = '\?\?\?\?';  // 0x3F3F3F3F - crazy trigraphs
+
+                  id_CreateAliasToPath (parentPath, aliasPath, fileName, cfCreator);
                }
             }
          }

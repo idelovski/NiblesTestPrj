@@ -29,6 +29,8 @@
 BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration);
 BOOL  id_GetNextEvent (EventRecord *evtRec, long timeout);
 
+int   id_IsMenuEvent (EventRecord *myEvent, short partWind, short *theMenu, short *theItem);
+
 NSPoint  id_LocationInWindow2Global (NSWindow *window, NSPoint locationInWindow);  // Origin is upperLeft corner
 NSPoint  id_GlobalLocation2Window (NSWindow *window, NSPoint point);
 
@@ -47,6 +49,8 @@ int  id_AvailableUsedEvent (short eventMask, FORM_REC *form);
 void id_FlushUsedEvents (FORM_REC *form);
 void id_FlushParentActivations (FORM_REC *form);
 
-void  id_BuildKeyDownEvent (FORM_REC *form, short charCode, short keyCode, short modifiers, EventRef evtRef);
-void  id_BuildCloseWindowEvent (FORM_REC *form, EventRef evtRef);
-void  id_BuildActivateEvent (FORM_REC *form, short fActive);
+void id_PostMenuEvent (short theMenu, short theItem);
+
+void id_BuildKeyDownEvent (FORM_REC *form, short charCode, short keyCode, short modifiers, EventRef evtRef);
+void id_BuildCloseWindowEvent (FORM_REC *form, EventRef evtRef);
+void id_BuildActivateEvent (FORM_REC *form, short fActive);

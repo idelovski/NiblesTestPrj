@@ -173,8 +173,8 @@ static FORM_REC  theMainForm;
    theItem = LoWord ((UInt32)menuItem.tag);
    
    NSLog (@"ALT MenuId: %hd, itemId: %hd", theMenu, theItem);
-
-   if (menuIndex > 3)  {
+   
+   if (theMenu == Wind_MENU_ID)  {
       pr_OpenKupdob ();
    }
    else  if (theMenu = File_MENU_ID)  {
@@ -183,6 +183,8 @@ static FORM_REC  theMainForm;
       if (form && (theItem == CLOSE_Command))
          [form->my_window performClose:menuItem];
    }
+   else
+      id_PostMenuEvent (theMenu, theItem);
 } 
 
 + (void)buildMainMenu
@@ -273,32 +275,35 @@ static FORM_REC  theMainForm;
    pr_CreateMenu (menubar, self, 132);
    pr_CreateMenu (menubar, self, 133);
    
-   tmpMenuItem = [self findMenuItem:130-128 withTag:8];  // Osobnosti
+   // So I will have to make this a bit different as my main menu constants start from 128 (128=AppleMenu, 129=File, etc.)
+   // And submenus start from 1. I'll need two arrays, menus & subMenus so I don't have to use all of these crazy constants
+   
+   tmpMenuItem = [self findMenuItem:130-128 withTag:MakeLong(8,130)];  // Osobnosti
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 12);
    
-   tmpMenuItem = [self findMenuItem:130-128 withTag:11];  // Hyper
+   tmpMenuItem = [self findMenuItem:130-128 withTag:MakeLong(11,130)];  // Hyper
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 14);
 
-   tmpMenuItem = [self findMenuItem:130-128 withTag:13];  // IBAN
+   tmpMenuItem = [self findMenuItem:130-128 withTag:MakeLong(13,130)];  // IBAN
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 13);
 
-   tmpMenuItem = [self findMenuItem:133-128 withTag:3];  // Matpod
+   tmpMenuItem = [self findMenuItem:133-128 withTag:MakeLong(3,133)];  // Matpod
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 1);
-   tmpMenuItem = [self findMenuItem:133-128 withTag:4];  // Skladno
+   tmpMenuItem = [self findMenuItem:133-128 withTag:MakeLong(4,133)];  // Skladno
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 2);
-   tmpMenuItem = [self findMenuItem:133-128 withTag:6];  // Robno
+   tmpMenuItem = [self findMenuItem:133-128 withTag:MakeLong(6,133)];  // Robno
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 3);
-   tmpMenuItem = [self findMenuItem:133-128 withTag:7];  // Matno
+   tmpMenuItem = [self findMenuItem:133-128 withTag:MakeLong(7,133)];  // Matno
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 4);
 
-   tmpMenuItem = [self findMenuItem:133-128 withTag:9];  // Ostalo
+   tmpMenuItem = [self findMenuItem:133-128 withTag:MakeLong(9,133)];  // Ostalo
    if (tmpMenuItem)
       pr_InsertSubMenu (tmpMenuItem, self, 5);
    
@@ -374,7 +379,7 @@ static FORM_REC  theMainForm;
 
 BOOL  id_MainLoop (FORM_REC *mainForm)
 {
-   short  index;
+   short  index, theMenu, theItem;
    Point  myPt;
    Rect   tmpRect;
    BOOL   done = FALSE;
@@ -407,11 +412,12 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
                f_ditl_def = form->ditl_def[index];
                f_edit_def = form->edit_def[index];
                
-               if (f_ditl_def->i_type == editText && form->TE_handle)  {
+               if ((f_ditl_def->i_type == editText) && form->TE_handle)  {
                   
                   id_itemsRect (form, index, &tmpRect);
                   if (PtInRect(myPt, &tmpRect))  {
                      NSLog (@"Hey, click inside an edit field!");
+                     id_TE_change (form, index, NULL, NULL/*savedPort*/, TRUE, FALSE);  // sel, mouse
                   }
                }
             }
@@ -442,7 +448,7 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
             [form->my_window performClose:NSApp];
 
       }
-      if (evtRecord.what == activateEvt)  {
+      else  if (evtRecord.what == activateEvt)  {
          // Well, this was an attempt but in vain!
          // If we're coming back from behind SelectWindow will not change anything for some reason so just put everything behind remarks
          NSWindow  *window = (NSWindow *)evtRecord.message;
@@ -456,6 +462,9 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
             if (!dtGData->appInBackground)
                SelectWindow (form->my_window);
          } */
+      }
+      else  if (id_IsMenuEvent(&evtRecord, 0, &theMenu, &theItem))  {
+         NSLog (@"Yes, it was a menu event!");
       }
       
       // if (evtRecord.what == keyDown && evtRecord.message == 'q')
@@ -1427,7 +1436,8 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, B
    panel.directoryURL = nil;
    panel.allowsOtherFileTypes = NO;
    panel.canCreateDirectories = YES;
-   panel.extensionHidden = NO;
+
+   [panel setExtensionHidden:NO];    // Property is not defined on 10.6, only this method
    
    panel.treatsFilePackagesAsDirectories = NO;
    
@@ -1444,7 +1454,7 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, B
    
    // So, here we play with different ways of getting parent folder's fsRef and the file name. All methods should get the same result
    
-   if (returnCode == NSModalResponseOK)  {  // alternative is NSModalResponseCancel
+   if (returnCode == NSFileHandlingPanelOKButton)  {  // NSModalResponseOK, alternative is NSModalResponseCancel
       char      fullPath[PATH_MAX];
       CFURLRef  urlRef = CFURLCreateCopyDeletingLastPathComponent (NULL, (CFURLRef)panel.URL);
       FSRef     fsRef;

@@ -69,8 +69,14 @@
 - (void)handleToolbar:(id)sender
 {
    NSButton  *btn = (NSButton *)sender;
+   FORM_REC  *form = id_FindForm (btn.window);
+   short      index = (short)btn.tag;
+
+   IDToolbarHandle  tbHandle = (IDToolbarHandle)form->toolBarHandle;
+
+   NSLog (@"Toolbar Button: %hd", index);
    
-   NSLog (@"Toolbar Button: %d", (int)btn.tag);
+   id_PostMenuEvent ((*tbHandle)->tbMenu[index], (*tbHandle)->tbItem[index]);
 }
 
 - (void)onScaleSelectionChange:(id)sender
