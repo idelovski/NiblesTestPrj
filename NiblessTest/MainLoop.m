@@ -177,7 +177,7 @@ static FORM_REC  theMainForm;
    if (theMenu == Wind_MENU_ID)  {
       pr_OpenKupdob ();
    }
-   else  if (theMenu = File_MENU_ID)  {
+   else  if (theMenu == File_MENU_ID)  {
       FORM_REC  *form = id_FindForm (FrontWindow());
       
       if (form && (theItem == CLOSE_Command))
