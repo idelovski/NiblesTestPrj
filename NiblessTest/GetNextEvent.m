@@ -84,6 +84,7 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
    }
    else  if (event.type == NSLeftMouseDown)  {
       evtRec->what = mouseDown;
+      evtRec->message = (unsigned long)event.window;
       
       NSPoint  globalPt = id_LocationInWindow2Global (event.window, event.locationInWindow);
       NSPoint  localPt = id_GlobalLocation2Window (event.window, globalPt);
@@ -655,7 +656,7 @@ void  id_BuildActivateEvent (FORM_REC *form, short fActive) // Why form? Send on
    
    SetPt (&evtPtr->where, dtGData->mousePos.x, dtGData->mousePos.y);  //  Jesus!
    
-   evtPtr->message = (long) form->my_window;
+   evtPtr->message = (unsigned long)form->my_window;
       
    if (fActive)
       evtPtr->modifiers = activeFlag;

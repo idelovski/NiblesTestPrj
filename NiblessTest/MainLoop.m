@@ -398,12 +398,12 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
       
       if (evtRecord.what == mouseDown)  {
          
-         form = id_FindForm (FrontWindow());
+         form = id_FindForm ((NSWindow *)evtRecord.message);
          
          dtGData->lastEventTick = evtRecord.when;
          GetDateTime (&dtGData->lastEventDateTime);
          
-         if (form->ditl_def)  {
+         if (form && form->ditl_def)  {
             
             myPt = evtRecord.where;
             id_GlobalToLocal (form, &myPt);
@@ -465,6 +465,17 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
       }
       else  if (id_IsMenuEvent(&evtRecord, 0, &theMenu, &theItem))  {
          NSLog (@"Yes, it was a menu event!");
+         
+         form = id_FindForm (FrontWindow());
+         
+         if (form && form->ditl_def)  {
+            if (theMenu == File_MENU_ID && theItem == NEW_Command)
+               id_pen_down (form, K_KUPDOB);
+            else  if (theMenu == File_MENU_ID && theItem == OPEN_Command)
+               id_pen_down (form, K_KUPDOB);
+            else  if (theMenu == File_MENU_ID && theItem == SAVE_Command)
+               id_pen_up (form);
+         }
       }
       
       // if (evtRecord.what == keyDown && evtRecord.message == 'q')
