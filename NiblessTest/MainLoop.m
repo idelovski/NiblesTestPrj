@@ -174,7 +174,7 @@ static FORM_REC  theMainForm;
    
    NSLog (@"ALT MenuId: %hd, itemId: %hd", theMenu, theItem);
    
-   if (theMenu == Wind_MENU_ID)  {
+   if ((theMenu == Wind_MENU_ID) || (theMenu == Matpod_SMENU_ID))  {
       pr_OpenKupdob ();
    }
    else  if (theMenu == File_MENU_ID)  {
@@ -2317,11 +2317,14 @@ int  TExActivate (
 // txn version
 
 int  TExDeactivate (
- WindowPtr     windowPtr,
+ NSWindow     *aWindow,
  NSTextField  *editInput
 )
 {
    NOT_YET // TXNFocus ((TXNObject)editInput, FALSE);
+   
+   // [editInput resignFirstResponder];  -> do not call directly
+   [aWindow makeFirstResponder:nil];
    
    return (0);
 }
@@ -2621,7 +2624,7 @@ int  id_TE_change (
       if (retValue=id_check_exit(form, form->cur_fldno, savedPort))
          return (retValue);
       else
-        TExDeactivate ((WindowPtr)form->my_window, (NSTextField *)form->TE_handle);
+        TExDeactivate (form->my_window, (NSTextField *)form->TE_handle);
    }
    else
       atOpen = TRUE;
@@ -3191,7 +3194,7 @@ void  id_pen_up (
       if ((selEnd >= id_field_text_length(form, index+1)) || (selStart > selEnd))
          TExSetSelection ((NSTextField *)tmpTEH, 0, 0);
 
-      TExDeactivate ((WindowPtr)form->my_window, (NSTextField *)tmpTEH);
+      TExDeactivate (form->my_window, (NSTextField *)tmpTEH);
       id_itemsRect (form, index, &tmpRect);
       TExUpdate ((NSTextField *)tmpTEH, &tmpRect);
       id_SetPort (form, savedPort);
@@ -3542,7 +3545,8 @@ static int  pr_InsertSubMenu (NSMenuItem *parentMenuItem, id target, short theMe
             tmpMenuItem = [theMenu addItemWithTitle:(NSString *)cfStr action:@selector(menuAction:) keyEquivalent:commandChar];
             [tmpMenuItem setTarget:target];
             [tmpMenuItem setEnabled:YES];
-            [tmpMenuItem setTag:i];
+            [tmpMenuItem setTag:MakeLong(i,theMenuID)];
+
          
             CFRelease (cfStr);
          }

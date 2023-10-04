@@ -151,7 +151,7 @@ int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd);
 
 int  TExIdle (WindowPtr windowPtr, NSTextField *editInput);
 int  TExActivate (NSWindow *aWindow, NSTextField *editInput);
-int  TExDeactivate (WindowPtr windowPtr, NSTextField *editInput);
+int  TExDeactivate (NSWindow *aWindow, NSTextField *editInput);
 int  TExUpdate (NSTextField  *editInput, Rect *fldRect);
 int  TExClick (Point myPt, UInt16 evtModifiers, EventRecord *evtPtr, NSTextField *editInput);
 

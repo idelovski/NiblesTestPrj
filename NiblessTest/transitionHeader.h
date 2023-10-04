@@ -670,6 +670,17 @@ extern DTGlobalData  *dtGData;
 
 #define  kSubMenusInAppl    9
 
+#define  Matpod_SMENU_ID    1         /* --- SubMenus ------ */
+#define  Skladno_SMENU_ID   2
+#define  Robno_SMENU_ID     3
+#define  Matno_SMENU_ID     4
+#define  Rest_SMENU_ID      5
+#define  Plate_SMENU_ID     6
+#define  Config_SMENU_ID   12
+#define  Ziro_SMENU_ID     13
+#define  Hyper_SMENU_ID    14
+
+
 #define  NEW_Command        1           /* --- File Menu Items --- */
 #define  OPEN_Command       3
 #define  LOCK_Command       4
