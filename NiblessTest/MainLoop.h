@@ -153,6 +153,8 @@ int  TExIdle (WindowPtr windowPtr, NSTextField *editInput);
 int  TExActivate (NSWindow *aWindow, NSTextField *editInput);
 int  TExDeactivate (WindowPtr windowPtr, NSTextField *editInput);
 int  TExUpdate (NSTextField  *editInput, Rect *fldRect);
+int  TExClick (Point myPt, UInt16 evtModifiers, EventRecord *evtPtr, NSTextField *editInput);
+
 int  id_put_TE_str (FORM_REC *form, short index);
 int  id_get_TE_str (FORM_REC *form, short index);
 

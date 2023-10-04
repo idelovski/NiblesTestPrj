@@ -484,6 +484,7 @@ typedef struct  {
    void       (*menuSetupHandler) (FORM_REC *form);
    FORM_REC    *commDlgForm;
    NSWindow    *commDlgNSWindow;
+   NSEvent     *texEvent;
    
    char         appName[32];
    char         appPath[MAX_PATH];

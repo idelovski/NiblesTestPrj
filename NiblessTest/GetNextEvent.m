@@ -87,7 +87,7 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
       evtRec->message = (unsigned long)event.window;
       
       NSPoint  globalPt = id_LocationInWindow2Global (event.window, event.locationInWindow);
-      NSPoint  localPt = id_GlobalLocation2Window (event.window, globalPt);
+      NSPoint  localPt = id_GlobalLocation2Window (event.window, globalPt);  // Just a check, not used later for anything
       
       SetPt (&evtRec->where, globalPt.x, globalPt.y);
       NSLog (@"Mouse: %@, %@ (%.0f, %.0f) (%.0f, %.0f)",
@@ -95,51 +95,7 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
              event.locationInWindow.x, event.locationInWindow.y,
              localPt.x, localPt.y);
       if (event.window)  {
-         NSView  *subview = [event.window.contentView hitTest:event.locationInWindow];
-         if (subview)  {
-            if ([subview isKindOfClass:[NSTextField class]])  {
-               // Now, if we're coming back as user hits a field, the app is activated here
-               NSTextField  *fld = (NSTextField *)subview;
-               
-               NSLog (@"We hit NSTextField");
-               
-               if (event.window == FrontWindow())  {
-                  // So, this will make the app active if we're coming from behind with this click...
-                  // But we shouldn't send this mouseDown to the field. Instead...
-                  // WELL, WELL, WELL,
-                  // I need TExClick() that will receive the click if we're front window
-                  // And for that, I need to save this nsevent or ... bum tss ... create a new one!
-                  // Just translate the where point to locationInWindow and send it ... or I can can save this one
-                  // But first, create a new one ... ha, ha, ha
-                  if (![NSApp isActive])
-                     [NSApp activateIgnoringOtherApps:YES];
-                  else
-                     [fld mouseDown:event];
-                  dontSendEvent = YES;
-                  // Add -> And if we're in the background then need to SelectWindow()!
-               }
-               else  if (![NSApp isActive])  {
-                  // 1. This doesn't really work as the window behind stays behind even as our app goes to the front
-                  // so I need to recreate the event with a click to some othe place and send that to NSApp
-
-                  // [NSApp activateIgnoringOtherApps:YES];
-                  // SelectWindow (event.window);
-                  
-                  // 2. But, with a fake event I managed to do it, he, he
-
-                  FORM_REC *form = id_FindForm (event.window);
-                  NSEvent  *newMouseEvent = id_mouseEventForWindowFromEvent (event, event.window);
-                  
-                  [NSApp sendEvent:newMouseEvent];
-                  
-                  dontSendEvent = YES;
-               }
-            }
-            else  if ([subview isKindOfClass:[NSControl class]])
-               NSLog (@"We hit something");
-            if (id_TextFieldsHitTest(event.window, event.locationInWindow, NULL))
-               NSLog (@"We definetely hit text control");
-         }
+         // If modal form is in front of everything, then don't bother with the click, just activate that window
          if (dtGData->modalFormsCount)  {
             NSWindow  *frontWin = FrontWindow ();
             NSWindow  *eventWin = event.window;
@@ -147,12 +103,76 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
             // Well, I'll be damned....
             
             if (eventWin != frontWin)  {
+               // Maybe move newMouseEvent to the top and set it to NULL, then check if not NULL for SetPt()
                NSEvent  *newMouseEvent = id_mouseEventForWindowFromEvent (event, frontWin);
                
-               [NSApp sendEvent:newMouseEvent];
+               globalPt = id_LocationInWindow2Global (newMouseEvent.window, newMouseEvent.locationInWindow);
+               
+               SetPt (&evtRec->where, globalPt.x, globalPt.y);
 
+               [NSApp sendEvent:newMouseEvent];
+               
                NSLog (@"EvtWin: %@ - FrontWin: %@", eventWin.title, frontWin.title);
                dontSendEvent = YES;
+            }
+         }
+         if (!dontSendEvent)  {
+            NSView  *subview = [event.window.contentView hitTest:event.locationInWindow];
+            if (subview)  {
+               if ([subview isKindOfClass:[NSTextField class]])  {
+                  // Now, if we're coming back as user hits a field, the app is activated here
+                  NSTextField  *fld = (NSTextField *)subview;
+                  
+                  NSLog (@"We hit NSTextField");
+                  
+                  if (event.window == FrontWindow())  {
+                     // So, this will make the app active if we're coming from behind with this click...
+                     // But we shouldn't send this mouseDown to the field. Instead...
+                     // WELL, WELL, WELL,
+                     // I need TExClick() that will receive the click if we're front window
+                     // And for that, I need to save this nsevent or ... bum tss ... create a new one!
+                     // Just translate the where point to locationInWindow and send it ... or I can can save this one
+                     // But first, create a new one ... ha, ha, ha
+                     if (![NSApp isActive])
+                        [NSApp activateIgnoringOtherApps:YES];
+                     else  if ([fld isEditable])  {
+                        FORM_REC  *form = id_FindForm (event.window);
+                        
+                        if (dtGData->texEvent)
+                           NSLog (@"WTF - dtGData->texEvent!!!");
+                        if (!form->ditl_def)
+                           [fld mouseDown:event];  // For that initial non-ditl window
+                        else
+                           dtGData->texEvent = [event retain];  // Plan A - retain a real event
+                     }
+                     dontSendEvent = YES;
+                     // Add -> And if we're in the background then need to SelectWindow()!
+                  }
+                  else  /*if (![NSApp isActive])*/  {
+                     // 1. This doesn't really work as the window behind stays behind even as our app goes to the front
+                     // so I need to recreate the event with a click to some othe place and send that to NSApp
+                     
+                     // [NSApp activateIgnoringOtherApps:YES];
+                     // SelectWindow (event.window);
+                     
+                     // 2. But, with a fake event I managed to do it, he, he
+                     
+                     FORM_REC *form = id_FindForm (event.window);
+                     NSEvent  *newMouseEvent = id_mouseEventForWindowFromEvent (event, event.window);
+                     
+                     globalPt = id_LocationInWindow2Global (newMouseEvent.window, newMouseEvent.locationInWindow);
+                     
+                     SetPt (&evtRec->where, globalPt.x, globalPt.y);
+                     
+                     [NSApp sendEvent:newMouseEvent];
+                     
+                     dontSendEvent = YES;
+                  }
+               }
+               else  if ([subview isKindOfClass:[NSControl class]])
+                  NSLog (@"We hit something");
+               if (id_TextFieldsHitTest(event.window, event.locationInWindow, NULL))
+                  NSLog (@"We definetely hit text control");
             }
          }
       }
@@ -633,8 +653,6 @@ void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window
       evtPtr->when = TickCount ();
    
    evtPtr->where = where;
-   
-   // SetPt (&evtPtr->where, dtGData->mousePos.x, dtGData->mousePos.y);  //  Jesus!
    
    evtPtr->modifiers = 1 << (activeFlagBit+1);  // This flag is unused by OS - hope so
 }

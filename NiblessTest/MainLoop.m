@@ -417,7 +417,19 @@ BOOL  id_MainLoop (FORM_REC *mainForm)
                   id_itemsRect (form, index, &tmpRect);
                   if (PtInRect(myPt, &tmpRect))  {
                      NSLog (@"Hey, click inside an edit field!");
-                     id_TE_change (form, index, NULL, NULL/*savedPort*/, TRUE, FALSE);  // sel, mouse
+                     
+                     if (form->cur_fldno == index)  {    /* If current */
+                        TExClick (myPt, evtRecord.modifiers, &evtRecord, form->TE_handle);
+                     }
+                     else  {
+                        // GetFontInfo (&fntInfo);
+                        if (id_TE_change(form, index, NULL, NULL/*savedPort*/, FALSE, TRUE))
+                           break;
+                        else
+                           TExClick (myPt, 0, &evtRecord, form->TE_handle);
+                     }
+                     
+                     // id_TE_change (form, index, NULL, NULL/*savedPort*/, TRUE, FALSE);  // sel, mouse
                   }
                }
             }
@@ -2325,7 +2337,30 @@ int  TExUpdate (NSTextField  *editInput, Rect *fldRect)
    return (0);
 }
 
-/* ................................................... id_put_TE_str ................ */
+/* ................................................... id_TEClick ................... */
+
+// txn version
+
+int  TExClick (
+ Point         myPt,
+ UInt16        evtModifiers,
+ EventRecord  *evtPtr,
+ NSTextField  *editInput
+)
+{
+   // old osx version:
+   
+   // TXNClick ((TXNObject)editInput, evtPtr);
+   
+   if (dtGData->texEvent)  {
+      [editInput mouseDown:dtGData->texEvent];
+      
+      [dtGData->texEvent release];
+      dtGData->texEvent = nil;
+   }
+   
+   return (0);
+}/* ................................................... id_put_TE_str ................ */
 
 int  id_put_TE_str (
  FORM_REC    *form,
