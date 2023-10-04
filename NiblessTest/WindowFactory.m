@@ -561,8 +561,8 @@ extern  FORM_REC  *dtRenderedForm;
       if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))  {
          FORM_REC  *form = id_FindForm (textField.window);
          
-         // Because I'm using the currentEvent I will get Command-V instead of pasted text so just pass it all
-         // Make validations elsewhere or modify this f() to handle even that
+         // Because I'm using the currentEvent it will hold Command-V so I should not bother with that
+         // So, make extra validations elsewhere or modify this f() to handle changed text
          
          if (form)  {
             if (!(event.modifierFlags & NSCommandKeyMask) &&
