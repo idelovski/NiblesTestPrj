@@ -553,15 +553,21 @@ extern  FORM_REC  *dtRenderedForm;
          NSLog (@"controlTextDidChange - Ctrl key");
       if (event.modifierFlags & NSAlternateKeyMask)  // See if this actually works - altKey, ctrlKey, cmdKey etc
          NSLog (@"controlTextDidChange - Alt key");
+      if (event.modifierFlags & NSCommandKeyMask)  // See if this actually works - altKey, ctrlKey, cmdKey etc
+         NSLog (@"controlTextDidChange - Cmd key");
          
       NSLog (@"controlTextDidChange - Key: '%@'", event.characters);
       
       if (!id_UniCharToChar([event.characters characterAtIndex:0], &ch))  {
          FORM_REC  *form = id_FindForm (textField.window);
          
+         // Because I'm using the currentEvent I will get Command-V instead of pasted text so just pass it all
+         // Make validations elsewhere or modify this f() to handle even that
+         
          if (form)  {
-            if (id_check_chr_edit_char(form, textField.tag-1, ch) ||
-                id_check_chr_edit_size(form, textField.tag-1, TExGetTextLen(textField)))  {
+            if (!(event.modifierFlags & NSCommandKeyMask) &&
+                (id_check_chr_edit_char(form, textField.tag-1, ch) ||
+                id_check_chr_edit_size(form, textField.tag-1, TExGetTextLen(textField))))  {
                char  *theText = id_field_text_buffer (form, textField.tag);
                short  txLen   = id_field_text_length (form, textField.tag);
                

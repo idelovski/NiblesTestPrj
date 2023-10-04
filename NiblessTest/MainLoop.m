@@ -183,6 +183,24 @@ static FORM_REC  theMainForm;
       if (form && (theItem == CLOSE_Command))
          [form->my_window performClose:menuItem];
    }
+   else  if (theMenu == Edit_MENU_ID)  {
+      FORM_REC  *form = id_FindForm (FrontWindow());
+      
+      if (form && form->TE_handle)  {
+         NSText  *fieldEditor = form->TE_handle.currentEditor;
+         
+         if (theItem == undoCommand)  {
+            if ([[fieldEditor undoManager] canUndo])
+               [[fieldEditor undoManager] undo];
+         }         
+         if (theItem == copyCommand)
+            [fieldEditor copy:menuItem];
+         else  if (theItem == pasteCommand)
+            [fieldEditor paste:menuItem];
+         else  if (theItem == cutCommand)
+            [fieldEditor cut:menuItem];
+      }
+   }
    else
       id_PostMenuEvent (theMenu, theItem);
 } 
