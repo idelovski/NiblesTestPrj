@@ -7,10 +7,10 @@
 //
 
 // #import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
-#import <AppKit/AppKit.h>
+#import  <Carbon/Carbon.h>
+#import  <AppKit/AppKit.h>
 
-#import "transitionHeader.h"
+#import  "transitionHeader.h"
 
 @interface GetNextEvent : NSObject
 {

@@ -1,16 +1,16 @@
 //
-//  NiblessTestAppDelegate.m
+//  WindowFactory.m
 //  NiblessTest
 //
 //  Created by me on 16.08.23.
 //  Copyright 2023 Delovski d.o.o. All rights reserved.
 //
 
-#import "WindowFactory.h"
-#import "MainLoop.h"
-#import "GetNextEvent.h"
+#import  "WindowFactory.h"
+#import  "MainLoop.h"
+#import  "GetNextEvent.h"
 
-@implementation WindowFactory
+@implementation  WindowFactory
 
 @synthesize  window;
 

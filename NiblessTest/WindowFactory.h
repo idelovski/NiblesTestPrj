@@ -1,7 +1,15 @@
-#import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
+//
+//  WindowFactory.h
+//  NiblessTest
+//
+//  Created by me on 16.08.23.
+//  Copyright 2023 Delovski d.o.o. All rights reserved.
+//
 
-#import "transitionHeader.h"
+#import  <Cocoa/Cocoa.h>
+#import  <Carbon/Carbon.h>
+
+#import  "transitionHeader.h"
 
 
 @interface WindowFactory : NSObject

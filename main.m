@@ -6,10 +6,10 @@
 //  Copyright (c) 2023 Delovski d.o.o. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import  <Cocoa/Cocoa.h>
 
-#import "NiblessTestAppDelegate.h"
-#import "MainLoop.h"
+#import  "NiblessTestAppDelegate.h"
+#import  "MainLoop.h"
 
 int  main (int argc, char *argv[])
 {
