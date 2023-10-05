@@ -203,7 +203,7 @@ int    id_set_pen  (FORM_REC *, short, short);
 #define  MakeLong(a, b) ((SInt32) (((short) (a)) | ((UInt32) ((short) (b))) << 16))
 
 CGRect  id_CocoaRect (NSWindow *window, CGRect nmlRect);
-CGRect  id_CarbonRect (CGRect cocoaRect);
+CGRect  id_CarbonRect (NSWindow *window, CGRect cocoaRect);
 
 #pragma mark printing
 

@@ -78,7 +78,7 @@ static FORM_REC  theMainForm;
    NSLog (@"Screen Frame orig: %@", NSStringFromRect ([NSScreen mainScreen].frame));
    NSLog (@"Visible Frame orig: %@", NSStringFromRect (availableFrame));
    NSLog (@"Screen Frame normal: %@", NSStringFromRect (id_CocoaRect(nil, availableFrame)));
-   NSLog (@"Back to orig Frame: %@", NSStringFromRect (id_CarbonRect(id_CocoaRect(nil, availableFrame))));
+   NSLog (@"Back to orig Frame: %@", NSStringFromRect (id_CarbonRect(nil, id_CocoaRect(nil, availableFrame))));
    
    
    NSRect  winFrame = NSMakeRect (100, 64, 640, 390);
@@ -3208,13 +3208,13 @@ void  id_pen_up (
       id_GetPort (form, &savedPort);
       id_SetPort (form, (WindowPtr)form->my_window);
       tmpTEH = form->TE_handle;
-      TExGetSelection ((NSTextField *)tmpTEH, &selStart, &selEnd);
+      TExGetSelection (tmpTEH, &selStart, &selEnd);
       if ((selEnd >= id_field_text_length(form, index+1)) || (selStart > selEnd))
-         TExSetSelection ((NSTextField *)tmpTEH, 0, 0);
+         TExSetSelection (tmpTEH, 0, 0);
 
       TExDeactivate (form->my_window, (NSTextField *)tmpTEH);
       id_itemsRect (form, index, &tmpRect);
-      TExUpdate ((NSTextField *)tmpTEH, &tmpRect);
+      TExUpdate (tmpTEH, &tmpRect);
       id_SetPort (form, savedPort);
       
       id_SetStatusbarText (form, 1, "");
@@ -3281,18 +3281,26 @@ CGRect  id_CocoaRect (NSWindow *window, CGRect nmlRect)
    CGRect   contentRect = window ? contentView.bounds : [[NSScreen mainScreen] frame];
    CGRect   cocoaRect = nmlRect;
    
-   if (!window)
+   if (window && !contentView)  // If we're too early in the process
+      contentRect = [window contentRectForFrameRect:window.frame];
+   
+   if (!window || ![contentView isFlipped])
       cocoaRect.origin.y = contentRect.size.height - (nmlRect.origin.y + nmlRect.size.height);
    
    return (cocoaRect);
 }
 
-CGRect  id_CarbonRect (CGRect cocoaRect)
+CGRect  id_CarbonRect (NSWindow *window, CGRect cocoaRect)
 {
-   CGRect   contentRect = [[NSScreen mainScreen] frame];
+   NSView  *contentView = window ? [window contentView] : nil;
+   CGRect   contentRect = window ? contentView.bounds : [[NSScreen mainScreen] frame];
    CGRect   nmlRect = cocoaRect;
    
-   nmlRect.origin.y = contentRect.size.height - nmlRect.size.height - cocoaRect.origin.y;
+   if (window && !contentView)  // If we're too early in the process
+      contentRect = [window contentRectForFrameRect:window.frame];
+
+   if (!window || ![contentView isFlipped])
+      nmlRect.origin.y = contentRect.size.height - nmlRect.size.height - cocoaRect.origin.y;
    
    return (nmlRect);
 }
@@ -4482,13 +4490,14 @@ int  id_move_field (
 Rect  *GetWindowRect (WindowPtr winPtr, Rect *rect)  // my own shit!
 {
    NSWindow  *win = (NSWindow *)winPtr;
-   NSRect     winFrame = win.frame;
-   NSRect     contentFrame = [win contentRectForFrameRect:winFrame];
-   NSRect     carbonRect = id_CarbonRect (contentFrame);
+   
+   NSRect  winFrame = win.frame;
+   NSRect  contentFrame = [win contentRectForFrameRect:winFrame];  // Here we get content frame in bottom-left coordinates
+   NSRect  carbonRect = id_CarbonRect (nil, contentFrame);         // Now they are converted to top-left coordinates
    
    // GetPortBounds (GetWindowPort(win), rect);
       
-   return (id_CGRect2Rect(carbonRect, rect));
+   return (id_CGRect2Rect(carbonRect, rect));                      // Finally, Rect
 }
 
 /* .......................................................... id_FormRect2WinRect ... */
