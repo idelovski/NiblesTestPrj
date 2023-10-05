@@ -25,6 +25,7 @@
 		EB8D15942AB4D7EB00B7EA5B /* ICON0306.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158E2AB4D7EB00B7EA5B /* ICON0306.jpg */; };
 		EB8D15952AB4D7EB00B7EA5B /* ICON0146.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158F2AB4D7EB00B7EA5B /* ICON0146.jpg */; };
 		EB8D15962AB4D7EB00B7EA5B /* ICON0307.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D15902AB4D7EB00B7EA5B /* ICON0307.jpg */; };
+		EBCDD3EB2ACF48C20090487E /* DTTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EBCDD3EA2ACF48C20090487E /* DTTableViewController.m */; };
 		EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */; };
 		EBE7FE862A8D4635001CD6A9 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE7FE852A8D4635001CD6A9 /* Carbon.framework */; };
 		EBEB57302AA61A5000A55FE3 /* NiblessTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EBEB572F2AA61A5000A55FE3 /* NiblessTestAppDelegate.m */; };
@@ -79,6 +80,8 @@
 		EB8D158E2AB4D7EB00B7EA5B /* ICON0306.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0306.jpg; path = ICON/ICON0306.jpg; sourceTree = "<group>"; };
 		EB8D158F2AB4D7EB00B7EA5B /* ICON0146.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0146.jpg; path = ICON/ICON0146.jpg; sourceTree = "<group>"; };
 		EB8D15902AB4D7EB00B7EA5B /* ICON0307.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ICON0307.jpg; path = ICON/ICON0307.jpg; sourceTree = "<group>"; };
+		EBCDD3E92ACF48C20090487E /* DTTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTTableViewController.h; path = NiblessTest/DTTableViewController.h; sourceTree = "<group>"; };
+		EBCDD3EA2ACF48C20090487E /* DTTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DTTableViewController.m; path = NiblessTest/DTTableViewController.m; sourceTree = "<group>"; };
 		EBD283FA2AA238BE0021BAEE /* NSFont+CFTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSFont+CFTraits.h"; path = "NiblessTest/NSFont+CFTraits.h"; sourceTree = "<group>"; };
 		EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSFont+CFTraits.m"; path = "NiblessTest/NSFont+CFTraits.m"; sourceTree = "<group>"; };
 		EBE7FE852A8D4635001CD6A9 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
@@ -128,6 +131,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				EBCDD3E82ACF48890090487E /* Controllers */,
 				EBD283F92AA2389A0021BAEE /* Extra */,
 				EBF336CC2A8FA08F00069683 /* Views */,
 				EBF56E4D2A8E7026009134BC /* NiblesTest */,
@@ -261,6 +265,15 @@
 				EB8D15902AB4D7EB00B7EA5B /* ICON0307.jpg */,
 			);
 			name = ICON;
+			sourceTree = "<group>";
+		};
+		EBCDD3E82ACF48890090487E /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				EBCDD3E92ACF48C20090487E /* DTTableViewController.h */,
+				EBCDD3EA2ACF48C20090487E /* DTTableViewController.m */,
+			);
+			name = Controllers;
 			sourceTree = "<group>";
 		};
 		EBD283F92AA2389A0021BAEE /* Extra */ = {
@@ -436,6 +449,7 @@
 				EBEB57302AA61A5000A55FE3 /* NiblessTestAppDelegate.m in Sources */,
 				EBEB57432AA61B4100A55FE3 /* MainLoop.m in Sources */,
 				EBEB57402AA61B4100A55FE3 /* GetNextEvent.m in Sources */,
+				EBCDD3EB2ACF48C20090487E /* DTTableViewController.m in Sources */,
 				EBEB57352AA61B2200A55FE3 /* DTOverlayView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
