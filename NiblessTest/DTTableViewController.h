@@ -21,4 +21,4 @@
 @end
 
 int  id_numberOfRowsInTableView (FORM_REC *form);
-int  id_numberOfCollumnsInTableView (FORM_REC *form);
+int  id_numberOfCollumnsInTableView (FORM_REC *form, short *firstIdx, short *lastIdx);

@@ -131,9 +131,9 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				EBCDD3E82ACF48890090487E /* Controllers */,
 				EBD283F92AA2389A0021BAEE /* Extra */,
 				EBF336CC2A8FA08F00069683 /* Views */,
+				EBCDD3E82ACF48890090487E /* Controllers */,
 				EBF56E4D2A8E7026009134BC /* NiblesTest */,
 				EBEB572E2AA61A4F00A55FE3 /* NiblessTestAppDelegate.h */,
 				EBEB572F2AA61A5000A55FE3 /* NiblessTestAppDelegate.m */,

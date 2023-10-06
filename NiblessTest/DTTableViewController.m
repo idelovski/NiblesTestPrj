@@ -37,21 +37,52 @@
 
 #pragma mark -
 
-- (NSView *)coreCreateTableViewWithFrame:(CGRect)ctlFrame
-                                  inForm:(FORM_REC *)aForm
-                             withColumns:(short)numberOfColumns
+// This thing finds for itself everything it needs to do, its frame and number of columns etc.
+
+- (NSView *)tableViewInForm
 {
-   CGRect  tableRect = { { 0, 0 }, { ctlFrame.size.width, ctlFrame.size.height } };
+   short   i, columnCount, firstIndex, lastIndex;
+   Rect    left, right, ctlRect;
+   CGRect  ctlFrame, tableRect = CGRectZero;
    
-   NSScrollView  *tableContainer = [[NSScrollView alloc] initWithFrame:id_CocoaRect(aForm->my_window, ctlFrame)];
+   columnCount = id_numberOfCollumnsInTableView (form, &firstIndex, &lastIndex);
+   
+   if (columnCount && firstIndex && lastIndex)  {
+      
+      id_itemsRect (form, firstIndex, &left);
+      id_itemsRect (form, lastIndex, &right);
+
+      UnionRect (&left, &right, &ctlRect);
+      
+      InsetRect (&ctlRect, -3, -3);
+      
+      ctlFrame = id_Rect2CGRect (&ctlRect);
+   }
+   else
+      return (nil);
+
+   tableRect.size.width = ctlFrame.size.width;  tableRect.size.height = ctlFrame.size.height;
+
+   NSScrollView  *tableContainer = [[NSScrollView alloc] initWithFrame:id_CocoaRect(form->my_window, ctlFrame)];
    NSTableView   *aTableView = [[NSTableView alloc] initWithFrame:tableRect];
    
    [tableContainer setDocumentView:aTableView];
    [tableContainer setHasVerticalScroller:YES];
    
-   [[aForm->my_window contentView] addSubview:tableContainer];
+   for (i=firstIndex; i<=lastIndex; i++)  {
+      NSString       *identifier = [NSString stringWithFormat:@"%hd", i]; 
+      NSTableColumn  *column = [[NSTableColumn alloc] initWithIdentifier:identifier];
+
+      id_itemsRect (form, i, &ctlRect);
+      [column setWidth:RectWidth(&ctlRect)];
+      [aTableView addTableColumn:column];
+   }
    
-   [aTableView setTag:++aForm->creationIndex];
+   [[form->my_window contentView] addSubview:tableContainer];
+   
+   [aTableView setTag:++form->creationIndex];
+   
+   [aTableView reloadData];
    
    return (tableContainer);
 }
@@ -134,14 +165,24 @@ int  id_numberOfRowsInTableView (FORM_REC *form)
    return (0);
 }
 
-int  id_numberOfCollumnsInTableView (FORM_REC *form)
+int  id_numberOfCollumnsInTableView (FORM_REC *form, short *retFirst, short *retLast)
 {
    short  i, retVal = 0;
+   short  firstIndex = -1, lastIndex = -1;
    
    for (i=0; i<=form->last_fldno; i++)  {        /* Find first list */
-      if (((form->ditl_def[i]->i_type & 127) == userItem) && (form->edit_def[i]->e_type & ID_UT_LIST))
+      if (((form->ditl_def[i]->i_type & 127) == userItem) && (form->edit_def[i]->e_type & ID_UT_LIST))  {
+         if (firstIndex < 0)
+            firstIndex = i;
+         lastIndex = i;
          retVal++;
+      }
    }
+   
+   if (retFirst)
+      *retFirst = firstIndex;
+   if (retLast)
+      *retLast = lastIndex;
    
    return (retVal);
 }
