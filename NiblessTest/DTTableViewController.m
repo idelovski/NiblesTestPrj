@@ -45,7 +45,7 @@
    Rect    left, right, ctlRect;
    CGRect  ctlFrame, tableRect = CGRectZero;
    
-   columnCount = id_numberOfCollumnsInTableView (form, &firstIndex, &lastIndex);
+   columnCount = id_numberOfColumnsInTableView (form, &firstIndex, &lastIndex);
    
    if (columnCount && firstIndex && lastIndex)  {
       
@@ -165,7 +165,7 @@ int  id_numberOfRowsInTableView (FORM_REC *form)
    return (0);
 }
 
-int  id_numberOfCollumnsInTableView (FORM_REC *form, short *retFirst, short *retLast)
+int  id_numberOfColumnsInTableView (FORM_REC *form, short *retFirst, short *retLast)
 {
    short  i, retVal = 0;
    short  firstIndex = -1, lastIndex = -1;
@@ -185,6 +185,24 @@ int  id_numberOfCollumnsInTableView (FORM_REC *form, short *retFirst, short *ret
       *retLast = lastIndex;
    
    return (retVal);
+}
+
+// Return column for a field
+
+int  id_columnInTableViewForFormField (FORM_REC *form, short fldno)
+{
+   short  index = fldno - 1;
+   short  i, column = 0;
+   
+   for (i=0; i<=form->last_fldno; i++)  {        /* Find first list */
+      if (((form->ditl_def[i]->i_type & 127) == userItem) && (form->edit_def[i]->e_type & ID_UT_LIST))  {
+         if (i == index)
+            return (column);
+         column++;
+      }
+   }
+   
+   return (-1);
 }
 
 

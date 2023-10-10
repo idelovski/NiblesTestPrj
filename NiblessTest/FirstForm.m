@@ -1341,7 +1341,7 @@ static int  DoCocoaAlert (short alertID, char *errMsgStr)
 {
    NOT_YET  // extern  WindowRef  gGWindowToSelect;
    
-   // SInt16       itemHit /*, oldCursorSet, alertType*/;
+   SInt16       itemHit /*, oldCursorSet, alertType*/;
    SInt16       needOther = FALSE, needCancel = FALSE;
    NSInteger    result = 0;
    CFStringRef  cfString = NULL;

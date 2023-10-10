@@ -680,3 +680,88 @@ void  id_BuildActivateEvent (FORM_REC *form, short fActive) // Why form? Send on
    if (fActive)
       evtPtr->modifiers = activeFlag;
 }
+
+#pragma mark -
+
+/* ......................................................... id_RunningOnClassic .... */
+
+Boolean id_RunningOnClassic (void)
+{
+#ifdef _DTOOL_MAC_9_
+   UInt32 response;
+   
+   return (Gestalt(gestaltMacOSCompatibilityBoxAttr, 
+                   (SInt32 *) &response) == noErr)
+   && ((response & 
+        (1 << gestaltMacOSCompatibilityBoxPresent))
+       != 0);
+#else
+   return (FALSE);
+#endif
+}
+
+/* ......................................................... id_RunningOnMacOS9 ..... */
+
+Boolean id_RunningOnMacOS9 (void)
+{
+#ifdef _DTOOL_MAC_9_
+   return (TRUE);
+#else
+   return (FALSE);
+#endif
+}
+
+/* ......................................................... id_RunningOnMacOSX ..... */
+
+Boolean id_RunningOnMacOSX (void)
+{
+#ifdef _DTOOL_OSX_
+   return (TRUE);
+#else
+   return (FALSE);
+#endif
+}
+
+/* ......................................................... id_RunningOnMacOSX ..... */
+
+Boolean id_RunningOnMacIntel (void)
+{
+#ifdef _DTOOL_OSX_
+   short  byteOrder = 1;
+   
+   if (*((char *) &byteOrder))
+      return (TRUE);  // we're on intel
+#endif
+   return (FALSE);
+}
+
+/* ......................................................... id_RunningOnWindowsNT .. */
+
+Boolean id_RunningOnWindowsNT (void)
+{
+   return (FALSE);
+}
+
+/* ......................................................... id_RunningOnWin32 ...... */
+
+// or use _DTOOL_MAC_ or _DTOOL_WIN_ as macros
+
+Boolean id_RunningOnWin32 (void)
+{
+   return (FALSE);
+}
+
+/* ......................................................... id_RunningOnMacOSX ..... */
+
+Boolean id_RunningOnIntel (void)
+{
+   return (id_RunningOnMacIntel());
+}
+
+/* ......................................................... id_RunningOnIOS ........ */
+
+Boolean id_RunningOnIOS (void)
+{
+   return (FALSE);
+}
+

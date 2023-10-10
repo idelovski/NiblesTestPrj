@@ -346,7 +346,10 @@ struct  FormRecord  {
 
    Handle          DITL_handle; /* Resorce handle */ 
    short           last_fldno;  /* Copied from DITL */
+   short           scpGrabing;
    short           usedETypes;
+   short           dataStuffing; /* fillUp rutine */
+   short           formFlags;
    short           hOrigin;
    short           vOrigin;  // Win & OSX trouble with SetOrigin()
    
@@ -405,7 +408,7 @@ typedef struct  {
    char         scrapTaken;
    char         scrapToGive;
    
-   char        *grabText;        /* Text Grabing for Scrap */  // was Handle on Mac
+   Handle       grabText;        /* Text Grabing for Scrap */  // was Handle on Mac
    long         grabCnt;
    long         grabMax;
    unsigned

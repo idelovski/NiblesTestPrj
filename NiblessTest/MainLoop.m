@@ -14,6 +14,7 @@
 #import  "GetNextEvent.h"
 #import  "NiblessTestAppDelegate.h"
 #import  "FirstForm.h"
+#import  "DTTableViewController.h"  
 
 #import  "Bouquet.h"
 
@@ -2351,7 +2352,7 @@ int  TExDeactivate (
 
 // txn version
 
-int  TExUpdate (NSTextField  *editInput, Rect *fldRect)
+int  TExUpdate (NSTextField *editInput, Rect *fldRect)
 {
    NOT_YET // TXNDrawObject ((TXNObject)editInput, NULL, kTXNDrawItemTextAndSelectionMask);
    
@@ -4469,7 +4470,7 @@ int  id_move_field (
          
          id_adjust_popUp_rect (form, index, &tmpRect);
 
-         // id_resetPopUpSize (form, index, &tmpRect);
+         id_resetPopUpSize (form, index, &tmpRect);
       }
    }
 
@@ -5288,6 +5289,382 @@ int  id_base_fldno (
    return (retFldno);
 }
 
+#pragma mark Fields 2
+
+/* ...................................................... id_StartDataStuffing ...... */
+
+void  id_StartDataStuffing (FORM_REC *form)
+{
+   form->dataStuffing = 1;
+}
+
+/* ...................................................... id_EndDataStuffing ........ */
+
+void  id_EndDataStuffing (FORM_REC *form)
+{
+   form->dataStuffing = 0;
+}
+
+/* ...................................................... id_animate_data_stuffing .. */
+
+static void  id_animate_data_stuffing (
+ FORM_REC  *form,
+ short      index,
+ char      *newStr
+)
+{
+   char  tmpStr[256];
+   short len, i;
+   Rect  tmpRect;
+
+   if (!form->dataStuffing || id_inpossible_item (form, index) || form->cur_fldno == index)  {
+      return;
+   }
+   
+   if (form->dataStuffing > 3)  {
+      // form->dataStuffing = 0;
+      return;
+   }
+
+   len = id_field_text_length (form, index+1);
+   
+   if (!len)  return;
+#ifdef _NOT_YET_   
+   BlockMove (form->ditl_def[index]->i_data.d_text, tmpStr, len);
+   tmpStr[len] = '\0';
+   
+   if (strcmp(newStr, tmpStr))  {
+      // tmpRect = form->ditl_def[index]->i_rect;
+      id_itemsRect (form, index, &tmpRect);
+      
+      if (form->dataStuffing == 1)  {
+         id_await_activate (form);
+         id_await_update ();
+      }
+     
+      form->dataStuffing++;
+
+      for (i=0; i<2; i++)  {
+         if (i)  {
+            id_long_pause (16L);
+            id_SystemTask (FALSE);
+         }
+         id_my_edit_layout (form, index);
+         id_put_editText (form, index, newStr);
+         InvertRect (&tmpRect);
+         id_long_pause (18L);
+         id_SystemTask (FALSE);
+         InvertRect (&tmpRect);
+         id_my_edit_layout (form, index);
+         id_put_editText (form, index, tmpStr);
+
+         /*id_put_editText (form, index, (i%2) ? tmpStr : newStr);*/
+      }
+   }
+#endif
+}
+
+/* .......................................................... id_putFieldText ....... */
+
+/* Puts text into “editText, statText, ctrlItem, LIST” so far */
+
+static void  id_putFieldText (/*form, index, level, strText*/
+ FORM_REC  *form,
+ short      index,
+ short      level,
+ char      *strText
+)
+{
+   short  ditlType = form->ditl_def[index]->i_type;
+   short  txtLen;
+   char  *scpPtr;
+   
+   if (form->scpGrabing)  {
+      if (strText)  {
+         scpPtr = *dtGData->grabText + dtGData->grabCnt;
+         txtLen = strlen (strText) + 1;
+         if (dtGData->grabCnt + txtLen < dtGData->grabMax)  {
+            sprintf (scpPtr, "%s\t", strText);
+            dtGData->grabCnt += txtLen;
+         }
+      }
+      return;
+   }
+   
+   if (ditlType & editText)  {
+      id_animate_data_stuffing (form, index, strText);
+      // id_my_edit_layout (form, index);
+      id_put_editText (form, index, strText);
+   }
+   else  if (ditlType & statText)  {
+      // id_my_stat_layout (form, index);
+      id_put_statText (form, index, strText);
+   }
+   else  if (ditlType & ctrlItem)  {
+      // id_set_system_layout (form, index);
+      id_put_ctrlText (form, index, strText);
+   }
+   else  if ((ditlType & 127) == userItem)  {
+      DITL_item  *f_ditl_def = form->ditl_def[index];
+      EDIT_item  *f_edit_def = form->edit_def[index];
+
+      if (f_edit_def->e_array && (strcmp (f_edit_def->e_array[level], strText)))  {
+         // Problem is I don't have maxLen for half of the userItems as they were at first used only with static text strings 
+         strcpy (f_edit_def->e_array[level], strText);
+         if (f_edit_def->e_type == ID_UT_POP_UP)  {
+            if (id_RunningOnMacOS9() || f_edit_def->e_regular)  {
+               id_my_popUp_layout (form, index);
+               id_draw_PopUp (form, index);
+            }
+            if (!f_edit_def->e_regular)  {
+               id_resetPopUpMenu (form, index);
+               id_resetPopUpSize (form, index, NULL);
+            }
+         }
+         else  if (f_edit_def->e_type & ID_UT_LIST)  {
+            short  column = id_columnInTableViewForFormField (form, index+1);
+            
+            NSTableView  *tableView = (NSTableView *)f_ditl_def->i_handle;
+            // Create an index set for the row and column you want to reload
+            NSIndexSet  *rowIndexesToReload    = [NSIndexSet indexSetWithIndex:level]; // Row 2
+            NSIndexSet  *columnIndexesToReload = [NSIndexSet indexSetWithIndex:column]; // Column 3
+            
+            // Reload the specified cell
+            [tableView reloadDataForRowIndexes:rowIndexesToReload columnIndexes:columnIndexesToReload];
+         }
+      }
+   }
+}
+
+/* ................................................... id_put_editText .............. */
+
+int  id_put_editText (
+ FORM_REC  *form,
+ short      index,
+ char      *cStr
+)
+{
+   short       len = 0;
+   Rect        tmpRect;
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+
+   id_itemsRect (form, index, &tmpRect);
+
+   if (cStr)  {                            /* If cStr is not NULL it has new value ... */
+      if ((len=strlen(cStr)) > f_edit_def->e_maxlen)
+         len = f_edit_def->e_maxlen;
+   
+      // f_ditl_def->i_data_size = len;
+      // BlockMove (cStr, f_ditl_def->i_data.d_text, len);
+      
+      id_set_field_buffer_text (form, index+1, cStr, len);
+
+      id_put_TE_str (form, index);
+   }
+
+   TExUpdate ((NSTextField *)f_ditl_def->i_handle, &tmpRect);
+   
+   NOT_YET  // if ((form->cur_fldno != index) && (f_edit_def->e_fld_edits & ID_FE_INVERT))
+   NOT_YET  //    InvertRect (&tmpRect);
+
+   return (len);
+}
+
+/* ................................................... id_put_statText .............. */
+
+int  id_put_statText (
+ FORM_REC  *form,
+ short      index,
+ char      *Cstr
+)
+{
+   short       len, wrapFlag = RectHeight (&form->ditl_def[index]->i_rect) > 16 ? TRUE : FALSE;
+   Rect        tmpRect;
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+   
+   // tmpRect = f_ditl_def->i_rect;
+   id_itemsRect (form, index, &tmpRect);
+   
+   if (Cstr)  {                            /* If Cstr is not NULL it has new value ... */
+      if ((len=strlen(Cstr)) > f_edit_def->e_maxlen)
+         Cstr[len=f_edit_def->e_maxlen] = '\0';
+   
+      // f_ditl_def->i_data_size = len;
+      // BlockMove (Cstr, f_ditl_def->i_data.d_text, len);
+      id_set_field_buffer_text (form, index+1, Cstr, len);
+   }
+   else
+      len = id_field_text_length (form, index+1);      /* ... else put current value.  */
+  
+   TExTextBox (id_field_text_buffer(form, index+1), len, &tmpRect, f_edit_def->e_justify, wrapFlag, TRUE);  // wrap, erase back
+   // TextBox (f_ditl_def->i_data.d_text, len, &tmpRect, f_edit_def->e_justify);
+   NOT_YET  // if (f_edit_def->e_fld_edits & ID_FE_INVERT)
+   NOT_YET  //    InvertRect (&tmpRect);
+   
+   return (len);
+}
+
+/* ................................................... id_put_ctrlText .............. */
+
+int  id_put_ctrlText (
+ FORM_REC  *form,
+ short      index,
+ char      *Cstr
+)
+{
+   short         sLen, maxLen;
+   CFStringRef   cfString = NULL;
+   OSStatus      status;
+   
+   if ((maxLen = form->edit_def[index]->e_maxlen) == 0)
+      maxLen = 240;
+   if ((sLen=strlen(Cstr)) > maxLen)
+      Cstr[sLen=maxLen] = '\0';
+   
+   form->ditl_def[index]->i_data_size = sLen;
+   BlockMove (Cstr, form->ditl_def[index]->i_data.d_text, sLen);
+   
+   
+   if (form->ditl_def[index]->i_type & ctrlItem)  {
+      
+      short  pureIType = form->ditl_def[index]->i_type & 127;
+      
+      if ((pureIType == (ctrlItem+btnCtrl)) ||
+          (pureIType == (ctrlItem+chkCtrl)) ||
+          (pureIType == (ctrlItem+radCtrl)))  {  /* Radio Control */
+
+         id_Mac2CFString (form->ditl_def[index]->i_data.d_text, &cfString, id_field_text_length (form, index+1));
+
+         [(NSButton *)form->ditl_def[index]->i_handle setTitle:(NSString *)cfString];
+   
+         CFRelease (cfString);
+      }
+   }
+   
+   return (0);
+}
+
+/* .......................................................... id_putfield ........... */
+
+int  id_putfield (
+ FORM_REC  *form,
+ short      fldno,
+ char      *fldText
+)
+{
+   short      index = fldno-1;
+   unsigned
+    short     tmpDate;
+   char       tmpStr[256];
+   WindowPtr  savedPort;
+   
+   if (id_inpossible_item (form, index))  return (-1);
+   
+#ifdef _NOT_YET_
+   if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+      if (form->edit_def[index]->e_type == ID_UT_CICN)
+         return (id_PutTxt2Icon (form, index, fldText));
+   }
+   
+   if (fldText[0] && (form->edit_def[index]->e_fld_edits & ID_FE_DATE_MMYY))  {
+      sprintf (tmpStr, "01%s",  fldText);
+
+      return (id_putfdate(form, fldno, id_date2Short (tmpStr, &tmpDate), _MM_YY));
+   }
+#endif
+      
+   // GetWinPort (&savedPort);
+   // id_SetPort (form, (WindowPtr)form->my_window);
+   
+   id_putFieldText (form, index, 0, fldText);
+      
+   // id_SetPort (form, savedPort);
+
+   return (0);      
+}
+
+/* .......................................................... id_getfield ........... */
+
+int  id_getfield (
+ FORM_REC  *form,
+ short      fldno,
+ char      *getStr,
+ short      maxLen
+)
+{
+   short      len, index = fldno-1;
+   char       tmpStr[256], dateStr[16];
+   DITL_item *f_ditl_def;
+   EDIT_item *f_edit_def;
+   
+   if (id_inpossible_item (form, index))  {
+      getStr[0] = '\0';
+      return (-1);
+   }
+   
+#ifdef _NOT_YET_
+   if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+      if (form->edit_def[index]->e_type == ID_UT_CICN)
+         return (id_GetTxt2Icon (form, index, getStr));
+      else  if (form->edit_def[index]->e_type == ID_UT_POP_UP)  {
+         id_getlevel (form, fldno, getStr);
+         return (strlen(getStr));
+      }
+   }
+#endif
+   
+   f_ditl_def = form->ditl_def[index];
+   f_edit_def = form->edit_def[index];
+    
+   if ((f_ditl_def->i_type & editText) && (index==form->cur_fldno))
+      id_get_TE_str (form, index);
+
+   if (!maxLen)  {
+#ifdef _NOT_YET_
+      if (gGUseExtraLen && (f_edit_def->e_fld_edits & ID_FE_EXTRA_LEN) &&
+          f_edit_def->e_precision)
+         maxLen = f_edit_def->e_precision;
+      else
+#endif
+         maxLen = f_edit_def->e_maxlen;
+   }
+      
+   len = id_field_text_length (form, index+1);
+   
+   if (len > maxLen)  len = maxLen;
+   
+#ifdef _NOT_YET_
+   if (len && (form->edit_def[index]->e_fld_edits & ID_FE_DATE_MMYY))  {  // Spec MMYY
+      strcpy (tmpStr, "01");
+      BlockMove (f_ditl_def->i_data.d_text, tmpStr+2, len);
+      tmpStr[len+2] = '\0';
+      id_scan_date (dateStr, tmpStr, _DDMMYY);
+      strcpy (getStr, dateStr+2);
+   }
+   else  {                                                                // Normal field
+#endif
+      BlockMove (id_field_text_buffer(form, fldno), getStr, len);
+      getStr[len] = '\0';
+#ifdef _NOT_YET_
+   }
+   
+   gGUseExtraLen = FALSE;
+#endif
+   
+   if (maxLen && (maxLen == f_edit_def->e_precision))   // ExtraLen stuff
+      TExSetSelection ((NSTextField *)form->TE_handle, 0, 0);
+
+   return (len);
+}
+
 /* --------------------------------------------------- entry & exit calls ---------- */
 
 #pragma mark -
@@ -5626,6 +6003,16 @@ void  id_create_iconItem (FORM_REC *form, short index, WindowPtr savedPort)
 #endif
 }
 
+int  id_draw_PopUp (
+ FORM_REC      *form,
+ short          index
+)
+{
+   id_resetPopUpMenu (form, index);
+   
+   return (0);
+}   
+
 void  id_resetPopUpMenu (
  FORM_REC  *form,
  short      index
@@ -5655,6 +6042,24 @@ void  id_resetPopUpMenu (
 
       CFRelease (cfString);
    }
+}
+
+/* ................................................... id_resetPopUpSize ............ */
+
+// extern  short          gGLogSemaphore;
+
+void  id_resetPopUpSize (
+ FORM_REC  *form,
+ short      index,
+ Rect      *popRect  // for compatibility with other oses
+)
+{
+   NSPopUpButton   *popUp = nil;
+   
+   popUp = (NSPopUpButton *)form->ditl_def[index]->i_handle;
+   
+   [popUp sizeToFit];
+   
 }
 
 /* ----------------------------------------------------- id_ClipRect ----------------- */
