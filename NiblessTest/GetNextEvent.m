@@ -20,6 +20,7 @@
 #import  "GetNextEvent.h"
 
 #import  "MainLoop.h"
+#import  "FirstForm.h"
 
 static BOOL  id_handleRightMouse (NSEvent *event);
 static BOOL  id_TextFieldsHitTest (NSWindow *window, NSPoint locationInWindow, short *retIndex);

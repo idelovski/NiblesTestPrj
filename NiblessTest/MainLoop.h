@@ -477,3 +477,9 @@ int  id_DrawIconToolbar (FORM_REC *form);
 int  id_DrawTBPadding (FORM_REC *form);
 
 
+#ifdef __OBJC__
+
+// We're in objc
+
+#endif
+

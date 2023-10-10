@@ -20,7 +20,7 @@
 
 #define  kEVENTS_STACK    64
 
-#define  id_stop_emsg(msg)  NSLog(@msg)
+// #define  id_stop_emsg(msg)  NSLog(@msg)
 
 #define  kScaleLevels   11
 #define  kScaledFonts   (kScaleLevels-1)
@@ -485,6 +485,10 @@ typedef struct  {
    FORM_REC    *commDlgForm;
    NSWindow    *commDlgNSWindow;
    NSEvent     *texEvent;
+   
+   short        sysDlgActive;   // Err, PrintDlg, PgSetup etc.
+   short        sysDlgWasActive;   // Err, PrintDlg, PgSetup etc.
+   short        insideJob;      // begin/end_job
    
    char         appName[32];
    char         appPath[MAX_PATH];

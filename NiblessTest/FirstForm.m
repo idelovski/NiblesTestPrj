@@ -1337,3 +1337,196 @@ NSString  *id_Result2Msg (int result)
    return (@"No idea!");
 }
 
+static int  DoCocoaAlert (short alertID, char *errMsgStr)
+{
+   NOT_YET  // extern  WindowRef  gGWindowToSelect;
+   
+   // SInt16       itemHit /*, oldCursorSet, alertType*/;
+   SInt16       needOther = FALSE, needCancel = FALSE;
+   NSInteger    result = 0;
+   CFStringRef  cfString = NULL;
+   // DialogRef    theAlert;
+   // OSStatus     status;
+   
+   CFStringRef  cfStringOK = id_CreateCFString ("U redu");
+   CFStringRef  cfStringSave = id_CreateCFString ("Spremi");
+   CFStringRef  cfStringCancel = id_CreateCFString ("Odustani");
+   CFStringRef  cfStringOther = id_CreateCFString ("Ne spremaj");
+   CFStringRef  cfStringOprez = id_CreateCFString ("Oprez");
+   
+   // AlertStdCFStringAlertParamRec  paramRec;
+   
+   NSAlert  *alert = [[NSAlert alloc] init];
+   
+   NOT_YET  // gGWindowToSelect = NULL;
+   
+   switch (alertID)  {
+      case  MY_NOTE_ALERT:
+         // alertType = kAlertNoteAlert;
+         alert.alertStyle = NSCriticalAlertStyle;
+         break;
+      case  MY_CHOOSE_ALERT:
+         // alertType = kAlertCautionAlert;
+         alert.alertStyle = NSWarningAlertStyle;
+         needCancel = TRUE;
+         break;
+      case  MY_SAVE_YES_NO:
+         // alertType = kAlertCautionAlert;
+         alert.alertStyle = NSCriticalAlertStyle;
+         needCancel = TRUE;
+         needOther = TRUE;
+         break;
+      case  MY_STOP_ALERT:
+         // fall down       
+      default:
+         // alertType = kAlertStopAlert;  break;
+         alert.alertStyle = NSCriticalAlertStyle;
+   }
+   
+   NOT_YET  // if (gGCurrentAutoTaskPhase != kAutoTaskPhaseNone)  // Bilo nekad, ugasio 04.05.2020
+   NOT_YET  //    return (1);
+   
+   id_Mac2CFString (errMsgStr, &cfString, strlen(errMsgStr));
+   
+   alert.messageText = (NSString *)cfString;  // [NSString stringWithCString:message encoding:NSUTF8StringEncoding];
+   alert.informativeText = (NSString *)cfString;  // [NSString stringWithCString:info encoding:NSUTF8StringEncoding];
+   
+   NOT_YET  // oldCursorSet = id_msg_cursor ();
+   NOT_YET  // FlushEvents (mDownMask | keyDownMask | autoKeyMask, 0);
+   
+   [alert addButtonWithTitle:needOther ? (NSString *)cfStringSave : (NSString *)cfStringOK];
+   if (needCancel)
+      [alert addButtonWithTitle:(NSString *)cfStringCancel];
+   if (needOther)
+      [alert addButtonWithTitle:(NSString *)cfStringOther];
+   
+   /*
+    paramRec.version = kStdCFStringAlertVersionOne;
+    paramRec.movable = TRUE;
+    paramRec.helpButton = FALSE;
+    paramRec.defaultText = needOther ? cfStringSave : cfStringOK;
+    paramRec.cancelText = needCancel ? cfStringCancel : NULL;
+    paramRec.otherText = needOther ? cfStringOther : NULL;
+    paramRec.defaultButton = kAlertStdAlertOKButton;
+    paramRec.cancelButton = needCancel ? kAlertStdAlertCancelButton : 0;
+    paramRec.position = kWindowDefaultPosition;
+    paramRec.flags = 0;
+    */
+   
+   // status = CreateStandardAlert (alertType, cfStringOprez, cfString, &paramRec, &theAlert);
+   
+   dtGData->sysDlgActive = TRUE;
+   
+   result = (int)[alert runModal];
+   
+   dtGData->sysDlgActive = FALSE;
+   dtGData->sysDlgWasActive = TRUE;
+   
+   CFRelease (cfString);
+   
+   CFRelease (cfStringOK);
+   CFRelease (cfStringSave);
+   CFRelease (cfStringCancel);
+   CFRelease (cfStringOther);
+   CFRelease (cfStringOprez);
+   
+   NOT_YET  // id_restore_cursor (oldCursorSet);
+   
+   [alert release];
+   
+   if (result >= 1000)
+      return ((int)result - 999);  // NSAlertFirstButtonReturn, NSAlertSecondButtonReturn, NSAlertThirdButtonReturn -> 1,2,3
+   
+   return ((int)result);
+}
+
+/* ----------------------------------------------------------- id_base_emsg --------- */
+
+static int id_base_emsg (int ditlID, int dflt, int beep, const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   
+   NOT_YET  // id_PutToErrHistory (emsg);  // Puts to console too
+   
+   NOT_YET  // if (serr_mode)              /* Sustain ErrMsg */
+   NOT_YET  //    return (id_store_emsg(ditlID, dflt, beep, emsg));
+   
+   NOT_YET  // if (dtGData->errLogActive && dtGData->errLogSaveProc)
+   NOT_YET  //    dtGData->errLogSaveProc (emsg, NULL, 0, 0);
+   
+   return (DoCocoaAlert(ditlID, emsg));
+}
+
+/* ----------------------------------------------------------- id_note_emsg --------- */
+
+int  id_note_emsg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_NOTE_ALERT, 1, FALSE, "%s", emsg));
+}
+
+/* ----------------------------------------------------------- id_stop_emsg --------- */
+
+int  id_stop_emsg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_STOP_ALERT, 1, TRUE, "%s", emsg)); /* Stop alert */
+}
+
+/* ----------------------------------------------------------- id_query_1msg -------- */
+
+int  id_query_1msg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_CHOOSE_ALERT, 1, TRUE, "%s", emsg));
+}
+
+/* ----------------------------------------------------------- id_query_2msg -------- */
+
+int  id_query_2msg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_CHOOSE_ALERT, 2, TRUE, "%s", emsg));
+}
+
