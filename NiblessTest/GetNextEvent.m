@@ -186,6 +186,9 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
    else  if (event.type == NSMouseMoved)  {
       // NSLog (@"Mouse Moved!");
    }
+   else  if (event.type == NSScrollWheel)  {
+      NSLog (@"ScrollWheel: (%.2f, %.2f)", event.deltaX, event.deltaY);
+   }
       
    // Pass events down to AppDelegate to be handled in sendEvent:
    
@@ -630,6 +633,9 @@ void  id_BuildKeyDownEvent (
 }
 
 // On Windows I have id_BuildCloseEvent() that uses invented closeEvent or keyDown + Esc
+
+// Well, maybe I should invent closeWindowEvt and few others like scrollEvent;
+// there is space for several between activateEvt & osEvt, but be careful with the highLevelEventMask
 
 void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window, find one day the real position of the mouse
  FORM_REC  *form,       // must not be NULL

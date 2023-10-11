@@ -490,10 +490,14 @@ void id_create_toolbar (FORM_REC *form);
 int  id_DrawIconToolbar (FORM_REC *form);
 int  id_DrawTBPadding (FORM_REC *form);
 
-
 #ifdef __OBJC__
 
 // We're in objc
+#else
+ 
+// or maybe use something like MacWindow
+
+typedef  struct OpaqueWindowPtr  NSWindow
 
 #endif
 

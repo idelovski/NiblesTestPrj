@@ -1000,9 +1000,6 @@ static double  gYOffset = 30.;
    
    [theScroller setEnabled:YES];
    
-   [theScroller setTarget:self];
-   [theScroller setAction:@selector(onScrollerChange:)];  // It should be only one method to handle all the controls, in WindowFactory ;)
-   
    // [theScroller setPageScroll:10.0]; - nope, NSScrollView only
    
    return (theScroller);
@@ -1046,7 +1043,12 @@ static double  gYOffset = 30.;
       value = 1.;
    
    [theScroller setDoubleValue:value];
-   //Do what You want here...  
+
+   // one day, with the forms calc real values
+   // min:0, max:e_elems-1, page is e_onscreen, current pos is e_occur
+   // The best is to handle everything with integers and then convert to proportions, well, maybe
+   // Unfortunately, these are short values in my lib so,... find a way to have more than 16K lines
+   // But that applies to all of the platforms, from MacOS 9 to Win, Carbon and now Cocoa
 }
 
 - (NSScroller *)createLeftScrollBarInForm:(FORM_REC *)form
@@ -1063,8 +1065,8 @@ static double  gYOffset = 30.;
    NSScroller  *mySBar = [[self coreCreateScrollBarWithFrame:NSMakeRect(x, y, width, height)
                                                       inForm:form] autorelease];
    
-   // [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
-   // [myButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
+   [mySBar setTarget:self];
+   [mySBar setAction:@selector(onScrollerChange:)];  // It should be only one method to handle all the controls, in WindowFactory ;)
       
    return (mySBar);
 }
