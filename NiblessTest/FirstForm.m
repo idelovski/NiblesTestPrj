@@ -81,6 +81,8 @@ static double  gYOffset = 30.;
    
    [form->popUpButtonR selectItemWithTitle: @"Lucida Grande"];
    
+   form->verScrollBar = [self createLeftScrollBarInForm:form];
+   
    /*
    CGRect   viewFrame = { { 0, 0 }, { form->my_window.frame.size.width, form->my_window.frame.size.height } };
    NSView  *foreView = [[DTOverlayView alloc] initWithFrame:viewFrame];
@@ -152,7 +154,7 @@ static double  gYOffset = 30.;
 {
    NSEvent  *event = [NSApp currentEvent];
    
-   NSLog(@"Button pressed!");
+   NSLog (@"Button pressed!");
    
    //Do what You want here...  
    FORM_REC  *form = id_FindForm (FrontWindow());
@@ -416,7 +418,7 @@ static double  gYOffset = 30.;
 
 - (void)imgButtonPressed:(id)button
 {
-   NSLog(@"ImgButton pressed!"); 
+   NSLog (@"ImgButton pressed!"); 
    
    //Do what You want here... 
    
@@ -547,7 +549,7 @@ static double  gYOffset = 30.;
 {
    NSButton  *button = (NSButton *)idButton;
    
-   NSLog(@"Check pressed: %@!", [button state] ? @"ON" : @"OFF"); 
+   NSLog (@"Check pressed: %@!", [button state] ? @"ON" : @"OFF"); 
    
    //Do what You want here...
 }
@@ -813,7 +815,7 @@ static double  gYOffset = 30.;
    
    [popUp setPullsDown:NO];
    [popUp setTarget:self];
-   [popUp setAction:@selector(onSelectionChange:)];
+   [popUp setAction:@selector(onSelectionChange:)];  // It should be only one method to handle all the controls, in WindowFactory ;)
    
    if (frame.size.height < 20)  {
       [popUp setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize] - 1]];
@@ -869,7 +871,7 @@ static double  gYOffset = 30.;
    
    FORM_REC  *form = id_FindForm (FrontWindow());
    
-   NSLog(@"PopUp selection changed?: %d %@", (int)[popUp indexOfItem:[popUp selectedItem]], [popUp titleOfSelectedItem]); 
+   NSLog (@"PopUp selection changed?: %d %@", (int)[popUp indexOfItem:[popUp selectedItem]], [popUp titleOfSelectedItem]); 
    
    if ((popUp == form->popUpButtonR) || (popUp == form->popUpButtonS))  {
       NSString  *name = [form->popUpButtonR titleOfSelectedItem];
@@ -976,6 +978,95 @@ static double  gYOffset = 30.;
 {
    NSLog (@"sheet model ended.\nreturnCode: %d - %@\ncontextInfo: %@",
           (int)returnCode, id_Result2Msg((int)returnCode), contextInfo);
+}
+
+#pragma mark -
+
+- (NSScroller *)coreCreateScrollBarWithFrame:(CGRect)fldRect
+                                       inForm:(FORM_REC *)form
+{
+   // Create an NSScroller instance
+   NSScroller  *theScroller = [[NSScroller alloc] initWithFrame:id_CocoaRect(form->my_window, fldRect)];
+
+   [[form->my_window contentView] addSubview:theScroller];
+   
+   [theScroller setTag:++form->creationIndex];
+   
+   // Customize the appearance to make it look like a progress bar
+   [theScroller setArrowsPosition:NSScrollerArrowsDefaultSetting];
+   [theScroller setKnobProportion:0.2]; // To have a fixed-size knob
+   
+   [theScroller setDoubleValue:0.0]; // Initial progress value
+   
+   [theScroller setEnabled:YES];
+   
+   [theScroller setTarget:self];
+   [theScroller setAction:@selector(onScrollerChange:)];  // It should be only one method to handle all the controls, in WindowFactory ;)
+   
+   // [theScroller setPageScroll:10.0]; - nope, NSScrollView only
+   
+   return (theScroller);
+}
+
+- (void)onScrollerChange:(id)button
+{
+   NSScroller  *theScroller = (NSScroller *)button;
+   double       value = [theScroller doubleValue];
+   
+   FORM_REC  *form = id_FindForm (theScroller.window);
+   
+   NSScrollerPart  hitPart = [theScroller hitPart];
+   
+   NSLog (@"onScrollerChange: %.1f - %hd", [theScroller doubleValue], (short)hitPart);
+   
+   switch (hitPart)  {
+      case  NSScrollerNoPart:
+         break;
+      case  NSScrollerDecrementPage:
+         value -= 1. / 5;
+         break;
+      case  NSScrollerKnob:
+         break;
+      case  NSScrollerIncrementPage:
+         value += 1. / 5;
+         break;
+      case  NSScrollerDecrementLine:
+         value -= 1. / 10;
+         break;
+      case  NSScrollerIncrementLine:
+         value += 1. / 10;
+         break;
+      case  NSScrollerKnobSlot:
+         break;
+   }
+   
+   if (value < 0.)
+      value = 0.;
+   if (value > 1.)
+      value = 1.;
+   
+   [theScroller setDoubleValue:value];
+   //Do what You want here...  
+}
+
+- (NSScroller *)createLeftScrollBarInForm:(FORM_REC *)form
+{
+   NSView  *contentView = [form->my_window contentView];
+   CGRect   contentRect = [contentView bounds];
+
+   int  x = contentRect.size.width - ([NSScroller scrollerWidth] + 5);
+   int  y = 5 + dtGData->toolBarHeight;
+   
+   int  width = [NSScroller scrollerWidth];
+   int  height = contentRect.size.height - 10 - (kSBAR_HEIGHT + dtGData->toolBarHeight);
+   
+   NSScroller  *mySBar = [[self coreCreateScrollBarWithFrame:NSMakeRect(x, y, width, height)
+                                                      inForm:form] autorelease];
+   
+   // [myButton setButtonType:NSMomentaryLightButton]; //Set what type button You want
+   // [myButton setBezelStyle:NSRoundedBezelStyle]; //Set what style You want
+      
+   return (mySBar);
 }
 
 @end

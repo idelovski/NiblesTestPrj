@@ -330,6 +330,8 @@ struct  FormRecord  {
    NSPopUpButton  *popUpButtonL;
    NSPopUpButton  *popUpButtonS;
    NSPopUpButton  *popUpButtonR;
+   
+   NSScroller     *verScrollBar;
 
    char           *w_title;     /* C string, po novom od 04.07.2005 */
    Rect            w_rect;      // win first, since 27/10/2008 on Mac

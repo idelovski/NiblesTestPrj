@@ -440,6 +440,11 @@ int   id_put_editText  (FORM_REC *form, short index, char *cStr);
 int   id_put_statText  (FORM_REC *form, short index, char *cStr);
 int   id_put_ctrlText  (FORM_REC *form, short index, char *cStr);
 
+int   id_putfield  (FORM_REC *, short, char *);
+int   id_getfield  (FORM_REC *, short, char *, short);
+int   id_set_ctrl (FORM_REC *form, short fldno, short value);
+int   id_get_ctrl (FORM_REC *form, short fldno);
+
 int   id_check_entry (FORM_REC *form, short index, WindowPtr savedPort);
 int   id_check_exit (FORM_REC *form, short index, WindowPtr savedPort);
 

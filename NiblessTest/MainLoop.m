@@ -5665,6 +5665,127 @@ int  id_getfield (
    return (len);
 }
 
+/* .......................................................... id_set_ctrl ........... */
+
+// ATM, radio & check only
+
+int  id_set_ctrl (
+ FORM_REC  *form,
+ short      fldno,
+ short      value
+)
+{
+   short  i, index = fldno-1;
+   short  ditlType = form->ditl_def[index]->i_type;
+   // long   refCon;
+   char  *thisGroup, *myGroup;
+
+   NSControl  *theControl;
+   NSButton   *theButton;
+   // ControlHandle theControl;
+   
+   // if (!form->my_window || index<0 || index>form->last_fldno || !form->wr.controlList)
+   if (!form->my_window || index<0 || index>form->last_fldno /*|| !id_GetNextControl(form->my_window, NULL)*/)
+      return (-1);
+      
+   if (form->scpGrabing)  {
+      return (0);
+   }
+   
+   if (ditlType & ctrlItem)  {
+      short  pureIType = form->ditl_def[index]->i_type & 127;
+      
+      if (pureIType == (ctrlItem+chkCtrl))  {
+         
+         theButton = (NSButton *)form->ditl_def[index]->i_handle;
+         
+         [theButton setState:value ? NSOnState : NSOffState];
+      }
+      else  if (pureIType == (ctrlItem+radCtrl))  {  /* Radio Control */
+         theButton = (NSButton *)form->ditl_def[index]->i_handle;
+
+         [theButton setState:value ? NSOnState : NSOffState];
+         
+         myGroup = form->edit_def[index]->e_regular;  /* Grupa */
+
+         if (value)  for (i=0; i <= form->last_fldno; i++)  {  /* Deselect others */
+            if (i != index)  {
+               if (((form->ditl_def[i]->i_type)&127)==(ctrlItem+radCtrl))  {
+                  thisGroup = form->edit_def[i]->e_regular;  /* Grupa */
+                  if (!myGroup || (thisGroup && !strcmp(myGroup, thisGroup)))
+                     [(NSButton *)form->ditl_def[i]->i_handle setState:NSOffState];
+               }
+            }
+         }
+      }
+   }
+   else  if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+      if (form->edit_def[index]->e_type == ID_UT_SCROLL_BAR)  {
+         double       dblValue;
+         NSScroller  *theScroller = (NSScroller *)form->ditl_def[index]->i_handle;
+         if (value < 0)
+            value = 0;
+         if (value >= form->edit_def[index]->e_elems)
+            value = form->edit_def[index]->e_elems - 1;
+         
+         dblValue = (double)value / form->edit_def[index]->e_elems;
+         
+         form->edit_def[index]->e_occur = value;
+         
+         [theScroller setDoubleValue:dblValue];
+      }
+   }
+   
+   return (0);      
+}
+
+/* .......................................................... id_get_ctrl ........... */
+
+int  id_get_ctrl (
+ FORM_REC  *form,
+ short      fldno
+)
+{
+   short  index = fldno-1, value = 0;
+   short  ditlType = form->ditl_def[index]->i_type;
+
+   NSControl  *theControl;
+   NSButton   *theButton;
+
+   if (!form->my_window || index<0 || index>form->last_fldno /*|| !id_GetNextControl(form->my_window, NULL)*/)
+      return (-1);
+   
+   if (ditlType & ctrlItem)  {
+      short  pureIType = form->ditl_def[index]->i_type & 127;
+      
+      if (pureIType == (ctrlItem+chkCtrl))  {
+         
+         theButton = (NSButton *)form->ditl_def[index]->i_handle;
+         
+         value = theButton.state;
+      }
+      else  if (pureIType == (ctrlItem+radCtrl))  {  /* Radio Control */
+         theButton = (NSButton *)form->ditl_def[index]->i_handle;
+         
+         value = theButton.state;
+      }
+   }
+   else  if ((form->ditl_def[index]->i_type & 127) == userItem)  {
+      if (form->edit_def[index]->e_type == ID_UT_SCROLL_BAR)  {
+         double       dblValue;
+         NSScroller  *theScroller = (NSScroller *)form->ditl_def[index]->i_handle;
+         
+         form->edit_def[index]->e_occur = value;
+         
+         dblValue = [theScroller doubleValue];
+         
+         value = (short) (dblValue * form->edit_def[index]->e_elems);
+      }
+   }
+
+   return (value);
+}
+
 /* --------------------------------------------------- entry & exit calls ---------- */
 
 #pragma mark -

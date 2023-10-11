@@ -89,6 +89,13 @@
 - (void)showAlertsButtonHit:(id)sender;
 - (void)sheetModalEnded:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 
+- (NSScroller *)coreCreateScrollBarWithFrame:(CGRect)fldRect
+                                      inForm:(FORM_REC *)form;
+- (NSScroller *)createLeftScrollBarInForm:(FORM_REC *)form;
+
+- (void)onScrollerChange:(id)button;
+
+
 @end
 
 int  pr_CreateDitlWindow (FORM_REC *form, short ditl_id, Rect *winRect, char *windowTitle, EDIT_item *edit_items);
