@@ -5728,7 +5728,7 @@ int  id_set_ctrl (
          if (value >= form->edit_def[index]->e_elems)
             value = form->edit_def[index]->e_elems - 1;
          
-         dblValue = (double)value / form->edit_def[index]->e_elems;
+         dblValue = (double)value / (form->edit_def[index]->e_elems-1);
          
          form->edit_def[index]->e_occur = value;
          
@@ -5779,7 +5779,7 @@ int  id_get_ctrl (
          
          dblValue = [theScroller doubleValue];
          
-         value = (short) (dblValue * form->edit_def[index]->e_elems);
+         value = (short) (dblValue * (form->edit_def[index]->e_elems-1));
       }
    }
 

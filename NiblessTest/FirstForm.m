@@ -1051,6 +1051,66 @@ static double  gYOffset = 30.;
    // But that applies to all of the platforms, from MacOS 9 to Win, Carbon and now Cocoa
 }
 
+#ifdef _FUTURE_VERSION_
+// Well, this should replace version above
+- (void)onScrollerChange:(id)button
+{
+   NSScroller  *theScroller = (NSScroller *)button;
+   double       dblValue = [theScroller doubleValue];
+   
+   FORM_REC   *form = id_FindForm (theScroller.window);
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   NSScrollerPart  hitPart = [theScroller hitPart];
+   
+   NSLog (@"onScrollerChange: %.1f - %hd", [theScroller doubleValue], (short)hitPart);
+   
+   for (index=0; index<=form->last_fldno; index++)  {
+      f_ditl_def = form->ditl_def[index];
+      f_edit_def = form->edit_def[index];
+      
+      if (((form->ditl_def[index]->i_type & 127) == userItem) &&
+          (form->edit_def[index]->e_type == ID_UT_SCROLL_BAR))  {
+         if (theScroller == (NSScroller *)form->ditl_def[index]->i_handle)  {
+            short  skip = FALSE, shortValue = (short) (dblValue * (form->edit_def[index]->e_elems-1));
+
+            switch (hitPart)  {
+               case  NSScrollerDecrementPage:
+                  shortValue -= form->edit_def[index]->e_onscreen;
+                  break;
+               case  NSScrollerIncrementPage:
+                  shortValue += form->edit_def[index]->e_onscreen;
+                  break;
+               case  NSScrollerDecrementLine:
+                  shortValue -= 1;
+                  break;
+               case  NSScrollerIncrementLine:
+                  shortValue += 1;
+                  break;
+               case  NSScrollerKnobSlot:
+               case  NSScrollerNoPart:
+               case  NSScrollerKnob:
+                  skip = TRUE;
+                  break;
+            }
+            
+            if (!skip)  {
+               dblValue = (double)value / (form->edit_def[index]->e_elems-1);
+
+               if (value < 0.)
+                  value = 0.;
+               if (value > 1.)
+                  value = 1.;
+                  
+               [theScroller setDoubleValue:value];
+            }
+         }
+      }
+   }
+}
+#endif
+
 - (NSScroller *)createLeftScrollBarInForm:(FORM_REC *)form
 {
    NSView  *contentView = [form->my_window contentView];
