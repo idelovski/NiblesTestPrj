@@ -54,6 +54,7 @@ void id_PostMenuEvent (short theMenu, short theItem);
 void id_BuildKeyDownEvent (FORM_REC *form, short charCode, short keyCode, short modifiers, EventRef evtRef);
 void id_BuildCloseWindowEvent (FORM_REC *form, EventRef evtRef);
 void id_BuildActivateEvent (FORM_REC *form, short fActive);
+void id_RemoveFutureActivateEvent (NSWindow *winPtr, short actFlag);
 
 
 Boolean id_RunningOnClassic (void);

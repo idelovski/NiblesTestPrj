@@ -870,6 +870,13 @@ void  id_SysBeep (short numb)
    NSBeep ();
 }
 
+/* ----------------------------------------------------------- id_our_window --------- */
+
+static Boolean  id_our_window (NSWindow *my_window, NSWindow *whichWindow)
+{
+    return ((my_window!=NULL) && (my_window==whichWindow));
+}   
+
 /* ................................................... id_init_form ................. */
 
 FORM_REC  *id_init_form (FORM_REC *form)
@@ -915,6 +922,8 @@ int  id_release_form (FORM_REC *form)
          [(NSControl *)form->ditl_def[index]->i_handle release];
    }
 
+   id_DisposeFormInList (form);
+   
    if (form->ditl_def)
       id_free_array ((char **)form->ditl_def);
    if (form->edit_def)
@@ -931,34 +940,359 @@ int  id_release_form (FORM_REC *form)
    return (0);
 }
 
-/* ................................................... id_FindForm .................. */
+/* .......................................................... id_activate_form ...... */
 
-FORM_REC  *id_FindForm (NSWindow *nsWindow)
+static void  id_FActivate (FORM_REC *form, short act)
 {
-#ifdef _NOT_YET_
-   WindowPtr  wPtr = (WindowPtr)nsWindow;  // [NSWindow keyWindow]
-   FLHandle  theFLH = id_FindWindowInFList (wPtr);
-   FORM_REC *formPtr;
+   short       i;
+   NSControl  *hCtrl = nil;
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+
+   if (form->update_func)
+      (*form->update_func)(form, NULL, ID_BEGIN_OF_ACTIVATE, act);
+   NOT_YET  // if (form->w_procID)
+   NOT_YET  //    id_WOpenLogFileFormat ("ID_BEGIN_OF_ACTIVATE %s %hd", form->w_title ? form->w_title : "UNK", act);
+      
+   if (form->toolBarHandle)  {
+      if (act)
+         id_EnableIconToolbar (form);
+      else
+         id_DisableIconToolbar (form);
+   }
+
+   for (i=0; i<=form->last_fldno; i++)  {
+      
+      f_ditl_def = form->ditl_def[i];
+      f_edit_def = form->edit_def[i];
+
+      if (f_ditl_def->i_type & ctrlItem)  {
+            
+         switch (f_ditl_def->i_type)  {
+            case  ctrlItem+btnCtrl:
+            case  ctrlItem+chkCtrl:
+            case  ctrlItem+radCtrl:
+               hCtrl = (NSControl *)f_ditl_def->i_handle;
+               [hCtrl setEnabled:act ? YES : NO];
+               break;
+         }
+      }
+      else  if (f_ditl_def->i_type == userItem)  {
+            
+         if (f_edit_def && f_edit_def->e_type == ID_UT_POP_UP)  {
+            hCtrl = (NSControl *)f_ditl_def->i_handle;
+            [hCtrl setEnabled:act ? YES : NO];
+         }
+         else  if (f_edit_def->e_type == ID_UT_TEPOP_PICT)  {
+            hCtrl = (NSControl *)f_ditl_def->i_handle;
+            [hCtrl setEnabled:act ? YES : NO];
+         }
+         else  if (f_edit_def->e_type & ID_UT_LIST)  {
+            hCtrl = (NSControl *)f_ditl_def->i_handle;
+            [hCtrl setEnabled:act ? YES : NO];
+         }
+
+         else  if (f_edit_def->e_type == ID_UT_SCROLL_BAR)  {
+            hCtrl = (NSControl *)f_ditl_def->i_handle;
+            [hCtrl setEnabled:act ? YES : NO];
+         }
+      }
+   }
+
+   if (form->update_func)
+      (*form->update_func)(form, NULL, ID_END_OF_ACTIVATE, act);
+   NOT_YET  //  if (form->w_procID)
+   NOT_YET  //     id_WOpenLogFileFormat ("ID_END_OF_ACTIVATE %s %hd", form->w_title ? form->w_title : "UNK", act);
+      
+   if (act)
+      form->formFlags &= ~ID_F_NEEDS_ACTIVATE;
+}
+
+static void  id_activate_form (
+ FORM_REC    *form,
+ NSWindow    *actWindow,    /* (WindowPtr)myEvent->message */
+ short        doActivate    /* myEvent->modifiers) & activeFlag */
+)
+{
+   NSControl  *focusControl = nil;
    
-   if (theFLH)
-      formPtr = (*theFLH)->theForm;
-   else
-      return (NULL);
+   if (doActivate && dtGData->sysDlgWasActive)  {
+      id_InvalFormsInList ();
+      dtGData->sysDlgWasActive = FALSE;
+   }
    
-   return (formPtr);
+   if (id_our_window(form->my_window, actWindow))  {
+      
+      dtGData->lastEventTick = TickCount ();
+      // GetDateTime (&dtGData->lastEventDateTime);
+
+      NOT_YET  // id_activate_cursor ();
+      
+      NOT_YET  // if (form->my_Zoom)
+      NOT_YET  //    id_full_zoom (form, FALSE);
+
+      id_RemoveFutureActivateEvent (form->my_window, doActivate);
+
+      if (doActivate)  {
+         // con_printf ("inside->id_activate_form\n");
+         SelectWindow (form->my_window);
+         
+         if ((dtGData->theInput = form->TE_handle) && (form->pen_flags & ID_PEN_DOWN))  {
+            // if (GetKeyboardFocus(form->my_window, &focusControl) || (focusControl != (ControlRef)form->TE_handle))
+               TExActivate (form->my_window, form->TE_handle);
+         }
+         id_FActivate (form, TRUE);
+#ifdef _NOT_NEEDED_
+         if (dtGData)  {
+            id_ToPrivateScrap ();
+            if (form->w_procID != movableDBoxProc && form->w_procID != dBoxProc &&
+                form->w_procID != plainDBox)
+               id_EnableMenuBar (form);
+         }
+         else
+            TExFromScrap ();
 #endif
-   
-   // NSLog (@"id_FindForm: %@ %d", nsWindow.title, (int)nsWindow.windowNumber);
+         
+         NOT_YET  // if (gGWindowToSelActivateThenClose && !gGWindowToSelect)  {
+         NOT_YET  //    gGWindowToSelClose = gGWindowToSelActivateThenClose;
+         NOT_YET  //    gGWindowToSelActivateThenClose = NULL;
+         NOT_YET  // }
+      }
+      else  {
+         if (form->TE_handle)
+            TExDeactivate (form->my_window, form->TE_handle);
+         id_FActivate (form, FALSE);
+#ifdef _NOT_NEEDED_
+         if (dtGData)  {
+            id_ToPublicScrap ();
+         }
+         else  {
+            ZeroScrap ();
+            TExToScrap ();
+         }
+#endif
+         if (id_get_pen (form, ID_PEN_OPTION))  {
+            id_set_pen (form, ID_PEN_OPTION, FALSE);
+            NOT_YET  // id_ShowMWSFields (form, FALSE);
+         }
+      }
+      NOT_YET  // if (form->my_Zoom)  {
+      NOT_YET  //    id_full_zoom (form, TRUE);
+      NOT_YET  //    id_DrawGrowIcon (form);
+      NOT_YET  // }
 
-   if (dtDialogForm && dtDialogForm->my_window == nsWindow)
-      return (dtDialogForm);
-   if (dtRenderedForm && dtRenderedForm->my_window == nsWindow)
-      return (dtRenderedForm);
+      NOT_YET  // if (form->aDefItem >= 0)
+      NOT_YET  //    id_outline_button (form, form->aDefItem);
+   }
+}
 
-   // if (dtMainForm && dtMainForm->my_window == nsWindow)
-   //    NSLog (@"We have ourseves a window!");
+/* .......................................................... id_find_form .......... */
+
+#define  kSuspendResumeMessage  0x01
+#define  kResumeMask            0x00000001
+
+FORM_REC *id_find_form (
+ FORM_REC     *form,
+ EventRecord  *wEvent,
+ NSWindow     *whichWindow,
+ short         partWind
+)
+{
+   WindowPtr      savedPort;
+   FLHandle       myFLH;
+   FORM_REC      *tmpForm;
+   FORM_REC      *retValue = NULL;        /* Switch to form */
+
+   /* form may be NULL ! */
+
+   NOT_YET  // gGHelpWanted = FALSE;
+   NOT_YET  // gGHelpSrcForm = NULL;
+
+   // if (dtGData->sysDlgActive)
+   //    con_printf ("Something %hd / %d / %hd during sys dialog active.\n\n", wEvent->what, wEvent->message, wEvent->modifiers);
+
+   switch (wEvent->what)  {
+
+#ifdef _NOT_YET_
+      case  nullEvent:
+         if (form && (form->w_procID==documentProc || form->w_procID==altDBoxProc) && gGWindowToSelect && !id_WindowAwaitsActivation(form->my_window) &&
+             (!id_WindowAwaitsActivation(gGWindowToSelect) || (gGWindowToSelect == gGWindowToSelActivateThenClose)))  {
+            if ((retValue = id_FindForm(gGWindowToSelect)) && !dtGData->sysDlgActive && !dtGData->insideJob)  {
+               // con_printf ("nullEvent->id_activate_form\n");
+               SelectWindow (gGWindowToSelect);
+            }
+            // gGWindowToSelActivateThenClose = gGWindowToSelect;  // So we can close it later!
+            gGWindowToSelect = gGWindowToSelClose = NULL;
+            // in id_activate_form() -> gGWindowToSelClose = gGWindowToSelActivateThenClose
+         }
+         else  if (gGWindowToSelClose && form && (gGWindowToSelClose == form->my_window))  {
+            id_MakeFutureKeyDownEvent(27, 27, 0, 1);
+            gGWindowToSelClose = NULL;
+         }
+         else  if (gGFormToScale)  {
+            if (gGFormToScale->my_window)
+               id_scale_form (gGFormToScale, gGScaleRatio, FALSE);
+            gGFormToScale = NULL;
+            gGScaleRatio  = 0;
+         }
+         else  if (form)
+            id_watch_standard_job (form, wEvent);
+         break;
+#endif
+      case  osEvt:  /* kOSEvent */
+         switch ((wEvent->message >> 24) & 0x0FF) {   /* high byte of message */
+            case kSuspendResumeMessage:
+                             /* suspend/resume is also an activate/deactivate */
+               dtGData->appInBackground = (wEvent->message & kResumeMask) ? FALSE : TRUE;
+                              
+               // if (dtGData->sysDlgActive)
+               //    con_printf ("Activate %hd during sys dialog active.", dtGData->appInBackground);
+               /*DoActivate (FrontWindow(), !gInBackground);*/
+
+               for (myFLH = id_FirstFL(); myFLH && !retValue; )  {
+                  HLock ((Handle)myFLH);
+                  // if (!(*myFLH)->theForm->my_window->picSave)
+                  if (!IsWindowPictureBeingDefined((*myFLH)->theForm->my_window))  {
+                     id_activate_form ((*myFLH)->theForm, FrontWindow(), !dtGData->appInBackground);
+                     // con_printf ("id_find_form->id_activate_form");
+                  }
+                  if (!form && ((*myFLH)->theForm->my_window == FrontWindow ()))
+                     retValue = (*myFLH)->theForm;
+                  else  if (!dtGData->appInBackground && form && (form->my_window != FrontWindow ()))  {
+                     if ((*myFLH)->theForm->my_window == FrontWindow())
+                        retValue = (*myFLH)->theForm;
+                  }
+                  HUnlock ((Handle)myFLH);
+                  myFLH = id_NextFormList (myFLH);
+               }
+               break;
+         }
+         break;
+      case  activateEvt:
+         // con_printf ("activateEvt: %s - %hd\n",
+         //      form ? form->w_title : "Unk form", (short)((wEvent->modifiers) & activeFlag));
+         for (myFLH = id_FirstFL(); myFLH && (!retValue || !((wEvent->modifiers) & activeFlag)); )  {
+            HLock ((Handle)myFLH);
+            // if (!(*myFLH)->theForm->my_window->picSave)
+            if (!IsWindowPictureBeingDefined((*myFLH)->theForm->my_window))
+               id_activate_form ((*myFLH)->theForm, (NSWindow *)wEvent->message,
+                                 (wEvent->modifiers) & activeFlag);
+            
+            if ((wEvent->modifiers) & activeFlag)  {
+               if (!form && ((*myFLH)->theForm->my_window == FrontWindow ()))
+                  retValue = (*myFLH)->theForm;
+               else  if (!dtGData->appInBackground && form && (form->my_window != FrontWindow ()))  {
+                  if ((*myFLH)->theForm->my_window == FrontWindow ())
+                     retValue = (*myFLH)->theForm;
+               }
+            }
+            HUnlock ((Handle)myFLH);
+            myFLH = id_NextFormList (myFLH);
+         }
+         NOT_YET  //  id_ResetCharHistory ();
+         break;
+
+#ifdef _NOT_YET_
+      case  updateEvt:
+         // Does not update idleTime
+         if (myFLH=id_FindWindowInFList ((WindowPtr)wEvent->message))  {
+            HLock ((Handle)myFLH);
+            tmpForm = (*myFLH)->theForm;
+            HUnlock ((Handle)myFLH);
+
+            if (!IsWindowPictureBeingDefined(tmpForm->my_window))  {  // was tmpForm->my_window->picSave
+               GetWinPort (&savedPort);
+               SetWinPort (tmpForm->my_window);
+
+               BeginUpdate (tmpForm->my_window);
+               id_update_form (tmpForm);
+               EndUpdate (tmpForm->my_window);
+            
+               id_SetPort (form, savedPort);
+            }
+         }
+         break;
+#endif          
+      case  mouseDown:
+         dtGData->lastEventTick = wEvent->when;
+         GetDateTime (&dtGData->lastEventDateTime);
+         // con_printf ("LAST ACT: 1 mouseDown\n");
+         NOT_YET //  id_check_double_click (wEvent);
+         // id_ResetCharHistory ();
+         
+#ifdef _NOT_YET_
+         if (((partWind == inContent) || (partWind == inDrag)) && (whichWindow != FrontWindow()))  {
    
-   return (dtMainForm);
+            if (form && form->my_window != whichWindow)  {   /* Select Only others! */
+               if ((form->w_procID == dBoxProc) || (form->w_procID == movableDBoxProc) ||
+                  (form->w_procID == plainDBox))
+                  id_SysBeep (10);
+               else  if (myFLH=id_FindWindowInFList (whichWindow))  {
+                  HLock ((Handle)myFLH);
+                  retValue = (*myFLH)->theForm;   /* if cmdKey -> NULL */
+                
+                  if (id_inAltDrag ((*myFLH)->theForm, partWind) || 
+                      ((partWind == inDrag) && (wEvent->modifiers & cmdKey)))  {
+                     Rect  dragRect;
+                     
+                     if (wEvent->modifiers & cmdKey)
+                        retValue = NULL;
+      
+                     id_get_max_rect (&dragRect);
+                     /*SetRect (&dragRect, 0, 20, 1024, 1024);*/
+
+                     // con_printf ("nullEvent->DragWindow\n");
+                     DragWindow (whichWindow, wEvent->where, &dragRect);
+                  }
+                  HUnlock ((Handle)myFLH);
+
+                  if (retValue)  {
+                     short  index;
+                     Rect   tmpRect;
+                     Point  myPt = wEvent->where;
+                     // con_printf ("nullEvent->id_activate_form\n");  // Find the field clicked on if possible ###
+                     
+                     GetWinPort (&savedPort);
+                     SetWinPort (retValue->my_window);
+
+                     GlobalToLocal (&myPt);
+                     for (index=0; index<=form->last_fldno; index++)  {
+                        id_itemsRect (retValue, index, &tmpRect);
+                        if (PtInRect(myPt, &tmpRect))
+                           retValue->lastTouchedFldno = index+1;
+                     }
+                     id_SetPort (form, savedPort);
+
+                     SelectWindow (whichWindow);
+                  }
+                                             
+                  return (retValue);  /* It's the other Window */
+               }
+            }
+         }
+         if (id_was_double_click() && (partWind == inDrag))  {
+            short  oldLevel = id_ScaleRatio2Level (form->scaleRatio);
+            short  newLevel = oldLevel ? oldLevel - 1 : oldLevel + 1;
+            short  newScaling = 100;
+            
+            newLevel = id_ScaleRatio2Level (id_Level2ScaleRatio(newLevel));  // Make sure it's valid!
+            newScaling = id_Level2ScaleRatio (newLevel);
+            con_printf ("DOUBLE CLICK IN DRAG AREA! %hd vs %hd\n", oldLevel, newLevel);
+            
+            id_scale_form (form, newScaling, FALSE);
+            
+            gGFormToScale = form;
+            gGScaleRatio  = id_Level2ScaleRatio (oldLevel);
+         }
+#endif
+         break;
+      case  kHighLevelEvent:
+         // con_printf ("kHighLevelEvent\n");
+         NOT_YET  //  id_DoHighLevelEvent (wEvent);
+         break;
+   }
+   
+   return (retValue);
 }
 
 // - (NSWindow *)windowWithWindowNumber:(NSInteger)windowNum;
@@ -2325,7 +2659,6 @@ int  TExActivate (
  NSTextField  *editInput
 )
 {
-   NOT_YET // TXNFocus ((TXNObject)editInput, TRUE);
    [aWindow makeFirstResponder:editInput];
    
    return (0);
@@ -6968,5 +7301,37 @@ static int  id_DrawTBPopUp (
    HUnlock ((Handle)tbHandle);
    
    return (0);
+}
+
+/* ....................................................... id_EnableIconToolbar ..... */
+
+int  id_EnableIconToolbar (
+ FORM_REC *form
+)
+{
+   IDToolbarHandle  tbHandle = (IDToolbarHandle) form->toolBarHandle;
+   
+   if (!tbHandle)
+      return (-1);
+   
+   (*tbHandle)->tbDisabled = FALSE;
+     
+   return (id_DrawIconToolbar(form));
+}
+
+/* ....................................................... id_DisableIconToolbar .... */
+
+int  id_DisableIconToolbar (
+ FORM_REC *form
+)
+{
+   IDToolbarHandle  tbHandle = (IDToolbarHandle) form->toolBarHandle;
+   
+   if (!tbHandle)
+      return (-1);
+   
+   (*tbHandle)->tbDisabled = TRUE;
+     
+   return (id_DrawIconToolbar(form));
 }
 

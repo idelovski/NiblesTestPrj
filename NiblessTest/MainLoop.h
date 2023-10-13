@@ -489,6 +489,8 @@ int  id_show_comment (FORM_REC *form, short index, short mode);
 void id_create_toolbar (FORM_REC *form);
 int  id_DrawIconToolbar (FORM_REC *form);
 int  id_DrawTBPadding (FORM_REC *form);
+int  id_EnableIconToolbar (FORM_REC *form);
+int  id_DisableIconToolbar (FORM_REC *form);
 
 #ifdef __OBJC__
 

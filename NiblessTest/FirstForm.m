@@ -1374,6 +1374,8 @@ int  pr_CreateDitlWindow (
       
       [MainLoop finalizeFormWindow:form];
       
+      id_PutFormOnList (form, ditl_id);
+      
       [newWin makeKeyAndOrderFront:NSApp/*appDelegate.firstFormHandler*/];
    }
    
@@ -1681,5 +1683,339 @@ int  id_query_2msg (const char *fmt, ...)
     */
    
    return (id_base_emsg(MY_CHOOSE_ALERT, 2, TRUE, "%s", emsg));
+}
+
+/* === FormLists ==================================================================== */
+
+#pragma mark -
+
+static FLHandle   mainFormList = NULL;
+extern FORM_REC  *dtDialogForm;
+
+/* ----------------------------------------------------- id_FirstFL ----------------- */
+
+FLHandle  id_FirstFL (void)
+{
+   return (mainFormList);
+}
+
+/* ----------------------------------------------------- id_PutFormOnList ----------- */
+
+FLHandle  id_PutFormOnList (
+ FORM_REC  *form,
+ short      rsrcID
+)
+{
+   FLHandle  lastFLH, curFLH, newFLH;
+   
+   for (curFLH = mainFormList; curFLH; )  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   if (!(newFLH = (FLHandle) NewHandle (sizeof (FORM_LIST))))
+      return (NULL);
+      
+   if (!mainFormList)
+      mainFormList = newFLH;
+   else  {
+      HLock ((Handle)lastFLH);
+      (*lastFLH)->nextFLH = newFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   HLock ((Handle)newFLH);
+   
+   (*newFLH)->theForm = form;
+   (*newFLH)->ditl_ID = rsrcID;
+   (*newFLH)->menu_flags = ZERO_Command;
+   (*newFLH)->save_flags = ZERO_Command;
+   (*newFLH)->scroll_pos = 0;
+   (*newFLH)->some_info = 0;
+   (*newFLH)->nextFLH = NULL;
+   
+   HUnlock ((Handle)newFLH);
+   
+   return (newFLH);
+}
+
+/* ----------------------------------------------------- id_DisposeFormInList -------- */
+
+void  id_DisposeFormInList (
+ FORM_REC  *form
+)
+{
+   FLHandle  lastFLH, curFLH, myFLH;
+   
+   lastFLH = myFLH = NULL;
+   
+   if (curFLH = mainFormList)  {
+      HLock ((Handle)curFLH);
+      if ((*curFLH)->theForm == form)                        /* Ako je odmah prva ... */
+         myFLH = curFLH;
+      HUnlock ((Handle)curFLH);
+
+      for (curFLH = mainFormList; curFLH && !myFLH; )  {  /* Daljnje .... */
+         lastFLH = curFLH;
+         HLock ((Handle)lastFLH);
+         if (!(*curFLH)->nextFLH)  {
+            HUnlock ((Handle)lastFLH);
+            return;
+         }
+         HLock ((Handle)(*lastFLH)->nextFLH);
+         if ((*(*curFLH)->nextFLH)->theForm == form)
+            myFLH = curFLH;
+         curFLH = (*curFLH)->nextFLH;
+         HUnlock ((Handle)(*lastFLH)->nextFLH);
+         HUnlock ((Handle)lastFLH);
+      }
+   }
+   else
+      return;
+      
+   if (lastFLH)  {
+      HLock ((Handle)lastFLH);
+      HLock ((Handle)curFLH);
+      (*lastFLH)->nextFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+      HUnlock ((Handle)curFLH);
+   }
+   else  if ((*curFLH)->nextFLH)  {
+      HLock ((Handle)curFLH);
+      mainFormList = (*curFLH)->nextFLH;
+      HUnlock ((Handle)curFLH);
+   }
+   else
+      mainFormList = NULL;
+   
+   DisposeHandle ((Handle)curFLH);
+   
+   return;
+}   
+
+/* ----------------------------------------------------- id_CountFormList ------------ */
+
+int  id_CountFormList (void)
+{
+   short     i;
+   FLHandle  lastFLH, curFLH;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (i);
+}
+
+/* ................................................... id_CountEditingFormsInList ... */
+
+#ifdef _NOT_YET_
+int  id_CountEditingFormsInList (short penSensibleOnly, short dirtyFlag)
+{
+   short      i, cnt=0, skip = FALSE;
+   FLHandle   lastFLH, curFLH;
+   FORM_REC  *form;
+   FBPtr      theFB = NULL;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      skip    = FALSE;  // Those we don't check
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      form = (*curFLH)->theForm;
+      
+      if (form->TE_handle)  {
+         if (theFB = id_FBFindByForm(form))  {
+            if (penSensibleOnly && !theFB->penSense)
+               skip = TRUE;
+         }
+         
+         if (!skip)  {
+            if (dirtyFlag)  {
+               if (form->pen_flags & ID_PEN_DIRTY)
+                  cnt++;
+            }
+            else  if (form->pen_flags & ID_PEN_DOWN)
+               cnt++;
+         }
+      }
+      
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (cnt);
+}
+#endif
+
+/* ................................................... id_CountModalFormsInList ..... */
+
+int  id_CountModalFormsInList (short withSystemDialogs)
+{
+   short     i, cnt=0;
+   FLHandle  lastFLH, curFLH;
+   FORM_REC *form;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      form = (*curFLH)->theForm;
+      
+      if ((form->w_procID == movableDBoxProc) || (form->w_procID == dBoxProc))
+         cnt++;
+      
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (cnt);
+}
+
+/* ................................................... id_InvalFormsInList .......... */
+
+void  id_InvalFormsInList (void)
+{
+   short     i;
+   FLHandle  lastFLH, curFLH;
+   FORM_REC *form;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      form = (*curFLH)->theForm;
+      
+      InvalWinRect (form->my_window, NULL);
+
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+}
+
+/* ----------------------------------------------------- id_NextFormList ------------- */
+
+FLHandle id_NextFormList (
+ FLHandle  curFLH
+)
+{
+   FLHandle  lastFLH;
+   
+   if (curFLH)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (curFLH);
+}
+
+/* ................................................... id_FindForm .................. */
+
+FORM_REC  *id_FindForm (NSWindow *nsWindow)
+{
+   FLHandle  theFLH = id_FindWindowInFList (nsWindow);
+   FORM_REC *formPtr;
+   
+   if (theFLH)
+      formPtr = (*theFLH)->theForm;
+   else  {
+      NOT_YET  // return (NULL);
+
+      // NSLog (@"id_FindForm: %@ %d", nsWindow.title, (int)nsWindow.windowNumber);
+      
+      if (dtDialogForm && dtDialogForm->my_window == nsWindow)
+         return (dtDialogForm);
+      if (dtRenderedForm && dtRenderedForm->my_window == nsWindow)
+         return (dtRenderedForm);
+      
+      // if (dtMainForm && dtMainForm->my_window == nsWindow)
+      //    NSLog (@"We have ourseves a window!");
+      
+      return (dtMainForm);
+   }
+   
+   return (formPtr);
+}
+
+/* ----------------------------------------------------- id_FindFormInList ----------- */
+
+FLHandle id_FindFormInList (
+ FORM_REC  *form
+)
+{
+   FLHandle  lastFLH, curFLH, myFLH;
+   
+   myFLH = NULL;
+   
+   for (curFLH = mainFormList; curFLH && !myFLH; )  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      if ((*curFLH)->theForm == form)
+         myFLH = curFLH;
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (myFLH);
+}
+
+/* ----------------------------------------------------- id_FindWindowInFList -------- */
+
+FLHandle  id_FindWindowInFList (
+ NSWindow  *nsWindow
+)
+{
+   FLHandle  lastFLH, curFLH, myFLH;
+   
+   myFLH = NULL;
+   
+   for (curFLH = mainFormList; curFLH && !myFLH; )  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      if ((*curFLH)->theForm->my_window == nsWindow)
+         myFLH = curFLH;
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (myFLH);
+}
+
+/* ------------------------------------------------ IsWindowPictureBeingDefined ------ */
+
+Boolean  IsWindowPictureBeingDefined (NSWindow  *nsWindow)
+{
+   return (FALSE);  /// return (IsPortPictureBeingDefined(GetWindowPort(win)));
+   
+}
+
+/* ----------------------------------------------------- ValidWinRect ---------------- */
+
+// This kills all of the redraw, maybe make it better one day
+
+OSStatus  ValidWinRect (NSWindow  *nsWindow, const Rect *bounds)
+{
+   FORM_REC  *form = id_FindForm (nsWindow);
+   
+   if (form && form->overlayView)
+      [form->overlayView setNeedsDisplay:NO];
+
+   return (0 /*ValidWindowRect(window, bounds)*/);
+}
+
+/* ----------------------------------------------------- InvalWinRect ---------------- */
+
+OSStatus  InvalWinRect (NSWindow  *nsWindow, const Rect *bounds)
+{
+   FORM_REC  *form = id_FindForm (nsWindow);
+   
+   if (form && form->overlayView)
+      [form->overlayView setNeedsDisplay:YES];
+   
+   return (0 /*ValidWindowRect(window, bounds)*/);
 }
 

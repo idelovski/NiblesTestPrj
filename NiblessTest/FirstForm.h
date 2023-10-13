@@ -138,3 +138,40 @@ NSString  *id_Result2Msg (int result);
 int  id_note_emsg (const char *fmt, ...);
 int  id_stop_emsg (const char *fmt, ...);
 
+
+/* === FormLists ==================================================================== */
+
+#define   ZERO_Command        0                      /* --- Mode for FL menu_flags --- */
+
+typedef struct FORM_LIST  {      /* --------------------- Form List Structure -------- */
+   FORM_REC    *theForm;
+   short        menu_flags;
+   short        save_flags;
+   short        scroll_pos;
+   short        some_info;
+   short        ditl_ID;
+   struct
+    FORM_LIST **nextFLH;
+}  FORM_LIST, **FLHandle;
+
+/*extern FLHandle  mainFormList;*/
+
+FLHandle  id_FirstFL (void);
+FLHandle  id_PutFormOnList  (FORM_REC *form, short);
+void      id_DisposeFormInList  (FORM_REC *form);
+
+int  id_CountFormList (void);
+int  id_CountEditingFormsInList (short penSensibleOnly, short dirtyFlag);
+int  id_CountModalFormsInList (short withSystemDialogs);
+void id_InvalFormsInList (void);
+
+FLHandle  id_NextFormList (FLHandle);
+FORM_REC *id_FindForm (NSWindow *nsWindow);
+FLHandle  id_FindFormInList (FORM_REC *form);
+FLHandle  id_FindWindowInFList (NSWindow *nsWindow);
+FLHandle  id_FindFLFormsID  (int  myID);
+
+OSStatus  ValidWinRect (NSWindow *nsWindow, const Rect *bounds);
+OSStatus  InvalWinRect (NSWindow *nsWindow, const Rect *bounds);
+
+Boolean   IsWindowPictureBeingDefined (NSWindow *nsWindow);

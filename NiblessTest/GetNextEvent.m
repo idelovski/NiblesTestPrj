@@ -687,6 +687,28 @@ void  id_BuildActivateEvent (FORM_REC *form, short fActive) // Why form? Send on
       evtPtr->modifiers = activeFlag;
 }
 
+/* .................................................. id_RemoveFutureActivateEvent .. */
+
+// so, ElCapitain & Sierra don't send activations as Mac used to do
+
+void  id_RemoveFutureActivateEvent (
+ NSWindow  *winPtr,
+ short      actFlag
+)
+{
+#ifdef _NOT_YET_
+   EventRecord  *evtPtr =  &gGFutureActivEventRecord;
+   
+   if (!actFlag)
+      evtPtr =  &gGFutureDeactEventRecord;
+
+   if (evtPtr->message == (long)winPtr)  {
+      // con_printf ("id_RemoveFutureActivateEvent\n");
+      id_SetBlockToZeros (evtPtr, sizeof(EventRecord));
+   }
+#endif
+}
+
 #pragma mark -
 
 /* ......................................................... id_RunningOnClassic .... */
