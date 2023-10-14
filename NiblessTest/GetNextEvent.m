@@ -20,6 +20,7 @@
 #import  "GetNextEvent.h"
 
 #import  "MainLoop.h"
+#import  "FirstForm.h"
 
 static BOOL  id_handleRightMouse (NSEvent *event);
 static BOOL  id_TextFieldsHitTest (NSWindow *window, NSPoint locationInWindow, short *retIndex);
@@ -184,6 +185,9 @@ BOOL  id_CoreGetNextEvent (EventRecord *evtRec, NSDate *expiration)
    }
    else  if (event.type == NSMouseMoved)  {
       // NSLog (@"Mouse Moved!");
+   }
+   else  if (event.type == NSScrollWheel)  {
+      NSLog (@"ScrollWheel: (%.2f, %.2f)", event.deltaX, event.deltaY);
    }
       
    // Pass events down to AppDelegate to be handled in sendEvent:
@@ -630,6 +634,9 @@ void  id_BuildKeyDownEvent (
 
 // On Windows I have id_BuildCloseEvent() that uses invented closeEvent or keyDown + Esc
 
+// Well, maybe I should invent closeWindowEvt and few others like scrollEvent;
+// there is space for several between activateEvt & osEvt, but be careful with the highLevelEventMask
+
 void  id_BuildCloseWindowEvent (  // Made up evt that I need to close the window, find one day the real position of the mouse
  FORM_REC  *form,       // must not be NULL
  EventRef   evtRef      // may be NULL
@@ -679,3 +686,110 @@ void  id_BuildActivateEvent (FORM_REC *form, short fActive) // Why form? Send on
    if (fActive)
       evtPtr->modifiers = activeFlag;
 }
+
+/* .................................................. id_RemoveFutureActivateEvent .. */
+
+// so, ElCapitain & Sierra don't send activations as Mac used to do
+
+void  id_RemoveFutureActivateEvent (
+ NSWindow  *winPtr,
+ short      actFlag
+)
+{
+#ifdef _NOT_YET_
+   EventRecord  *evtPtr =  &gGFutureActivEventRecord;
+   
+   if (!actFlag)
+      evtPtr =  &gGFutureDeactEventRecord;
+
+   if (evtPtr->message == (long)winPtr)  {
+      // con_printf ("id_RemoveFutureActivateEvent\n");
+      id_SetBlockToZeros (evtPtr, sizeof(EventRecord));
+   }
+#endif
+}
+
+#pragma mark -
+
+/* ......................................................... id_RunningOnClassic .... */
+
+Boolean id_RunningOnClassic (void)
+{
+#ifdef _DTOOL_MAC_9_
+   UInt32 response;
+   
+   return (Gestalt(gestaltMacOSCompatibilityBoxAttr, 
+                   (SInt32 *) &response) == noErr)
+   && ((response & 
+        (1 << gestaltMacOSCompatibilityBoxPresent))
+       != 0);
+#else
+   return (FALSE);
+#endif
+}
+
+/* ......................................................... id_RunningOnMacOS9 ..... */
+
+Boolean id_RunningOnMacOS9 (void)
+{
+#ifdef _DTOOL_MAC_9_
+   return (TRUE);
+#else
+   return (FALSE);
+#endif
+}
+
+/* ......................................................... id_RunningOnMacOSX ..... */
+
+Boolean id_RunningOnMacOSX (void)
+{
+#ifdef _DTOOL_OSX_
+   return (TRUE);
+#else
+   return (FALSE);
+#endif
+}
+
+/* ......................................................... id_RunningOnMacOSX ..... */
+
+Boolean id_RunningOnMacIntel (void)
+{
+#ifdef _DTOOL_OSX_
+   short  byteOrder = 1;
+   
+   if (*((char *) &byteOrder))
+      return (TRUE);  // we're on intel
+#endif
+   return (FALSE);
+}
+
+/* ......................................................... id_RunningOnWindowsNT .. */
+
+Boolean id_RunningOnWindowsNT (void)
+{
+   return (FALSE);
+}
+
+/* ......................................................... id_RunningOnWin32 ...... */
+
+// or use _DTOOL_MAC_ or _DTOOL_WIN_ as macros
+
+Boolean id_RunningOnWin32 (void)
+{
+   return (FALSE);
+}
+
+/* ......................................................... id_RunningOnMacOSX ..... */
+
+Boolean id_RunningOnIntel (void)
+{
+   return (id_RunningOnMacIntel());
+}
+
+/* ......................................................... id_RunningOnIOS ........ */
+
+Boolean id_RunningOnIOS (void)
+{
+   return (FALSE);
+}
+

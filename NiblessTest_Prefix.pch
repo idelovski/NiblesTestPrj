@@ -4,5 +4,6 @@
 
 #ifdef __OBJC__
    #import <Cocoa/Cocoa.h>
-   #import <Carbon/Carbon.h>
 #endif
+
+#import <Carbon/Carbon.h>

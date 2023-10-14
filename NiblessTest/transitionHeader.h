@@ -20,7 +20,7 @@
 
 #define  kEVENTS_STACK    64
 
-#define  id_stop_emsg(msg)  NSLog(@msg)
+// #define  id_stop_emsg(msg)  NSLog(@msg)
 
 #define  kScaleLevels   11
 #define  kScaledFonts   (kScaleLevels-1)
@@ -330,6 +330,8 @@ struct  FormRecord  {
    NSPopUpButton  *popUpButtonL;
    NSPopUpButton  *popUpButtonS;
    NSPopUpButton  *popUpButtonR;
+   
+   NSScroller     *verScrollBar;
 
    char           *w_title;     /* C string, po novom od 04.07.2005 */
    Rect            w_rect;      // win first, since 27/10/2008 on Mac
@@ -346,7 +348,10 @@ struct  FormRecord  {
 
    Handle          DITL_handle; /* Resorce handle */ 
    short           last_fldno;  /* Copied from DITL */
+   short           scpGrabing;
    short           usedETypes;
+   short           dataStuffing; /* fillUp rutine */
+   short           formFlags;
    short           hOrigin;
    short           vOrigin;  // Win & OSX trouble with SetOrigin()
    
@@ -405,7 +410,7 @@ typedef struct  {
    char         scrapTaken;
    char         scrapToGive;
    
-   char        *grabText;        /* Text Grabing for Scrap */  // was Handle on Mac
+   Handle       grabText;        /* Text Grabing for Scrap */  // was Handle on Mac
    long         grabCnt;
    long         grabMax;
    unsigned
@@ -485,6 +490,10 @@ typedef struct  {
    FORM_REC    *commDlgForm;
    NSWindow    *commDlgNSWindow;
    NSEvent     *texEvent;
+   
+   short        sysDlgActive;   // Err, PrintDlg, PgSetup etc.
+   short        sysDlgWasActive;   // Err, PrintDlg, PgSetup etc.
+   short        insideJob;      // begin/end_job
    
    char         appName[32];
    char         appPath[MAX_PATH];

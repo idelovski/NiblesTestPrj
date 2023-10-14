@@ -433,6 +433,18 @@ void  id_redraw_field (FORM_REC *form, short fldno);
 void _id_redraw_field (FORM_REC *form, Rect *fldRect, DITL_item *fDitl_def, EDIT_item *fEdit_def);
 int   id_base_fldno (FORM_REC *form, short fldno, short *offset);
 
+void  id_StartDataStuffing (FORM_REC *form);
+void  id_EndDataStuffing (FORM_REC *form);
+
+int   id_put_editText  (FORM_REC *form, short index, char *cStr);
+int   id_put_statText  (FORM_REC *form, short index, char *cStr);
+int   id_put_ctrlText  (FORM_REC *form, short index, char *cStr);
+
+int   id_putfield  (FORM_REC *, short, char *);
+int   id_getfield  (FORM_REC *, short, char *, short);
+int   id_set_ctrl (FORM_REC *form, short fldno, short value);
+int   id_get_ctrl (FORM_REC *form, short fldno);
+
 int   id_check_entry (FORM_REC *form, short index, WindowPtr savedPort);
 int   id_check_exit (FORM_REC *form, short index, WindowPtr savedPort);
 
@@ -461,7 +473,9 @@ void  id_ReleasePicture (PicHandle picHandle);
 void  id_draw_Picture (FORM_REC *form, short index);
 void  id_create_iconItem (FORM_REC *form, short index, WindowPtr savedPort);
 
+int   id_draw_PopUp (FORM_REC *form, short index);
 void  id_resetPopUpMenu (FORM_REC *form, short index);
+void  id_resetPopUpSize (FORM_REC *form, short index, Rect *popRect);
 
 RgnHandle  id_ClipRect (FORM_REC *form, Rect *clipRect);
 int        id_RestoreClip (FORM_REC *form, RgnHandle savedClipRgn);
@@ -475,5 +489,17 @@ int  id_show_comment (FORM_REC *form, short index, short mode);
 void id_create_toolbar (FORM_REC *form);
 int  id_DrawIconToolbar (FORM_REC *form);
 int  id_DrawTBPadding (FORM_REC *form);
+int  id_EnableIconToolbar (FORM_REC *form);
+int  id_DisableIconToolbar (FORM_REC *form);
 
+#ifdef __OBJC__
+
+// We're in objc
+#else
+ 
+// or maybe use something like MacWindow
+
+typedef  struct OpaqueWindowPtr  NSWindow
+
+#endif
 

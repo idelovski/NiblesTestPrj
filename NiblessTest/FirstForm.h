@@ -89,9 +89,89 @@
 - (void)showAlertsButtonHit:(id)sender;
 - (void)sheetModalEnded:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 
+- (NSScroller *)coreCreateScrollBarWithFrame:(CGRect)fldRect
+                                      inForm:(FORM_REC *)form;
+- (NSScroller *)createLeftScrollBarInForm:(FORM_REC *)form;
+
+- (void)onScrollerChange:(id)button;
+
+
 @end
 
 int  pr_CreateDitlWindow (FORM_REC *form, short ditl_id, Rect *winRect, char *windowTitle, EDIT_item *edit_items);
 int  id_alertErr (const char *message, const char *const info);
 
 NSString  *id_Result2Msg (int result);
+
+#define  MY_STOP_ALERT    256
+#define  MY_NOTE_ALERT    257
+#define  MY_SILENT_ALERT   MY_NOTE_ALERT
+#define  MY_CHOOSE_ALERT  258
+#define  MY_SAVE_YES_NO   260   // used on osx
+
+#define  kAskSaveDITL     MY_SAVE_YES_NO
+#define  kDevilsAlertDITL 262
+
+#define  kCicnJagoda     512
+#define  kCicnDevil      514
+#define  kCicnBlank      516
+#define  kCicnPlusSign   517
+#define  kCicnBullet     518
+#define  kCicnCheckMark  519
+
+
+
+#define  kCTErrnoSTRings    255
+#define  kPARSErrnoSTRings  141
+
+#define  kDBErrSTRings      256
+
+#define REMSG_init_data_base_s      1
+#define REMSG_create_file_s         2
+#define REMSG_koristiti_file_s_s    3
+#define REMSG_postava_filea_s       4
+#define REMSG_open_file_s_s         5
+#define REMSG_open_other_s_s        6
+#define REMSG_read_disk_d           7
+#define REMSG_datent_s              8
+
+int  id_note_emsg (const char *fmt, ...);
+int  id_stop_emsg (const char *fmt, ...);
+
+
+/* === FormLists ==================================================================== */
+
+#define   ZERO_Command        0                      /* --- Mode for FL menu_flags --- */
+
+typedef struct FORM_LIST  {      /* --------------------- Form List Structure -------- */
+   FORM_REC    *theForm;
+   short        menu_flags;
+   short        save_flags;
+   short        scroll_pos;
+   short        some_info;
+   short        ditl_ID;
+   struct
+    FORM_LIST **nextFLH;
+}  FORM_LIST, **FLHandle;
+
+/*extern FLHandle  mainFormList;*/
+
+FLHandle  id_FirstFL (void);
+FLHandle  id_PutFormOnList  (FORM_REC *form, short);
+void      id_DisposeFormInList  (FORM_REC *form);
+
+int  id_CountFormList (void);
+int  id_CountEditingFormsInList (short penSensibleOnly, short dirtyFlag);
+int  id_CountModalFormsInList (short withSystemDialogs);
+void id_InvalFormsInList (void);
+
+FLHandle  id_NextFormList (FLHandle);
+FORM_REC *id_FindForm (NSWindow *nsWindow);
+FLHandle  id_FindFormInList (FORM_REC *form);
+FLHandle  id_FindWindowInFList (NSWindow *nsWindow);
+FLHandle  id_FindFLFormsID  (int  myID);
+
+OSStatus  ValidWinRect (NSWindow *nsWindow, const Rect *bounds);
+OSStatus  InvalWinRect (NSWindow *nsWindow, const Rect *bounds);
+
+Boolean   IsWindowPictureBeingDefined (NSWindow *nsWindow);

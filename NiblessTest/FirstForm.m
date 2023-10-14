@@ -81,6 +81,8 @@ static double  gYOffset = 30.;
    
    [form->popUpButtonR selectItemWithTitle: @"Lucida Grande"];
    
+   form->verScrollBar = [self createLeftScrollBarInForm:form];
+   
    /*
    CGRect   viewFrame = { { 0, 0 }, { form->my_window.frame.size.width, form->my_window.frame.size.height } };
    NSView  *foreView = [[DTOverlayView alloc] initWithFrame:viewFrame];
@@ -152,7 +154,7 @@ static double  gYOffset = 30.;
 {
    NSEvent  *event = [NSApp currentEvent];
    
-   NSLog(@"Button pressed!");
+   NSLog (@"Button pressed!");
    
    //Do what You want here...  
    FORM_REC  *form = id_FindForm (FrontWindow());
@@ -416,7 +418,7 @@ static double  gYOffset = 30.;
 
 - (void)imgButtonPressed:(id)button
 {
-   NSLog(@"ImgButton pressed!"); 
+   NSLog (@"ImgButton pressed!"); 
    
    //Do what You want here... 
    
@@ -547,7 +549,7 @@ static double  gYOffset = 30.;
 {
    NSButton  *button = (NSButton *)idButton;
    
-   NSLog(@"Check pressed: %@!", [button state] ? @"ON" : @"OFF"); 
+   NSLog (@"Check pressed: %@!", [button state] ? @"ON" : @"OFF"); 
    
    //Do what You want here...
 }
@@ -813,7 +815,7 @@ static double  gYOffset = 30.;
    
    [popUp setPullsDown:NO];
    [popUp setTarget:self];
-   [popUp setAction:@selector(onSelectionChange:)];
+   [popUp setAction:@selector(onSelectionChange:)];  // It should be only one method to handle all the controls, in WindowFactory ;)
    
    if (frame.size.height < 20)  {
       [popUp setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize] - 1]];
@@ -869,7 +871,7 @@ static double  gYOffset = 30.;
    
    FORM_REC  *form = id_FindForm (FrontWindow());
    
-   NSLog(@"PopUp selection changed?: %d %@", (int)[popUp indexOfItem:[popUp selectedItem]], [popUp titleOfSelectedItem]); 
+   NSLog (@"PopUp selection changed?: %d %@", (int)[popUp indexOfItem:[popUp selectedItem]], [popUp titleOfSelectedItem]); 
    
    if ((popUp == form->popUpButtonR) || (popUp == form->popUpButtonS))  {
       NSString  *name = [form->popUpButtonR titleOfSelectedItem];
@@ -976,6 +978,157 @@ static double  gYOffset = 30.;
 {
    NSLog (@"sheet model ended.\nreturnCode: %d - %@\ncontextInfo: %@",
           (int)returnCode, id_Result2Msg((int)returnCode), contextInfo);
+}
+
+#pragma mark -
+
+- (NSScroller *)coreCreateScrollBarWithFrame:(CGRect)fldRect
+                                       inForm:(FORM_REC *)form
+{
+   // Create an NSScroller instance
+   NSScroller  *theScroller = [[NSScroller alloc] initWithFrame:id_CocoaRect(form->my_window, fldRect)];
+
+   [[form->my_window contentView] addSubview:theScroller];
+   
+   [theScroller setTag:++form->creationIndex];
+   
+   // Customize the appearance to make it look like a progress bar
+   [theScroller setArrowsPosition:NSScrollerArrowsDefaultSetting];
+   [theScroller setKnobProportion:0.2]; // To have a fixed-size knob
+   
+   [theScroller setDoubleValue:0.0]; // Initial progress value
+   
+   [theScroller setEnabled:YES];
+   
+   // [theScroller setPageScroll:10.0]; - nope, NSScrollView only
+   
+   return (theScroller);
+}
+
+- (void)onScrollerChange:(id)button
+{
+   NSScroller  *theScroller = (NSScroller *)button;
+   double       value = [theScroller doubleValue];
+   
+   FORM_REC  *form = id_FindForm (theScroller.window);
+   
+   NSScrollerPart  hitPart = [theScroller hitPart];
+   
+   NSLog (@"onScrollerChange: %.1f - %hd", [theScroller doubleValue], (short)hitPart);
+   
+   switch (hitPart)  {
+      case  NSScrollerNoPart:
+         break;
+      case  NSScrollerDecrementPage:
+         value -= 1. / 5;
+         break;
+      case  NSScrollerKnob:
+         break;
+      case  NSScrollerIncrementPage:
+         value += 1. / 5;
+         break;
+      case  NSScrollerDecrementLine:
+         value -= 1. / 10;
+         break;
+      case  NSScrollerIncrementLine:
+         value += 1. / 10;
+         break;
+      case  NSScrollerKnobSlot:
+         break;
+   }
+   
+   if (value < 0.)
+      value = 0.;
+   if (value > 1.)
+      value = 1.;
+   
+   [theScroller setDoubleValue:value];
+
+   // one day, with the forms calc real values
+   // min:0, max:e_elems-1, page is e_onscreen, current pos is e_occur
+   // The best is to handle everything with integers and then convert to proportions, well, maybe
+   // Unfortunately, these are short values in my lib so,... find a way to have more than 16K lines
+   // But that applies to all of the platforms, from MacOS 9 to Win, Carbon and now Cocoa
+}
+
+#ifdef _FUTURE_VERSION_
+// Well, this should replace version above
+- (void)onScrollerChange:(id)button
+{
+   NSScroller  *theScroller = (NSScroller *)button;
+   double       dblValue = [theScroller doubleValue];
+   
+   FORM_REC   *form = id_FindForm (theScroller.window);
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   
+   NSScrollerPart  hitPart = [theScroller hitPart];
+   
+   NSLog (@"onScrollerChange: %.1f - %hd", [theScroller doubleValue], (short)hitPart);
+   
+   for (index=0; index<=form->last_fldno; index++)  {
+      f_ditl_def = form->ditl_def[index];
+      f_edit_def = form->edit_def[index];
+      
+      if (((form->ditl_def[index]->i_type & 127) == userItem) &&
+          (form->edit_def[index]->e_type == ID_UT_SCROLL_BAR))  {
+         if (theScroller == (NSScroller *)form->ditl_def[index]->i_handle)  {
+            short  skip = FALSE, shortValue = (short) (dblValue * (form->edit_def[index]->e_elems-1));
+
+            switch (hitPart)  {
+               case  NSScrollerDecrementPage:
+                  shortValue -= form->edit_def[index]->e_onscreen;
+                  break;
+               case  NSScrollerIncrementPage:
+                  shortValue += form->edit_def[index]->e_onscreen;
+                  break;
+               case  NSScrollerDecrementLine:
+                  shortValue -= 1;
+                  break;
+               case  NSScrollerIncrementLine:
+                  shortValue += 1;
+                  break;
+               case  NSScrollerKnobSlot:
+               case  NSScrollerNoPart:
+               case  NSScrollerKnob:
+                  skip = TRUE;
+                  break;
+            }
+            
+            if (!skip)  {
+               dblValue = (double)value / (form->edit_def[index]->e_elems-1);
+
+               if (value < 0.)
+                  value = 0.;
+               if (value > 1.)
+                  value = 1.;
+                  
+               [theScroller setDoubleValue:value];
+            }
+         }
+      }
+   }
+}
+#endif
+
+- (NSScroller *)createLeftScrollBarInForm:(FORM_REC *)form
+{
+   NSView  *contentView = [form->my_window contentView];
+   CGRect   contentRect = [contentView bounds];
+
+   int  x = contentRect.size.width - ([NSScroller scrollerWidth] + 5);
+   int  y = 5 + dtGData->toolBarHeight;
+   
+   int  width = [NSScroller scrollerWidth];
+   int  height = contentRect.size.height - 10 - (kSBAR_HEIGHT + dtGData->toolBarHeight);
+   
+   NSScroller  *mySBar = [[self coreCreateScrollBarWithFrame:NSMakeRect(x, y, width, height)
+                                                      inForm:form] autorelease];
+   
+   [mySBar setTarget:self];
+   [mySBar setAction:@selector(onScrollerChange:)];  // It should be only one method to handle all the controls, in WindowFactory ;)
+      
+   return (mySBar);
 }
 
 @end
@@ -1221,6 +1374,8 @@ int  pr_CreateDitlWindow (
       
       [MainLoop finalizeFormWindow:form];
       
+      id_PutFormOnList (form, ditl_id);
+      
       [newWin makeKeyAndOrderFront:NSApp/*appDelegate.firstFormHandler*/];
    }
    
@@ -1335,5 +1490,532 @@ NSString  *id_Result2Msg (int result)
    }
    
    return (@"No idea!");
+}
+
+static int  DoCocoaAlert (short alertID, char *errMsgStr)
+{
+   NOT_YET  // extern  WindowRef  gGWindowToSelect;
+   
+   SInt16       itemHit /*, oldCursorSet, alertType*/;
+   SInt16       needOther = FALSE, needCancel = FALSE;
+   NSInteger    result = 0;
+   CFStringRef  cfString = NULL;
+   // DialogRef    theAlert;
+   // OSStatus     status;
+   
+   CFStringRef  cfStringOK = id_CreateCFString ("U redu");
+   CFStringRef  cfStringSave = id_CreateCFString ("Spremi");
+   CFStringRef  cfStringCancel = id_CreateCFString ("Odustani");
+   CFStringRef  cfStringOther = id_CreateCFString ("Ne spremaj");
+   CFStringRef  cfStringOprez = id_CreateCFString ("Oprez");
+   
+   // AlertStdCFStringAlertParamRec  paramRec;
+   
+   NSAlert  *alert = [[NSAlert alloc] init];
+   
+   NOT_YET  // gGWindowToSelect = NULL;
+   
+   switch (alertID)  {
+      case  MY_NOTE_ALERT:
+         // alertType = kAlertNoteAlert;
+         alert.alertStyle = NSCriticalAlertStyle;
+         break;
+      case  MY_CHOOSE_ALERT:
+         // alertType = kAlertCautionAlert;
+         alert.alertStyle = NSWarningAlertStyle;
+         needCancel = TRUE;
+         break;
+      case  MY_SAVE_YES_NO:
+         // alertType = kAlertCautionAlert;
+         alert.alertStyle = NSCriticalAlertStyle;
+         needCancel = TRUE;
+         needOther = TRUE;
+         break;
+      case  MY_STOP_ALERT:
+         // fall down       
+      default:
+         // alertType = kAlertStopAlert;  break;
+         alert.alertStyle = NSCriticalAlertStyle;
+   }
+   
+   NOT_YET  // if (gGCurrentAutoTaskPhase != kAutoTaskPhaseNone)  // Bilo nekad, ugasio 04.05.2020
+   NOT_YET  //    return (1);
+   
+   id_Mac2CFString (errMsgStr, &cfString, strlen(errMsgStr));
+   
+   alert.messageText = (NSString *)cfString;  // [NSString stringWithCString:message encoding:NSUTF8StringEncoding];
+   alert.informativeText = (NSString *)cfString;  // [NSString stringWithCString:info encoding:NSUTF8StringEncoding];
+   
+   NOT_YET  // oldCursorSet = id_msg_cursor ();
+   NOT_YET  // FlushEvents (mDownMask | keyDownMask | autoKeyMask, 0);
+   
+   [alert addButtonWithTitle:needOther ? (NSString *)cfStringSave : (NSString *)cfStringOK];
+   if (needCancel)
+      [alert addButtonWithTitle:(NSString *)cfStringCancel];
+   if (needOther)
+      [alert addButtonWithTitle:(NSString *)cfStringOther];
+   
+   /*
+    paramRec.version = kStdCFStringAlertVersionOne;
+    paramRec.movable = TRUE;
+    paramRec.helpButton = FALSE;
+    paramRec.defaultText = needOther ? cfStringSave : cfStringOK;
+    paramRec.cancelText = needCancel ? cfStringCancel : NULL;
+    paramRec.otherText = needOther ? cfStringOther : NULL;
+    paramRec.defaultButton = kAlertStdAlertOKButton;
+    paramRec.cancelButton = needCancel ? kAlertStdAlertCancelButton : 0;
+    paramRec.position = kWindowDefaultPosition;
+    paramRec.flags = 0;
+    */
+   
+   // status = CreateStandardAlert (alertType, cfStringOprez, cfString, &paramRec, &theAlert);
+   
+   dtGData->sysDlgActive = TRUE;
+   
+   result = (int)[alert runModal];
+   
+   dtGData->sysDlgActive = FALSE;
+   dtGData->sysDlgWasActive = TRUE;
+   
+   CFRelease (cfString);
+   
+   CFRelease (cfStringOK);
+   CFRelease (cfStringSave);
+   CFRelease (cfStringCancel);
+   CFRelease (cfStringOther);
+   CFRelease (cfStringOprez);
+   
+   NOT_YET  // id_restore_cursor (oldCursorSet);
+   
+   [alert release];
+   
+   if (result >= 1000)
+      return ((int)result - 999);  // NSAlertFirstButtonReturn, NSAlertSecondButtonReturn, NSAlertThirdButtonReturn -> 1,2,3
+   
+   return ((int)result);
+}
+
+/* ----------------------------------------------------------- id_base_emsg --------- */
+
+static int id_base_emsg (int ditlID, int dflt, int beep, const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   
+   NOT_YET  // id_PutToErrHistory (emsg);  // Puts to console too
+   
+   NOT_YET  // if (serr_mode)              /* Sustain ErrMsg */
+   NOT_YET  //    return (id_store_emsg(ditlID, dflt, beep, emsg));
+   
+   NOT_YET  // if (dtGData->errLogActive && dtGData->errLogSaveProc)
+   NOT_YET  //    dtGData->errLogSaveProc (emsg, NULL, 0, 0);
+   
+   return (DoCocoaAlert(ditlID, emsg));
+}
+
+/* ----------------------------------------------------------- id_note_emsg --------- */
+
+int  id_note_emsg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_NOTE_ALERT, 1, FALSE, "%s", emsg));
+}
+
+/* ----------------------------------------------------------- id_stop_emsg --------- */
+
+int  id_stop_emsg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_STOP_ALERT, 1, TRUE, "%s", emsg)); /* Stop alert */
+}
+
+/* ----------------------------------------------------------- id_query_1msg -------- */
+
+int  id_query_1msg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_CHOOSE_ALERT, 1, TRUE, "%s", emsg));
+}
+
+/* ----------------------------------------------------------- id_query_2msg -------- */
+
+int  id_query_2msg (const char *fmt, ...)
+{
+   char     emsg[512];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsnprintf (emsg, 512, fmt, argptr);
+   va_end (argptr);
+   /*
+    vsprintf (emsg, fmt, __va(fmt));
+    */
+   
+   return (id_base_emsg(MY_CHOOSE_ALERT, 2, TRUE, "%s", emsg));
+}
+
+/* === FormLists ==================================================================== */
+
+#pragma mark -
+
+static FLHandle   mainFormList = NULL;
+extern FORM_REC  *dtDialogForm;
+
+/* ----------------------------------------------------- id_FirstFL ----------------- */
+
+FLHandle  id_FirstFL (void)
+{
+   return (mainFormList);
+}
+
+/* ----------------------------------------------------- id_PutFormOnList ----------- */
+
+FLHandle  id_PutFormOnList (
+ FORM_REC  *form,
+ short      rsrcID
+)
+{
+   FLHandle  lastFLH, curFLH, newFLH;
+   
+   for (curFLH = mainFormList; curFLH; )  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   if (!(newFLH = (FLHandle) NewHandle (sizeof (FORM_LIST))))
+      return (NULL);
+      
+   if (!mainFormList)
+      mainFormList = newFLH;
+   else  {
+      HLock ((Handle)lastFLH);
+      (*lastFLH)->nextFLH = newFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   HLock ((Handle)newFLH);
+   
+   (*newFLH)->theForm = form;
+   (*newFLH)->ditl_ID = rsrcID;
+   (*newFLH)->menu_flags = ZERO_Command;
+   (*newFLH)->save_flags = ZERO_Command;
+   (*newFLH)->scroll_pos = 0;
+   (*newFLH)->some_info = 0;
+   (*newFLH)->nextFLH = NULL;
+   
+   HUnlock ((Handle)newFLH);
+   
+   return (newFLH);
+}
+
+/* ----------------------------------------------------- id_DisposeFormInList -------- */
+
+void  id_DisposeFormInList (
+ FORM_REC  *form
+)
+{
+   FLHandle  lastFLH, curFLH, myFLH;
+   
+   lastFLH = myFLH = NULL;
+   
+   if (curFLH = mainFormList)  {
+      HLock ((Handle)curFLH);
+      if ((*curFLH)->theForm == form)                        /* Ako je odmah prva ... */
+         myFLH = curFLH;
+      HUnlock ((Handle)curFLH);
+
+      for (curFLH = mainFormList; curFLH && !myFLH; )  {  /* Daljnje .... */
+         lastFLH = curFLH;
+         HLock ((Handle)lastFLH);
+         if (!(*curFLH)->nextFLH)  {
+            HUnlock ((Handle)lastFLH);
+            return;
+         }
+         HLock ((Handle)(*lastFLH)->nextFLH);
+         if ((*(*curFLH)->nextFLH)->theForm == form)
+            myFLH = curFLH;
+         curFLH = (*curFLH)->nextFLH;
+         HUnlock ((Handle)(*lastFLH)->nextFLH);
+         HUnlock ((Handle)lastFLH);
+      }
+   }
+   else
+      return;
+      
+   if (lastFLH)  {
+      HLock ((Handle)lastFLH);
+      HLock ((Handle)curFLH);
+      (*lastFLH)->nextFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+      HUnlock ((Handle)curFLH);
+   }
+   else  if ((*curFLH)->nextFLH)  {
+      HLock ((Handle)curFLH);
+      mainFormList = (*curFLH)->nextFLH;
+      HUnlock ((Handle)curFLH);
+   }
+   else
+      mainFormList = NULL;
+   
+   DisposeHandle ((Handle)curFLH);
+   
+   return;
+}   
+
+/* ----------------------------------------------------- id_CountFormList ------------ */
+
+int  id_CountFormList (void)
+{
+   short     i;
+   FLHandle  lastFLH, curFLH;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (i);
+}
+
+/* ................................................... id_CountEditingFormsInList ... */
+
+#ifdef _NOT_YET_
+int  id_CountEditingFormsInList (short penSensibleOnly, short dirtyFlag)
+{
+   short      i, cnt=0, skip = FALSE;
+   FLHandle   lastFLH, curFLH;
+   FORM_REC  *form;
+   FBPtr      theFB = NULL;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      skip    = FALSE;  // Those we don't check
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      form = (*curFLH)->theForm;
+      
+      if (form->TE_handle)  {
+         if (theFB = id_FBFindByForm(form))  {
+            if (penSensibleOnly && !theFB->penSense)
+               skip = TRUE;
+         }
+         
+         if (!skip)  {
+            if (dirtyFlag)  {
+               if (form->pen_flags & ID_PEN_DIRTY)
+                  cnt++;
+            }
+            else  if (form->pen_flags & ID_PEN_DOWN)
+               cnt++;
+         }
+      }
+      
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (cnt);
+}
+#endif
+
+/* ................................................... id_CountModalFormsInList ..... */
+
+int  id_CountModalFormsInList (short withSystemDialogs)
+{
+   short     i, cnt=0;
+   FLHandle  lastFLH, curFLH;
+   FORM_REC *form;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      form = (*curFLH)->theForm;
+      
+      if ((form->w_procID == movableDBoxProc) || (form->w_procID == dBoxProc))
+         cnt++;
+      
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (cnt);
+}
+
+/* ................................................... id_InvalFormsInList .......... */
+
+void  id_InvalFormsInList (void)
+{
+   short     i;
+   FLHandle  lastFLH, curFLH;
+   FORM_REC *form;
+   
+   for (i=0, curFLH = mainFormList; curFLH; i++)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      form = (*curFLH)->theForm;
+      
+      InvalWinRect (form->my_window, NULL);
+
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+}
+
+/* ----------------------------------------------------- id_NextFormList ------------- */
+
+FLHandle id_NextFormList (
+ FLHandle  curFLH
+)
+{
+   FLHandle  lastFLH;
+   
+   if (curFLH)  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (curFLH);
+}
+
+/* ................................................... id_FindForm .................. */
+
+FORM_REC  *id_FindForm (NSWindow *nsWindow)
+{
+   FLHandle  theFLH = id_FindWindowInFList (nsWindow);
+   FORM_REC *formPtr;
+   
+   if (theFLH)
+      formPtr = (*theFLH)->theForm;
+   else  {
+      NOT_YET  // return (NULL);
+
+      // NSLog (@"id_FindForm: %@ %d", nsWindow.title, (int)nsWindow.windowNumber);
+      
+      if (dtDialogForm && dtDialogForm->my_window == nsWindow)
+         return (dtDialogForm);
+      if (dtRenderedForm && dtRenderedForm->my_window == nsWindow)
+         return (dtRenderedForm);
+      
+      // if (dtMainForm && dtMainForm->my_window == nsWindow)
+      //    NSLog (@"We have ourseves a window!");
+      
+      return (dtMainForm);
+   }
+   
+   return (formPtr);
+}
+
+/* ----------------------------------------------------- id_FindFormInList ----------- */
+
+FLHandle id_FindFormInList (
+ FORM_REC  *form
+)
+{
+   FLHandle  lastFLH, curFLH, myFLH;
+   
+   myFLH = NULL;
+   
+   for (curFLH = mainFormList; curFLH && !myFLH; )  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      if ((*curFLH)->theForm == form)
+         myFLH = curFLH;
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (myFLH);
+}
+
+/* ----------------------------------------------------- id_FindWindowInFList -------- */
+
+FLHandle  id_FindWindowInFList (
+ NSWindow  *nsWindow
+)
+{
+   FLHandle  lastFLH, curFLH, myFLH;
+   
+   myFLH = NULL;
+   
+   for (curFLH = mainFormList; curFLH && !myFLH; )  {
+      lastFLH = curFLH;
+      HLock ((Handle)lastFLH);
+      if ((*curFLH)->theForm->my_window == nsWindow)
+         myFLH = curFLH;
+      curFLH = (*curFLH)->nextFLH;
+      HUnlock ((Handle)lastFLH);
+   }
+   
+   return (myFLH);
+}
+
+/* ------------------------------------------------ IsWindowPictureBeingDefined ------ */
+
+Boolean  IsWindowPictureBeingDefined (NSWindow  *nsWindow)
+{
+   return (FALSE);  /// return (IsPortPictureBeingDefined(GetWindowPort(win)));
+   
+}
+
+/* ----------------------------------------------------- ValidWinRect ---------------- */
+
+// This kills all of the redraw, maybe make it better one day
+
+OSStatus  ValidWinRect (NSWindow  *nsWindow, const Rect *bounds)
+{
+   FORM_REC  *form = id_FindForm (nsWindow);
+   
+   if (form && form->overlayView)
+      [form->overlayView setNeedsDisplay:NO];
+
+   return (0 /*ValidWindowRect(window, bounds)*/);
+}
+
+/* ----------------------------------------------------- InvalWinRect ---------------- */
+
+OSStatus  InvalWinRect (NSWindow  *nsWindow, const Rect *bounds)
+{
+   FORM_REC  *form = id_FindForm (nsWindow);
+   
+   if (form && form->overlayView)
+      [form->overlayView setNeedsDisplay:YES];
+   
+   return (0 /*ValidWindowRect(window, bounds)*/);
 }
 
