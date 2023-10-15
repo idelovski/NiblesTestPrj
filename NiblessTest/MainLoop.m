@@ -1855,6 +1855,20 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, B
          NSLog (@"File - Alias: %@;  Folder: %@", aliasFileFlag ? @"Yes" :  @"NO", folderFlag ? @"Yes" :  @"NO");
          if (aliasFlag)
             *aliasFlag = aliasFileFlag;
+         if (aliasFileFlag)  {
+            FSRef        curDestFSRef;
+            Boolean      resolveAliasChains = FALSE;
+            Boolean      targetIsFolder;
+            Boolean      wasAliased;
+            char         pathStr[256];
+            
+            OSErr  myErr = FSResolveAliasFile (&fsRef, resolveAliasChains, &targetIsFolder, &wasAliased);
+
+            // If it can't resolve the alias, fnfErr is returned but fsRef should point to non-existing original anyway - at least that is how it worked before with fsspec
+            if ((myErr && (myErr != fnfErr) && (myErr != eofErr)) || FSRefMakePath(&fsRef, (UInt8 *)pathStr, 256))
+               pathStr[0] = '\0';
+            NSLog (@"FSResolveAliasFile - Resolved: %@;  Target is Folder: %@\nPath: '%s'", !myErr ? @"Yes" :  @"No", targetIsFolder ? @"Yes" :  @"No", pathStr);
+         }
       }
 
       if (CFURLGetFileSystemRepresentation((CFURLRef)panel.URL, TRUE, (UInt8 *)fullPath, PATH_MAX))  {
