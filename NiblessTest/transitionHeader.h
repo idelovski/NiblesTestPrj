@@ -240,7 +240,7 @@ typedef union  {                  /* --------------------- Data in every DITL it
 } DITL_i_data;
 
 typedef struct  {                /* -------------------- Data from ResorceDataFile --- */
-    Handle         i_handle;
+    Handle         i_handle;     // 64 bit in memory
     Rect           i_rect;
     char           i_type;
     unsigned char  i_data_size;
@@ -263,7 +263,7 @@ typedef struct  {                /* -------------------- Menu from ResorceDataFi
 #ifdef _DTOOL_COCOA_
 
 typedef struct  {                /* -------------------- Data from ResorceDataFile --- */
-   SInt32         i_handle;
+   SInt32         i_handle;      // 32 bit in file
    Rect           i_rect;
    char           i_type;
    unsigned char  i_data_size;
@@ -271,6 +271,10 @@ typedef struct  {                /* -------------------- Data from ResorceDataFi
 } DITL_rsrc_item;
 
 #endif  // _DTOOL_COCOA_
+
+// --------------------------------------------------------------------------------------
+// EDIT_item, FORM_REC, DTGlobalData, etc
+// --------------------------------------------------------------------------------------
 
 struct  FormRecord;
 
@@ -367,6 +371,9 @@ struct  FormRecord  {
    Handle          toolBarHandle;
    Handle          statusBarHandle;
    
+   short           lastTouchedFldno;   // Reset it yourselve as it keeps value til the next touch
+   short           lastHoveredFldno;
+
    struct
     FormRecord    *parentForm;
    

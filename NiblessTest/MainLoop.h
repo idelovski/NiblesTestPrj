@@ -50,6 +50,16 @@ int   id_InitDTool (short idApple, short idFile, short idEdit, int (*errLogSaver
 
 void  id_SysBeep (short numb);
 
+#define  kSuspendResumeMessage  0x01
+#define  kResumeMask            0x00000001
+
+int  id_manage_form (FORM_REC *form, EventRecord *wEvent);
+int  id_do_the_form (FORM_REC *form, EventRecord *wEvent, NSWindow *whichWindow, short partWind);
+
+FORM_REC  *id_find_form (FORM_REC *form, EventRecord *wEvent, NSWindow *whichWindow, short partWind);
+
+WindowPartCode  id_FindWindowPart (EventRecord *evtRec, NSWindow **window);
+
 NSWindow  *FrontWindow (void);
 void       SelectWindow (NSWindow *win);
 void       SendBehind (NSWindow *ourWin, NSWindow *otherWin);
@@ -149,7 +159,7 @@ int  TExSetAlignment (NSTextField *theCtl, short teJust);
 int  TExSetSelection (NSTextField *theCtl, short selStart, short selEnd);
 int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd);
 
-int  TExIdle (WindowPtr windowPtr, NSTextField *editInput);
+int  TExIdle (NSWindow *aWindow, NSTextField *editInput);
 int  TExActivate (NSWindow *aWindow, NSTextField *editInput);
 int  TExDeactivate (NSWindow *aWindow, NSTextField *editInput);
 int  TExUpdate (NSTextField  *editInput, Rect *fldRect);
@@ -395,7 +405,7 @@ int  id_move_field (FORM_REC *form, short fldno, short dh, short dv);
 
 #define  MulDiv(val,numerator,denominator)  ((int)((double)val*numerator/denominator))
 
-Rect  *GetWindowRect (WindowPtr win, Rect *rect);  // my own shit!
+Rect  *GetWindowRect (NSWindow *win, Rect *rect);  // my own shit!
 
 void  id_WinRect2FormRectEx (FORM_REC *form, Rect *winRect, Rect *formRect, short scaleRatio);
 void  id_WinRect2FormRect (FORM_REC *form, Rect *winRect, Rect *formRect);
@@ -492,14 +502,23 @@ int  id_DrawTBPadding (FORM_REC *form);
 int  id_EnableIconToolbar (FORM_REC *form);
 int  id_DisableIconToolbar (FORM_REC *form);
 
+int  id_PtNotInIconToolbar (FORM_REC *form, Point myPt);
+
+void  id_SwapShortBytes (short *shortNum);
+void  id_SwapDShortBytes (unsigned short *shortNum);
+void  id_SwapLongBytes (long *longNum);
+void  id_SwapDoubleBytes (double *dblNum);
+void  id_SwapRectBytes (Rect *rect);
+
 #ifdef __OBJC__
 
 // We're in objc
 #else
  
-// or maybe use something like MacWindow
+// or maybe use something like MacWindow, NSWindowPtr
 
-typedef  struct OpaqueWindowPtr  NSWindow
+typedef  NSWindow  *NSWindowPtr;
+typedef  struct OpaqueWindowPtr  NSWindow;  // -> not really
 
 #endif
 

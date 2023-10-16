@@ -1086,10 +1086,31 @@ static void  id_activate_form (
    }
 }
 
-/* .......................................................... id_find_form .......... */
+/* .......................................................... id_manage_form ........ */
 
-#define  kSuspendResumeMessage  0x01
-#define  kResumeMask            0x00000001
+int  id_manage_form (                 /* --- Manage our window - check everything --- */
+ FORM_REC    *form,
+ EventRecord *wEvent
+)
+{
+   short      partWind = 0;           /* Location of event in window */
+   NSWindow  *whichWindow = NULL;     /* Window pointer where event happened */
+   
+   if (!form || !form->my_window)     /* Handle only when the window is valid */
+      return (-1);
+
+   if (wEvent->what == mouseDown)
+      partWind = id_FindWindowPart (wEvent, &whichWindow);   /* Get where and which window, id version of FindWindow */
+   
+   if (id_find_form(form, wEvent, whichWindow, partWind))
+      id_SysBeep (10);
+   else
+      return (id_do_the_form(form, wEvent, whichWindow, partWind));
+      
+   return (0);
+}                              /* End of function */
+
+/* .......................................................... id_find_form .......... */
 
 FORM_REC *id_find_form (
  FORM_REC     *form,
@@ -1295,10 +1316,474 @@ FORM_REC *id_find_form (
    return (retValue);
 }
 
+/* .......................................................... id_do_the_form ........ */
+
+FORM_REC  *gGFormDfltPressed = NULL;
+
+int  id_do_the_form (
+ FORM_REC     *form,
+ EventRecord  *wEvent,
+ NSWindow     *whichWindow,
+ short         partWind
+)
+{
+   char   ch, *myGroup, *thisGroup;  /* Radio groups */
+   NOT_YET  // char   mwsItemText[256];
+   short  keyCode;
+   short  retValue = 0;            /* Control fldno */
+   short  ifcFlag = FALSE;
+   short  index;                     /* For looping */
+   long   refCon;
+   short  ctlCode = 0;               /* Loc of event in window & controls */
+   NOT_YET  // short  mwsOccur=-1, mwsFldno;
+   short  entryFldno = form ? form->cur_fldno : 0;
+   short  statMouseDownHandled = FALSE;
+   short  ctrlMouseDownHandled = FALSE;
+   Point  myPt;                      /* Point where event happened */
+   Rect   tmpRect;
+   
+   // ControlHandle  theControl;
+   NSControl  *theControl;
+   // FontInfo    fntInfo;
+   // WindowPtr   savedPort;
+   DITL_item  *f_ditl_def;
+   EDIT_item  *f_edit_def;
+   // FLHandle       myFLH;
+   /*FORM_REC      *tmpForm;*/
+   
+   NOT_YET  // gGChangedFldno = FALSE;   /* Reentry problem! */
+
+   if (!form || form->my_window == NULL)     /* Handle only when the window is valid */
+      return (-1);
+      
+   form->dataStuffing = FALSE;
+
+   if (form->TE_handle && (form->pen_flags & ID_PEN_DOWN) && (form->my_window == FrontWindow ()))  {
+      TExIdle (form->my_window, (NSTextField *)form->TE_handle);
+   }
+
+   NOT_YET  // GetWinPort (&savedPort);                    /* Save the current port */
+   NOT_YET  // SetWinPort (form->my_window);               /* Prepare to write into our window */
+   
+   if (wEvent->what == nullEvent)  {
+      if (gGFormDfltPressed && gGFormDfltPressed == form)  {
+         retValue = form->aDefItem + 1;
+         NOT_YET // retValue = id_handle_default_button  (form, savedPort);
+         gGFormDfltPressed = NULL;
+      }
+   }
+   else  if (wEvent->what == mouseDown)  {
+   
+      // con_printf ("id_do_the_form->mouseDown\n");
+
+      dtGData->lastEventTick = wEvent->when;
+      GetDateTime (&dtGData->lastEventDateTime);
+   
+      myPt = wEvent->where;
+      id_GlobalToLocal (form, &myPt);
+      
+      // Removed
+      // (partWind == inContent) && (whichWindow != FrontWindow()
+      // (partWind == inGrow) && (form->my_window == whichWindow) && form->my_Zoom
+      // (partWind == inZoomIn) || (partWind==inZoomOut)
+      // 
+      
+      if ((partWind == inContent) &&
+                (form->my_window == whichWindow) &&
+                // id_PtNotInZoom(form, myPt) &&
+                id_PtNotInIconToolbar(form, myPt))  {
+         
+         form->lastTouchedFldno = 0;
+         
+         for (index=0; index<=form->last_fldno; index++)  {
+         
+            f_ditl_def = form->ditl_def[index];
+            f_edit_def = form->edit_def[index];
+            
+            id_itemsRect (form, index, &tmpRect);
+            if (PtInRect(myPt, &tmpRect))
+               form->lastTouchedFldno = index+1;
+         
+            if (f_ditl_def->i_type == editText && form->TE_handle)  {
+          
+               id_itemsRect (form, index, &tmpRect);
+               if (PtInRect(myPt, &tmpRect))  {              
+
+                  ctrlMouseDownHandled = TRUE;     /* Zbog ScrollBara Liste! */
+
+                  if (!(form->pen_flags & ID_PEN_DOWN))  {
+                     if (form->pen_flags & ID_PEN_TOUCH)
+                        id_pen_down (form, form->cur_fldno+1);  /* Stay where you are. */
+                     else  {
+                        NOT_YET  // if (wEvent->modifiers & cmdKey)
+                        NOT_YET  //    id_click_pen_down (form, index, wEvent, &myPt);
+                        NOT_YET  // else  if (!id_field_empty(form, index+1))
+                        NOT_YET  //    id_CheckFldnoMWS (form, wEvent, mwsFldno=index+1, &mwsOccur, mwsItemText);
+                        continue;
+                     }
+                  }
+                  else  if (!id_field_empty(form, index+1) ||
+                           (form->cur_fldno == index && id_get_pen(form, ID_PEN_FLDIRT)))
+                     NOT_YET  // if (id_CheckFldnoMWS(form, wEvent, mwsFldno=index+1, &mwsOccur, mwsItemText))
+                     NOT_YET  //    continue;
+                     
+                  // kEventParamKeyCode
+                  
+                  id_my_edit_layout (form, index);
+                  
+                  if (form->cur_fldno == index)  {    /* If current */
+                     TExClick (myPt, wEvent->modifiers, wEvent, (NSTextField *)form->TE_handle);
+                  }
+                  else  {
+                     // GetFontInfo (&fntInfo);
+                     if (id_TE_change(form, index, NULL/*&fntInfo*/, NULL/*savedPort*/, FALSE, TRUE))
+                        break;
+                     else
+                        TExClick (myPt, 0, wEvent, (NSTextField *)form->TE_handle);
+                  }
+                  retValue = index + 1;
+               }
+            }
+            
+            else  if (f_ditl_def->i_type == statText)  {
+               id_itemsRect (form, index, &tmpRect);
+               if (PtInRect(myPt, &tmpRect) == TRUE)  {              
+                  statMouseDownHandled = TRUE;     /* Zbog ScrollBara Liste! */
+                  NOT_YET  // if (!id_field_empty(form, index+1))
+                  NOT_YET  //    id_CheckFldnoMWS (form, wEvent, mwsFldno=index+1, &mwsOccur, mwsItemText);
+                  if (id_get_pen (form, ID_PEN_IN_STAT))
+                     retValue = index + 1;
+               }
+            }
+
+            else  if (f_ditl_def->i_type == iconItem)  {
+               // tmpRect = f_ditl_def->i_rect;
+               id_itemsRect (form, index, &tmpRect);
+               if (PtInRect(myPt, &tmpRect) == TRUE)  {
+                  NOT_YET  // InvertRect (&tmpRect);
+                  NOT_YET  // id_standard_pause ();
+                  NOT_YET  // InvertRect (&tmpRect);
+                  id_check_exit (form, index, NULL/*savedPort*/);
+                  retValue = index + 1;
+               }
+            }
+            
+            else  if (form->ditl_def[index]->i_type == userItem)  {  // skip disabled!
+            
+               id_itemsRect (form, index, &tmpRect);
+
+               if (f_edit_def->e_type == ID_UT_POP_UP)  {
+#ifdef _NO_NEED_
+                  if (id_RunningOnMacOS9() || f_edit_def->e_regular)  {
+                     tmpRect.right = f_edit_def->e_onscreen + 2;
+                     if (PtInRect(myPt, &tmpRect) == TRUE)  {
+                        if (!id_check_over (form, index, savedPort))  {
+                           if (!id_do_PopUp (form, index, myPt))
+                              id_check_exit (form, index, savedPort);
+                           retValue = index + 1;
+                        }
+                     }
+                  }
+#endif
+               }
+            
+               else  if (f_edit_def->e_type == ID_UT_PICTURE)  {
+                  if (f_edit_def->e_fld_edits & ID_FE_TOUCHABLE)  {
+                     if (PtInRect(myPt, &tmpRect))  {
+                        retValue = index + 1;
+                     }
+                  }
+               }
+
+               else  if (f_edit_def->e_type == ID_UT_TEPOP_PICT)  {
+                  // tmpRect = f_ditl_def->i_rect;  above!
+#ifdef _NOT_YET_
+                  if (PtInRect(myPt, &tmpRect) == TRUE)  {
+                     if (!id_check_over (form, index, savedPort))  {
+                        if (!id_do_PopUp (form, index, myPt))
+                           id_check_exit (form, index, savedPort);
+                        retValue = index + 1;
+                     }
+                  }
+#endif
+               }
+            
+               else  if (f_edit_def->e_type & ID_UT_LIST)  {
+#ifdef _NOT_YET_
+                  if (PtInRect(myPt, &tmpRect) == TRUE)  {
+                     ctrlMouseDownHandled = TRUE;     /* Zbog ScrollBara Liste! */
+                     id_my_list_layout (form, index);
+                     if (id_do_List (form, index, myPt, wEvent))
+                        id_check_exit (form, index, savedPort);
+                     retValue = index + 1;
+                  }
+#endif
+               }
+            
+               else  if (f_edit_def->e_type == ID_UT_ICON_ITEM)  {
+#ifdef _NOT_YET_
+                  if (PtInRect(myPt, &tmpRect) == TRUE)  {
+                     id_TrackIcon (form, index, &myPt);   /* Track the Icon */
+                     if (PtInRect (myPt, &tmpRect) == TRUE)  {
+                        id_standard_pause ();
+                        id_check_exit (form, index, savedPort);
+                        retValue = index+1;
+                     }   						/* End of released in the Icon */
+                     id_DrawIcon (form, index, f_edit_def->e_elems);
+                  }
+#endif
+               }
+               else  if (f_edit_def->e_type == ID_UT_CICN)  {
+#ifdef _NOT_YET_
+                  if (PtInRect(myPt, &tmpRect) == TRUE)  {
+                     id_TrackIcon (form, index, &myPt);   /* Track the Icon */
+                     if (PtInRect (myPt, &tmpRect) == TRUE)  {
+                        id_standard_pause ();
+                        id_check_exit (form, index, savedPort);
+                        retValue = index+1;
+                     }   						/* End of released in the Icon */
+                     id_DrawIcon (form, index, f_edit_def->e_elems);
+                  }
+#endif            
+               }
+
+            }                     /* End of userItem */
+         }
+      }                           /* End of mouseDown */
+      
+      else  if ((form->w_procID == dBoxProc) || (form->w_procID == plainDBox)) 
+         /* Ali ne i 'movableDBoxProc' */
+         id_SysBeep (10);
+   }
+      
+   if (((wEvent->what == keyDown) || (wEvent->what == autoKey)) && 
+       (form->my_window == FrontWindow ()))  {
+      short  newScaling;
+      
+      dtGData->lastEventTick = wEvent->when;
+      GetDateTime (&dtGData->lastEventDateTime);
+      // con_printf ("LAST ACT: 1 keyDown\n");
+
+      // gGLastActivity = TickCount ();
+      
+#ifdef _NOT_YET_
+      if (!id_check_form_scaling(form, wEvent, &newScaling))  {
+         if (id_CharHistoryLen())
+            id_AddKey2CharHistory (wEvent->message & charCodeMask, wEvent->when);
+         else
+            id_scale_form (form, newScaling, FALSE);
+      }
+      else
+#endif
+         if ((wEvent->modifiers & cmdKey)==0)  {
+         ch      = wEvent->message & charCodeMask;                /* Get character pressed */
+         keyCode = wEvent->message & keyCodeMask;
+      
+         NOT_YET // ch = id_TSChar (form, ch);
+
+         if ((form->TE_handle) && (form->pen_flags & ID_PEN_DOWN) && (ch == '\t'))  {
+
+            if (wEvent->modifiers & shiftKey)
+               index = id_find_prev_fld (form);
+            else               
+               index = id_find_next_fld (form);
+
+#ifdef _NOT_YET_
+            if (id_check_if_last_scroll_field(form, form->cur_fldno, &index, savedPort))  {
+               id_my_edit_layout (form, index);
+               // GetFontInfo (&fntInfo);
+               id_TE_change (form, index, NULL, NULL/*savedPort*/, TRUE, FALSE);
+            }
+#endif            
+            retValue = form->cur_fldno+1;
+         }
+         else  if ((ch == '\r') && (form->aDefItem >= 0))  {
+            retValue = form->aDefItem + 1;
+            NOT_YET  // retValue = id_handle_default_button (form, savedPort);
+            index = form->aDefItem;
+         }
+         else  if (form->TE_handle && (form->pen_flags & ID_PEN_DOWN))  {
+             
+            if (!ch && !keyCode)  {           // OSX crap, just ignore it here!
+               char  shortText[32];
+               
+               if (TExGetTextLen((NSTextField *)form->TE_handle))
+                  sprintf (shortText, "%d", TExGetTextLen((NSTextField *)form->TE_handle));
+               else
+                  shortText[0] = '\0';
+               id_SetStatusbarText (form, 1, shortText);
+            }
+#ifdef _NOT_YET_
+            else  if (!(form->usedETypes & ID_UT_LIST) || !id_ListKey (form, ch))  {
+               if (id_HandleSpecKeys (form, wEvent))  {
+                  if (!id_check_chr_transform(form, &ch) &&
+                      !id_check_chr_edit(form, ch, &ifcFlag))  {  // interField Calc
+                     char  shortText[32];
+                     
+                     if (!((wEvent->modifiers & shiftKey) && (wEvent->modifiers & controlKey)))  {
+                        if (id_RunningOnMacOS9() || (ch!=kBackspaceCharCode && ch!=kDeleteCharCode))
+                           TExKey (ch, keyCode, wEvent->modifiers, wEvent, (NSTextField *)form->TE_handle);
+                     }
+                     
+                     if (TExGetTextLen((NSTextField *)form->TE_handle))
+                        sprintf (shortText, "%hd", TExGetTextLen((NSTextField *)form->TE_handle));
+                     else
+                        shortText[0] = '\0';
+                     id_SetStatusbarText (form, 1, shortText);
+                     /*TESelView (form->TE_handle);*/
+                  }
+                  else  {
+                     id_SysBeep (10);
+                  }
+               }
+            }
+#endif
+         }
+         NOT_YET  // else  if (form->usedETypes & ID_UT_LIST)
+         NOT_YET  //    id_ListKey (form, ch);
+            
+         NOT_YET  // if ((form->TE_handle) && !(form->pen_flags & ID_PEN_DOWN))
+         NOT_YET  //    id_AddKey2CharHistory (ch, wEvent->when);
+      }
+#ifdef _NOT_YET_
+      else  if ((form->w_procID == dBoxProc) || (form->w_procID == movableDBoxProc) ||
+          (form->w_procID == plainDBox))  {
+         // This handles command-zxcv
+         id_ModalMenuEvent (form, wEvent);
+      }
+#endif
+   }                                    /* End of key checking */
+   
+   NOT_YET  // if (form->my_Zoom)
+   NOT_YET  //    id_full_zoom (form, TRUE);
+
+#ifdef _NOT_YET_
+   if (!ctrlMouseDownHandled && (wEvent->what == mouseDown) &&
+       (partWind == inContent) && (form->my_window == whichWindow))  {    /* inContent - MOUSE ?! */
+
+      // gGLastActivity = TickCount ();
+
+      ctlCode = FindControl (myPt, whichWindow, &theControl);  /* Get type of control */
+		                                                   /* myPt is already local */
+      if ((ctlCode == inUpButton) || (ctlCode == inDownButton) || (ctlCode == inThumb) ||  (ctlCode == inPageDown) || (ctlCode == inPageUp))  {
+         index = id_do_ScrollBar (form, ctlCode, theControl, myPt, savedPort);   /* Do scrollbars */
+         if (index > 0)  {
+            id_check_exit (form, index, savedPort);
+            if (form->hover_check_func)
+               (*form->hover_check_func)(form, index+1, ID_SCROLL_FLAG, myPt);
+            retValue = index + 1;
+         }
+      }
+      else  if (ctlCode == kControlLabelPart)  {
+         // ID_UT_POP_UP w/o e_regular
+         index = id_track_PopUp(form, ctlCode, theControl, myPt, savedPort);
+         if (index > 0)  {
+            retValue = index + 1;
+         }
+      }
+      else  if (ctlCode)                                            /* Check type of control */
+         ctlCode = TrackControl (theControl, myPt, NULL);       /* Track the control */
+      
+      if (ctlCode == inCheckBox)  {
+         RefCon = GetControlReference (theControl);                  /* Still in, Do checkBoxes */
+         myGroup = form->edit_def[(short)RefCon]->e_regular;  /* Grupa */
+         for (index=0; index <= form->last_fldno; index++)  {
+            if ((long)index==RefCon)  {
+               if (((form->ditl_def[index]->i_type)&127)==(ctrlItem+radCtrl))  {
+                  SetControlValue (theControl, 1);                            /* Radio */
+                  if (id_was_double_click() && (form->aDefItem >= 0))  {
+                     id_reset_double_click ();
+                     id_PostKey (form->my_window, '\r', 0);
+                  }
+               }
+               else
+                  SetControlValue (theControl, !GetControlValue(theControl));   /* CheckBox */
+               id_check_exit (form, index, savedPort);
+               retValue = index+1;
+            }
+            else  if (((form->ditl_def[(short)RefCon]->i_type)&127)==(ctrlItem+radCtrl))  {
+               if (((form->ditl_def[index]->i_type)&127)==(ctrlItem+radCtrl))  {
+                  thisGroup = form->edit_def[index]->e_regular;  /* Grupa */
+                  if (!myGroup || (thisGroup && !strcmp(myGroup, thisGroup)))
+                     SetControlValue ((ControlHandle)form->ditl_def[index]->i_handle, 0);
+		         }
+		      }
+	      }
+      }
+      if (ctlCode == inButton)  {
+         RefCon = GetControlReference (theControl);                  /* Still in, Do Buttons */
+         for (index=0; index <= form->last_fldno; index++)  {
+            if ((long)index==RefCon)   {
+               id_check_exit (form, index, savedPort);
+               retValue = index+1;
+            }
+		 }
+      }
+   }                                    /* End for if (partWind==inContent) */
+#endif
+   
+   NOT_YET  // if (form->my_Zoom)
+   NOT_YET  //    id_full_zoom (form, FALSE);
+   
+   NOT_YET  // id_SetPort (form, savedPort);
+
+#ifdef _NOT_NEEDED_
+   if ((wEvent->what == mouseDown) && !ctlCode && ((partWind == inDrag) || (!retValue && (mwsOccur < 0) && id_inAltDrag(form, partWind))))  {
+      Rect  dragRect;
+      
+      // gGLastActivity = TickCount ();
+
+      if (!statMouseDownHandled && !ctrlMouseDownHandled)  {
+         id_get_max_rect (&dragRect);
+         
+         if (id_our_window (form->my_window, whichWindow))
+            DragWindow (whichWindow, wEvent->where, &dragRect);
+      }
+   }
+#endif
+   
+   NOT_YET  // if (mwsOccur > -1)  {
+   NOT_YET  //    retValue = 0;
+   NOT_YET  //    id_SetSavedMWS (form, mwsFldno, mwsOccur, mwsItemText);  // To be used in id_CallFldnoMWS()
+   NOT_YET  // }
+   NOT_YET  // if (entryFldno != form->cur_fldno)
+   NOT_YET  //    gGChangedFldno = TRUE;
+   
+   return (retValue);
+}                              /* End of function */
+
+// ***************************************************************************************
+
 // - (NSWindow *)windowWithWindowNumber:(NSInteger)windowNum;
 // - (NSWindow *)mainWindow;
 // - (NSWindow *)keyWindow;
 
+WindowPartCode  id_FindWindowPart (EventRecord *evtRec, NSWindow **window)
+{
+   NSWindow  *evtWindow = (NSWindow *)evtRec->message;
+   NSView    *contentView = [evtWindow contentView];
+   Point      thePoint = evtRec->where;
+   Rect       contentRect;
+   FORM_REC  *form = id_FindForm (evtWindow);
+   
+   *window = nil;
+   
+   if (form && (evtRec->what == mouseDown))  {
+      
+      id_GlobalToLocal (form, &thePoint);
+      
+      GetWindowRect (evtWindow, &contentRect);
+      
+      if (PtInRect(thePoint, &contentRect))  {
+         
+         *window = (NSWindow *)evtRec->message;
+         
+         return (inContent);
+      }
+   }
+
+   return (0);
+}
 
 NSWindow  *FrontWindow (void)
 {
@@ -1856,11 +2341,11 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, B
          if (aliasFlag)
             *aliasFlag = aliasFileFlag;
          if (aliasFileFlag)  {
-            FSRef        curDestFSRef;
-            Boolean      resolveAliasChains = FALSE;
-            Boolean      targetIsFolder;
-            Boolean      wasAliased;
-            char         pathStr[256];
+            FSRef    curDestFSRef;
+            Boolean  resolveAliasChains = FALSE;
+            Boolean  targetIsFolder;
+            Boolean  wasAliased;
+            char     pathStr[256];
             
             OSErr  myErr = FSResolveAliasFile (&fsRef, resolveAliasChains, &targetIsFolder, &wasAliased);
 
@@ -2655,7 +3140,7 @@ int  TExGetSelection (NSTextField *theCtl, short *selStart, short *selEnd)
 // txn version
 
 int  TExIdle (
- WindowPtr     windowPtr,
+ NSWindow     *aWindow,
  NSTextField  *editInput
 )
 {
@@ -3804,7 +4289,7 @@ static int  pr_CreateMenu (NSMenu *menuBar, id target, short theMenuID)  // 129 
    MENU_rsrc   *mr = NULL;
    
    NiblessTestAppDelegate  *appDelegate = (NiblessTestAppDelegate *)[NSApp delegate];
-   NSMutableDictionary    *menuDict = appDelegate.menuDict;
+   NSMutableDictionary     *menuDict = appDelegate.menuDict;
    
    if (!mh)  {
       id_OpenInternalResFile ();
@@ -4695,7 +5180,7 @@ void  id_get_form_rect (  // in local/client coordinates
       id_GetClientRect (form, rect);
    else  {
       // (*rect) = form->my_window->portRect;
-      GetWindowRect ((WindowPtr)form->my_window, &bounds);
+      GetWindowRect (form->my_window, &bounds);
       id_WinRect2FormRect (form, &bounds, rect);
    }
 }
@@ -4835,10 +5320,8 @@ int  id_move_field (
    return (0);
 }
 
-Rect  *GetWindowRect (WindowPtr winPtr, Rect *rect)  // my own shit!
+Rect  *GetWindowRect (NSWindow *win, Rect *rect)  // my own shit!
 {
-   NSWindow  *win = (NSWindow *)winPtr;
-   
    NSRect  winFrame = win.frame;
    NSRect  contentFrame = [win contentRectForFrameRect:winFrame];  // Here we get content frame in bottom-left coordinates
    NSRect  carbonRect = id_CarbonRect (nil, contentFrame);         // Now they are converted to top-left coordinates
@@ -7347,5 +7830,110 @@ int  id_DisableIconToolbar (
    (*tbHandle)->tbDisabled = TRUE;
      
    return (id_DrawIconToolbar(form));
+}
+
+int  id_PtNotInIconToolbar (
+ FORM_REC  *form,
+ Point      myPt
+)
+{
+   short  i, tbItems, retVal = -1;
+   short  iconWidth, iconPosHor;
+   Rect   tmpRect;
+
+   IDToolbarHandle  tbHandle = (IDToolbarHandle)form->toolBarHandle;
+   
+   if (!tbHandle)
+      return (retVal);  // not in toolbar
+   
+   HLock ((Handle)tbHandle);
+
+   tbItems = (*tbHandle)->tbItems;
+
+   for (i=0; i<tbItems; i++)  {
+
+      iconWidth = (*tbHandle)->tbWidth[i];
+      iconPosHor = (*tbHandle)->tbOffset[i];
+      
+      SetRect (&tmpRect, iconPosHor, 0, iconPosHor + iconWidth, dtGData->toolBarHeight);   // ltrb
+
+      if ((*tbHandle)->tbState[i] && PtInRect(myPt, &tmpRect) /*&& id_TrackTBIcon(form, i, &myPt)*/)  {
+         // id_PostMenuEvent ((*tbHandle)->tbMenu[i], (*tbHandle)->tbItem[i]);
+         retVal = 0;  // handled!
+         break;
+      }
+   }
+
+   if (retVal && PtInRect(myPt, &(*tbHandle)->popUpRect))  {
+      // id_HandleTBPopUp (form, &(*tbHandle)->popUpRect);
+      retVal = 0;
+   }
+
+   HUnlock ((Handle)tbHandle);
+      
+   return (retVal);  // not in toolbar, 0 means it is!
+}
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+static void  id_SwapTwoBytes (char *fstPtr, char *scdPtr)
+{
+   char  fst, scd;
+   
+   fst = *fstPtr;
+   scd = *scdPtr;
+   
+   *scdPtr = fst;
+   *fstPtr = scd;
+}
+
+/* .......................................................... id_SwapShortBytes ..... */
+
+void  id_SwapShortBytes (short *shortNum)
+{
+   char  *chrPtr = (char *) shortNum;
+   
+   id_SwapTwoBytes (chrPtr+0, chrPtr+1);
+}
+
+/* .......................................................... id_SwapDShortBytes .... */
+
+void  id_SwapDShortBytes (unsigned short *shortNum)
+{
+   char  *chrPtr = (char *) shortNum;
+   
+   id_SwapTwoBytes (chrPtr+0, chrPtr+1);
+}
+
+/* .......................................................... id_SwapLongBytes ...... */
+
+void  id_SwapLongBytes (long *longNum)
+{
+   char  *chrPtr = (char *) longNum;
+   
+   id_SwapTwoBytes (chrPtr+0, chrPtr+3);
+   id_SwapTwoBytes (chrPtr+1, chrPtr+2);
+}
+
+/* .......................................................... id_SwapDoubleBytes .... */
+
+void  id_SwapDoubleBytes (double *dblNum)
+{
+   char  *chrPtr = (char *) dblNum;
+   
+   id_SwapTwoBytes (chrPtr+0, chrPtr+7);
+   id_SwapTwoBytes (chrPtr+1, chrPtr+6);
+   id_SwapTwoBytes (chrPtr+2, chrPtr+5);
+   id_SwapTwoBytes (chrPtr+3, chrPtr+4);
+}
+
+/* .......................................................... id_SwapRectBytes ...... */
+
+void  id_SwapRectBytes (Rect *rect)
+{
+   id_SwapShortBytes (&rect->left);
+   id_SwapShortBytes (&rect->top);
+   id_SwapShortBytes (&rect->right);
+   id_SwapShortBytes (&rect->bottom);
 }
 

@@ -300,7 +300,7 @@ void  id_scale_form (FORM_REC *form, short newScaleRatio, short controlsOnly)
    if (!form->my_window || (form->scaleRatio == newScaleRatio))  return;
    
    // Need top-left position, the rest is recalculated later
-   GetWindowRect ((WindowPtr)form->my_window, &winRect);
+   GetWindowRect (form->my_window, &winRect);
    id_WinRect2FormRect (form, &winRect, &tmpRect);
    SetRect (&winRect, tmpRect.left, tmpRect.top,
             tmpRect.left + RectWidth(&form->w_rect), tmpRect.top + RectHeight(&form->w_rect));

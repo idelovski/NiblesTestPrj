@@ -345,7 +345,7 @@ static double  gYOffset = 30.;
    Boolean  aliasFlag = FALSE;
    
    NSAlert  *alert = nil;
-   NSArray  *allowedTypes = [NSArray arrayWithObjects:@"jpg", @"png", @"xls", @"doc", @"rtf", @"txt", @"xlsx", @"docx", @"jpeg", @"m", @"h", @"pdf", @"mp4", nil];
+   NSArray  *allowedTypes = [NSArray arrayWithObjects:@"jpg", @"png", @"xls", @"doc", @"rtf", @"txt", @"xlsx", @"docx", @"jpeg", @"m", @"c", @"h", @"pdf", @"mp4", nil];
    
    NSLog (@"aliasButtonPressed pressed!");
    
