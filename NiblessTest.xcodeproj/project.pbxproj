@@ -47,6 +47,7 @@
 		EBF568312A9E63CF0062D320 /* CICN0812.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF568252A9E63CF0062D320 /* CICN0812.jpg */; };
 		EBF568322A9E63CF0062D320 /* CICN0820.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF568262A9E63CF0062D320 /* CICN0820.jpg */; };
 		EBF568332A9E63CF0062D320 /* CICN0819.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF568272A9E63CF0062D320 /* CICN0819.jpg */; };
+		EBF7F1FD2ADEE9DB00D37D80 /* CICN0514.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EBF7F1FC2ADEE9DB00D37D80 /* CICN0514.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -113,6 +114,7 @@
 		EBF568252A9E63CF0062D320 /* CICN0812.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0812.jpg; path = CICN/CICN0812.jpg; sourceTree = "<group>"; };
 		EBF568262A9E63CF0062D320 /* CICN0820.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0820.jpg; path = CICN/CICN0820.jpg; sourceTree = "<group>"; };
 		EBF568272A9E63CF0062D320 /* CICN0819.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0819.jpg; path = CICN/CICN0819.jpg; sourceTree = "<group>"; };
+		EBF7F1FC2ADEE9DB00D37D80 /* CICN0514.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = CICN0514.jpg; path = CICN/CICN0514.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -237,6 +239,7 @@
 		EB6B95A02A9D21C50013DC1D /* CICN */ = {
 			isa = PBXGroup;
 			children = (
+				EBF7F1FC2ADEE9DB00D37D80 /* CICN0514.jpg */,
 				EB6B95A12A9D21D80013DC1D /* CICN0701.jpg */,
 				EB6B95A22A9D21D90013DC1D /* CICN0702.jpg */,
 				EBF568252A9E63CF0062D320 /* CICN0812.jpg */,
@@ -393,6 +396,7 @@
 				EBF5682F2A9E63CF0062D320 /* CICN0818.jpg in Resources */,
 				EBF5682C2A9E63CF0062D320 /* CICN0813.jpg in Resources */,
 				EBF568292A9E63CF0062D320 /* CICN0816.jpg in Resources */,
+				EBF7F1FD2ADEE9DB00D37D80 /* CICN0514.jpg in Resources */,
 				EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */,
 				EB1643962AA64255009446E6 /* PICT0604.jpg in Resources */,
 				EBF568282A9E63CF0062D320 /* CICN0822.jpg in Resources */,
