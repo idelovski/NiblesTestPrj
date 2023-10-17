@@ -2350,6 +2350,7 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, B
             OSErr  myErr = FSResolveAliasFile (&fsRef, resolveAliasChains, &targetIsFolder, &wasAliased);
 
             // If it can't resolve the alias, fnfErr is returned but fsRef should point to non-existing original anyway - at least that is how it worked before with fsspec
+            // Well, nope, FSRef version does not resolve aliases to deleted originals
             if ((myErr && (myErr != fnfErr) && (myErr != eofErr)) || FSRefMakePath(&fsRef, (UInt8 *)pathStr, 256))
                pathStr[0] = '\0';
             NSLog (@"FSResolveAliasFile - Resolved: %@;  Target is Folder: %@\nPath: '%s'", !myErr ? @"Yes" :  @"No", targetIsFolder ? @"Yes" :  @"No", pathStr);
