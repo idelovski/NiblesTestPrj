@@ -39,8 +39,8 @@
 #define  GetMouse(p)                  GetCursorPos(p)
 #define  CountMItems(mh)              GetMenuItemCount(mh)
 
-#define  topLeft(r)        (((POINT *)&(r))[0])
-#define  botRight(r)       (((POINT *)&(r))[1])
+#define  topLeft(r)        (((Point *)&(r))[0])
+#define  botRight(r)       (((Point *)&(r))[1])
 
 
 #pragma mark AppleStuff
@@ -802,6 +802,12 @@ typedef struct _IDStatusbar  {
    char         sbCharCountMsg[16];
    
 } IDStatusbarRecord, *IDStatusbarPtr, **IDStatusbarHandle;
+
+// --------------------------------------------------------------------------------------
+
+#define  OK       ok
+#define  Cancel   cancel
+#define  Discard  3
 
 #define MacRect  Rect
 

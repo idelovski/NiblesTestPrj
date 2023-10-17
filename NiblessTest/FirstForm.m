@@ -227,7 +227,7 @@ static double  gYOffset = 30.;
    
    dtDialogForm = &tmpForm;
    
-   id_init_form (&tmpForm);
+   id_init_form (&tmpForm, "");
    
    [MainLoop finalizeFormWindow:&tmpForm];
    
@@ -1358,7 +1358,11 @@ int  pr_CreateDitlWindow (
                id_create_iconItem (form, index, /*savedPort*/NULL);
                form->usedETypes |= ID_UT_ICON_ITEM;
             }
-
+            else  if (f_edit_def->e_type == ID_UT_CICN)  {
+               id_create_iconItem (form, index, /*savedPort*/NULL);
+               form->usedETypes |= ID_UT_CICN;
+            }
+            
             else  if (f_edit_def->e_type == ID_UT_PICTURE)  {  // Yes, it should be id_create_picture(), this is wrong
                id_draw_Picture (form, index);
                // id_create_picture (form, index, savedPort);
@@ -1683,6 +1687,70 @@ int  id_query_2msg (const char *fmt, ...)
     */
    
    return (id_base_emsg(MY_CHOOSE_ALERT, 2, TRUE, "%s", emsg));
+}
+
+/* ----------------------------------------------------------- id_base_devils_qmsg --- */
+
+#define  kITEM_DEVIL  4
+
+static EDIT_item  devils_edit_items[] = {
+ { kITEM_DEVIL, ID_UT_CICN, 0, kCicnDevil, kCicnDevil, kCicnDevil, 0, 0,
+                NULL, NULL, NULL, 
+                NULL, NULL },
+
+ { 0,           0 } 
+};
+
+static int id_base_devils_qmsg (short ditlID, char *okBtnText, short dflt, const char *fmt, ...)
+{
+   char     emsg[256];
+   short    oldCursorSet, itemHit;
+   Rect     msgRect;
+   va_list  argptr;
+   
+   EventRecord  myEvent; 
+   FORM_REC     msgForm;
+   
+   va_start (argptr, fmt);
+   vsprintf (emsg, fmt, argptr);
+   va_end (argptr);
+   
+   NOT_YET  // id_PutToErrHistory (emsg);
+   NOT_YET  // if (serr_mode)              /* Sustain ErrMsg */
+   NOT_YET  //    return (id_store_emsg(ditlID, OK, FALSE, emsg));
+      
+   NOT_YET  // oldCursorSet = id_msg_cursor ();
+
+   id_SetRectOnTop (&msgRect, 72, 100, 502, 226);   /* l t r b */
+
+   id_SysBeep (10);
+   
+   id_init_form (&msgForm, "");
+   msgForm.w_procID = movableDBoxProc;
+   // msgForm.update_func = pr_OnUpdateDevil;
+   // id_open_form (&msgForm, &msgRect, ditlID, &devils_edit_items[0]);
+   pr_CreateDitlWindow (&msgForm, ditlID, &msgRect, "a", &devils_edit_items[0]);
+   msgForm.aDefItem = dflt-1;
+   
+   id_putfield (&msgForm, 3, emsg);
+   if (okBtnText)
+      id_putfield (&msgForm, 1, okBtnText);
+   
+   do {
+      id_GetNextEvent (&myEvent, 100);
+      
+      itemHit = id_manage_form (&msgForm, &myEvent);
+
+      if (id_event_key(&msgForm, &myEvent) == 27)
+         break;
+      
+   } while ((itemHit!=OK) && (itemHit!=Cancel));
+
+   id_close_form (&msgForm);
+   
+   NOT_YET  // id_restore_cursor (oldCursorSet);
+   
+   return (itemHit == OK ? OK : Cancel);
 }
 
 /* === FormLists ==================================================================== */

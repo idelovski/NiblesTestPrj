@@ -67,9 +67,10 @@ void       SendBehind (NSWindow *ourWin, NSWindow *otherWin);
 void  id_printWindowsOrder (void);  // Stupid utility f()
 
 FORM_REC  *id_FindForm (NSWindow *nsWindow);
-FORM_REC  *id_init_form (FORM_REC *form);
+FORM_REC  *id_init_form (FORM_REC *form, char *title);
 
 int   id_release_form (FORM_REC *form);
+int   id_close_form (FORM_REC *form);
 
 char *strNCpy (char *s1, const char *s2, long n);
 
@@ -398,10 +399,19 @@ void id_GetClientRect (FORM_REC *form, Rect *rect);
 void id_get_form_rect (Rect *rect, FORM_REC *form, short clientFlag);
 int  id_get_fld_rect (FORM_REC *form, short fldno, Rect *fldRect);
 
+int  id_center_rect (Rect *rect, short direction);
+void id_center_on_form (Rect *rect, FORM_REC *form);
+void id_center_on_top (Rect *newRect);
+void id_SetRectOnTop (Rect *newRect, short left, short top, short right, short bottom);
+
 Boolean  id_isHighField (FORM_REC *form, short fldno);
 
 int  id_inpossible_item (FORM_REC *form, short index);
 int  id_move_field (FORM_REC *form, short fldno, short dh, short dv);
+
+int  id_event_key (FORM_REC *form, EventRecord *evt);
+int  id_command_key (FORM_REC *form, EventRecord *evt);
+int  id_function_key (FORM_REC *form, EventRecord *evt);  // returns keyCodeMask'd value
 
 #define  MulDiv(val,numerator,denominator)  ((int)((double)val*numerator/denominator))
 
@@ -495,6 +505,7 @@ void id_RedrawStatusbar (FORM_REC *form);
 int  id_SetStatusbarText (FORM_REC *form, short statPart, char *statText);
 
 int  id_show_comment (FORM_REC *form, short index, short mode);
+int  id_DisposeStatusbar (FORM_REC *form);
 
 void id_create_toolbar (FORM_REC *form);
 int  id_DrawIconToolbar (FORM_REC *form);
@@ -503,6 +514,7 @@ int  id_EnableIconToolbar (FORM_REC *form);
 int  id_DisableIconToolbar (FORM_REC *form);
 
 int  id_PtNotInIconToolbar (FORM_REC *form, Point myPt);
+int  id_DisposeIconToolbar (FORM_REC *form);
 
 void  id_SwapShortBytes (short *shortNum);
 void  id_SwapDShortBytes (unsigned short *shortNum);

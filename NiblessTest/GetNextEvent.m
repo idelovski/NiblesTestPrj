@@ -298,6 +298,56 @@ void  id_LocalToGlobal (FORM_REC *form, Point *pt)
    SetPt (pt, globPt.x, globPt.y);
 }
 
+Rect  *id_LocalToGlobalRect (
+ Rect      *rect,
+ NSWindow  *window
+)
+{
+   FORM_REC   *form = id_FindForm (window);
+
+   if (form)  {
+      id_LocalToGlobal (form, &topLeft(*rect));
+      id_LocalToGlobal (form, &botRight(*rect));
+   }   
+
+   return (rect);
+}
+
+Rect *id_GlobalToLocalRect (
+ Rect      *rect,
+ NSWindow  *window
+)
+{
+   FORM_REC   *form = id_FindForm (window);
+   
+   if (form)  {
+      id_GlobalToLocal (form, &topLeft(*rect));
+      id_GlobalToLocal (form, &botRight(*rect));
+   }   
+
+   return (rect);
+}
+
+/* .........................................................id_RectInRect............. */
+
+int  id_RectInRect (
+ Rect *aRect,
+ Rect *mainRect
+)
+{
+   short  retVal;
+   
+   InsetRect (mainRect, -1, -1);
+   if (PtInRect (topLeft(*aRect), mainRect) &&
+       PtInRect (botRight(*aRect), mainRect))
+      retVal = TRUE;
+   else
+      retVal = FALSE;
+   InsetRect (mainRect, 1, 1);
+   
+   return (retVal);
+}
+
 #pragma mark -
 
 NSEvent  *id_mouseEventForWindowFromEvent (NSEvent *event, NSWindow *modalWindow)

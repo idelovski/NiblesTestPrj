@@ -37,6 +37,10 @@ NSPoint  id_GlobalLocation2Window (NSWindow *window, NSPoint point);
 void  id_GlobalToLocal (FORM_REC *form, Point *pt);
 void  id_LocalToGlobal (FORM_REC *form, Point *pt);
 
+Rect *id_LocalToGlobalRect (Rect *rect, NSWindow *window);
+Rect *id_GlobalToLocalRect (Rect *rect, NSWindow *window);
+int   id_RectInRect (Rect *aRect, Rect *mainRect);
+
 NSEvent  *id_mouseEventForWindowFromEvent (NSEvent *event, NSWindow *modalWindow);
 
 // -------------------

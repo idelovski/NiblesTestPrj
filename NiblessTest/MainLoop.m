@@ -70,7 +70,7 @@ static FORM_REC  theMainForm;
    CGFloat  menuBarHeight = NSStatusBar.systemStatusBar.thickness;
    NSRect   availableFrame = [NSScreen mainScreen].visibleFrame;  // Seems to be area above the dock
    
-   id_init_form (form);
+   id_init_form (form, "");
 
    availableFrame.origin.y += menuBarHeight;
    availableFrame.size.height -= menuBarHeight;
@@ -879,10 +879,13 @@ static Boolean  id_our_window (NSWindow *my_window, NSWindow *whichWindow)
 
 /* ................................................... id_init_form ................. */
 
-FORM_REC  *id_init_form (FORM_REC *form)
+FORM_REC  *id_init_form (FORM_REC *form, char *title)
 {
    id_SetBlockToZeros (form, sizeof (FORM_REC));
    
+   form->w_title = title;
+   form->w_procID = documentProc;
+
    form->scaleRatio = 100;
 
    form->pen_flags = ID_PEN_DOWN;
@@ -936,6 +939,70 @@ int  id_release_form (FORM_REC *form)
    [form->my_window release];
    
    form->my_window = nil;
+   
+   return (0);
+}
+
+/* ----------------------------------------------------------- id_close_form --------- */
+
+int  id_close_form (
+ FORM_REC  *form
+)
+{
+   short      i;
+   
+   if (form->my_window == NULL)
+      return (-1);
+      
+   NOT_YET // id_HandleOneFieldMWSUnderLine (NULL, NULL, 0);
+
+   id_SetCursor (form, 0);    /* NEW FEATURE */
+
+   NOT_YET // id_UDDisable ();
+      
+   NOT_YET // id_reset_double_click ();
+
+   for (i=0; i<=form->last_fldno; i++)  {
+      if (form->edit_def[i]->e_auto_alloced)  {
+         id_free_array (form->edit_def[i]->e_array);
+         form->edit_def[i]->e_auto_alloced = FALSE;
+         form->edit_def[i]->e_array = NULL;
+      }
+      if (form->edit_def[i]->e_longText)  {
+         DisposePtr (form->edit_def[i]->e_longText);
+         form->edit_def[i]->e_longText = NULL;
+      }
+      if ((form->ditl_def[i]->i_type & 127) == userItem)  {
+         if (form->edit_def[i]->e_type & ID_UT_TEPOP)  {
+            if (form->edit_def[i]->e_precision)
+               id_free_array (form->edit_def[i]->e_array);
+         }
+      }
+   }
+   
+   NOT_YET // id_RemoveRT (form);
+   
+   NOT_YET /* id_TE_free (form); - Do I need this? */    dtGData->theInput = NULL;
+   
+   if (form->toolBarHandle)
+      id_DisposeIconToolbar (form);
+   if (form->statusBarHandle)
+      id_DisposeStatusbar (form);
+      
+   [form->my_window close];  // id_CloseWindow (form->my_window);
+
+   // These 3 are handled in id_release_form()
+   // DisposePtr ((Ptr)form->edit_def);
+   // id_free_array ((char **)form->ditl_def);
+   // id_DisposeFormInList (form);  -- this goes in release
+   id_release_form (form);
+
+   NOT_YET // if (form->fPreview)  {
+   NOT_YET //   if (form->fPreview->hEmbededPic)
+   NOT_YET //      DisposeHandle (form->fPreview->hEmbededPic);
+   NOT_YET //   DisposePtr ((Ptr)form->fPreview);
+   NOT_YET //   form->fPreview = NULL;
+   NOT_YET // }
    
    return (0);
 }
@@ -1626,7 +1693,7 @@ int  id_do_the_form (
                      }
                      
                      if (TExGetTextLen((NSTextField *)form->TE_handle))
-                        sprintf (shortText, "%hd", TExGetTextLen((NSTextField *)form->TE_handle));
+                        sprintf (shortText, "%d", TExGetTextLen((NSTextField *)form->TE_handle));
                      else
                         shortText[0] = '\0';
                      id_SetStatusbarText (form, 1, shortText);
@@ -5167,6 +5234,124 @@ void id_SetCursor (
 
 #pragma mark Fields
 
+/* ----------------------------------------------------------- id_center_rect -------- */
+
+int  id_center_rect (
+ Rect  *rect,
+ short  direction
+) 
+{
+   Rect   mr;
+   short  x_offset, yOffset;
+   
+   id_get_max_rect (&mr);
+   
+   x_offset = (mr.right - (rect->right-rect->left)) / 2;
+   yOffset = (mr.bottom - (rect->bottom-rect->top+48)) / 2;
+   
+   if (direction & ID_CR_UP)   yOffset -= yOffset / 2;
+   if (direction & ID_CR_DOWN)   yOffset += yOffset / 2;
+      
+   OffsetRect (rect, x_offset, yOffset);
+   
+   if (rect->top < 48)
+      OffsetRect (rect, 0, 48-rect->top);
+   
+   return (0);
+}
+   
+/* ................................................... id_center_on_form ............. */
+
+void  id_center_on_form (
+ Rect     *rect,
+ FORM_REC *form
+)
+{
+   short      xOffset, yOffset;
+   Rect       maxRect, topRect;
+   // WindowPtr  savedPort;
+   
+   id_get_form_rect (&topRect, form, FALSE);
+   id_LocalToGlobalRect (&topRect, form->my_window);   
+   
+   // SetRect (rect, 0, 0, rect->right - rect->left, rect->bottom - rect->top);
+   SetRect (rect, 0, 0, RectWidth(rect), RectHeight(rect));
+
+   id_get_max_rect (&maxRect);
+   
+   if (id_RectInRect(&topRect, &maxRect))  {  /* i.e. on screen */ 
+      xOffset = topRect.left + ((topRect.right-topRect.left) - (rect->right-rect->left)) / 2;
+      yOffset = topRect.top  + ((topRect.bottom-topRect.top) - (rect->bottom-rect->top/*+46*/)) / 3;
+   }
+   else  {
+      xOffset = (maxRect.right - (rect->right-rect->left)) / 2;
+      yOffset = (maxRect.bottom - (rect->bottom-rect->top+46)) / 2;
+   }
+   
+   /*yOffset -= yOffset / 3;*/
+      
+   OffsetRect (rect, xOffset, yOffset);
+   
+   SetRect (&maxRect, maxRect.left+16, 46,
+                      maxRect.right-16, maxRect.bottom-16); 
+   
+   if (rect->left < maxRect.left)
+      OffsetRect (rect, maxRect.left - rect->left, 0);
+   if (rect->top < maxRect.top)
+      OffsetRect (rect, 0, maxRect.top - rect->top);
+
+   if (rect->right > maxRect.right)
+      OffsetRect (rect, -(rect->right - maxRect.right), 0);
+   if (rect->bottom > maxRect.bottom)
+      OffsetRect (rect, 0, -(rect->bottom - maxRect.bottom));
+}
+   
+/* ................................................... id_FindTopForm ................ */
+
+FORM_REC  *id_FindTopForm (void)
+{
+   FORM_REC  *topForm;
+   FLHandle   topFLH;
+   
+   if (topFLH=id_FindWindowInFList(FrontWindow()))  {
+      HLock ((Handle)topFLH);
+      topForm = (*topFLH)->theForm;
+      HUnlock ((Handle)topFLH);
+
+      return (topForm);
+   }
+   
+   return (NULL);
+}
+
+/* ................................................... id_center_on_top .............. */
+
+void  id_center_on_top (
+ Rect  *newRect
+)
+{
+   FORM_REC  *topForm;
+   // FLHandle   topFLH;
+   
+   if (topForm=id_FindTopForm())  {
+      id_center_on_form (newRect, topForm);
+   }
+}
+
+/* ................................................... id_SetRectOnTop ............... */
+
+void  id_SetRectOnTop (
+ Rect  *newRect,
+ short  left,
+ short  top,
+ short  right,
+ short  bottom
+)
+{
+   SetRect (newRect, left, top, right, bottom);
+   id_center_on_top (newRect);
+}
+
 /* ----------------------------------------------------------- id_get_form_rect ------ */
 
 void  id_get_form_rect (  // in local/client coordinates
@@ -6617,6 +6802,77 @@ int  id_get_ctrl (
    return (value);
 }
 
+/* ----------------------------------------------------------- id_event_key ---------- */
+
+int  id_event_key (
+ FORM_REC     *form,
+ EventRecord  *myEvent
+)
+{
+   short  index;
+   short  hotKey, hotChar;
+   
+   if (form->my_window == FrontWindow())  {
+      if ((myEvent->what == keyDown) || (myEvent->what == autoKey))  {
+         hotKey  = myEvent->message & keyCodeMask;
+         hotChar = myEvent->message & charCodeMask;
+         if (hotKey == 0x4700)  // Delete key
+            return (0);
+         if ((form->w_procID != documentProc) && (myEvent->modifiers & cmdKey) && (hotChar == '.'))  {
+            index = Cancel - 1;
+            if (form->last_fldno && (form->ditl_def[index]->i_type == ctrlItem+btnCtrl))  {
+               NOT_YET // HiliteControl ((ControlHandle)form->ditl_def[index]->i_handle, 1);
+               NOT_YET // id_standard_pause ();
+               NOT_YET // HiliteControl ((ControlHandle)form->ditl_def[index]->i_handle, 0);
+            }
+            return (27);   /* Esc */
+         }
+         else  if (!(myEvent->modifiers & cmdKey))
+            return (hotChar);
+      }
+      else  if (form->pen_flags & ID_PEN_ESC)
+         return (27);   /* Esc */
+   }
+   
+   return (0);
+}
+
+/* ----------------------------------------------------------- id_command_key -------- */
+
+int  id_command_key (
+ FORM_REC     *form,
+ EventRecord  *myEvent
+)
+{
+   short  key;
+   
+   if ((form->my_window == FrontWindow()) && ((myEvent->what == keyDown) || (myEvent->what == autoKey)))  {
+      if ((myEvent->modifiers & cmdKey) && (myEvent->message & charCodeMask))  {
+         return (key=(myEvent->message & charCodeMask));
+      }
+   }
+   
+   return (0);
+}
+
+/* ----------------------------------------------------------- id_function_key ------- */
+
+int  id_function_key (
+ FORM_REC     *form,
+ EventRecord  *myEvent
+)
+{
+   short  key;
+   
+   if ((form->my_window == FrontWindow()) && ((myEvent->what == keyDown) || (myEvent->what == autoKey)))  {
+      if ((myEvent->message & charCodeMask) == 0x10)  {
+         return (key=(myEvent->message & keyCodeMask));
+      }
+   }
+   
+   return (0);
+}
+
 /* --------------------------------------------------- entry & exit calls ---------- */
 
 #pragma mark -
@@ -6939,20 +7195,29 @@ void  id_create_iconItem (FORM_REC *form, short index, WindowPtr savedPort)
    [myButton setBordered:NO];
 
    // Load images from the app's resources
-   NSImage  *image = id_GetIcon (form->edit_def[index]->e_precision);  // e_precision is active icon
+   NSImage  *image = nil;
+   
+   if (f_edit_def->e_type == ID_UT_ICON_ITEM)
+      image = id_GetIcon (form->edit_def[index]->e_precision);  // e_precision is active icon
+   else  if (f_edit_def->e_type == ID_UT_CICN)
+      image = id_GetCIcon (form->edit_def[index]->e_precision);  // e_precision is active icon
    
    // Set images for the buttons
    [myButton setImage:image];
    
-   [myButton setTarget:appDelegate.firstFormHandler];
+   // Cicn is never used as a button - or is it?
+   
+   if (f_edit_def->e_type == ID_UT_ICON_ITEM)  {
+      [myButton setTarget:appDelegate.firstFormHandler];
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 #endif
-   [myButton setAction:@selector(buttonInDitlPressed:)];
+      [myButton setAction:@selector(buttonInDitlPressed:)];
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
+   }
 }
 
 int  id_draw_PopUp (
@@ -7050,6 +7315,8 @@ int id_RestoreClip (FORM_REC *form, RgnHandle savedClipRgn)
 }
 
 #pragma mark -
+
+// Ah, I don't use sbHandle because... so, now I see I'm missing id_create_statusbar()
 
 static int  id_InitStatusbarIcons (void)
 {
@@ -7374,6 +7641,20 @@ int  id_show_comment (
    else
       id_SetStatusbarText (form, 3, "");
 #endif  // _NOT_YET_
+   return (0);
+}
+
+/* ....................................................... id_DisposeStatusbar ...... */
+
+int  id_DisposeStatusbar (FORM_REC *form)
+{
+   if (!form->statusBarHandle)
+      return (-1);
+      
+   DisposeHandle (form->statusBarHandle);
+
+   form->statusBarHandle = NULL;
+
    return (0);
 }
 
@@ -7873,6 +8154,46 @@ int  id_PtNotInIconToolbar (
    HUnlock ((Handle)tbHandle);
       
    return (retVal);  // not in toolbar, 0 means it is!
+}
+
+/* ....................................................... id_DisposeIconToolbar .... */
+
+int  id_DisposeIconToolbar (FORM_REC *form)
+{
+   IDToolbarHandle  tbHandle = (IDToolbarHandle) form->toolBarHandle;
+   short            tbItems, i;
+   
+   if (!tbHandle)
+      return (-1);
+   
+   HLock ((Handle)tbHandle);
+   
+   // Well, well, well, all these icons/pictures are loaded with -imageNamed: so God knows who is holding them in memory
+   // So, check how often are they loaded and if I maybe need to retain them and then release them in here - woof
+
+#ifdef _NIJE_
+   if ((*tbHandle)->hciPadding)
+      DisposeCIcon ((CIconHandle)(*tbHandle)->hciPadding);
+
+   tbItems = (*tbHandle)->tbItems;
+
+   for (i=0; i<tbItems; i++)  {
+      if ((*tbHandle)->hciNormal[i])
+         DisposeCIcon ((CIconHandle)(*tbHandle)->hciNormal[i]);
+      if ((*tbHandle)->hciHigh[i])
+         DisposeCIcon ((CIconHandle)(*tbHandle)->hciHigh[i]);
+      if ((*tbHandle)->hciDisabled[i])
+         DisposeCIcon ((CIconHandle)(*tbHandle)->hciDisabled[i]);
+   }
+#endif
+   
+   HUnlock ((Handle)tbHandle);
+   
+   DisposeHandle ((Handle)tbHandle);
+
+   form->toolBarHandle = NULL;
+
+   return (0);
 }
 
 /* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */

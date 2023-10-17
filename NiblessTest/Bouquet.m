@@ -336,7 +336,7 @@ void  pr_OpenKupdob (void)
    SetRect (&tmpRect, 32+1, 32+39, 32+484, 32+244+72+64+8+54 /*- 28*/);
    
    if (!kupdobForm.my_window)  {
-      id_init_form (&kupdobForm);
+      id_init_form (&kupdobForm, "Adresar");
       
       kupdobForm.update_func = pr_OnUpdateKupdob;
       
