@@ -137,6 +137,7 @@ NSString  *id_Result2Msg (int result);
 
 int  id_note_emsg (const char *fmt, ...);
 int  id_stop_emsg (const char *fmt, ...);
+int  id_devils_query (char *okBtnText, const char *fmt, ...);
 
 
 /* === FormLists ==================================================================== */

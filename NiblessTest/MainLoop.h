@@ -119,6 +119,8 @@ int  id_UniCharToUpper (UniChar *uch);
 int  id_CharToUniChar (char ch, UniChar *uch);
 int  id_UniCharToChar (UniChar uch, char *ch);
 
+void  GetIndString (Str255 theString, short rsrc_id, short idx);
+
 char        *id_CFString2Mac (const CFStringRef srcStr, char *dstStr, short *strLen);
 CFStringRef  id_Mac2CFString (const char *srcStr, CFStringRef *dstStr, long strLen);
 CFStringRef  id_CreateCFString (const char *srcStr);

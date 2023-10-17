@@ -1753,6 +1753,20 @@ static int id_base_devils_qmsg (short ditlID, char *okBtnText, short dflt, const
    return (itemHit == OK ? OK : Cancel);
 }
 
+/* ----------------------------------------------------------- id_devils_2_qmsg -------- */
+
+int  id_devils_query (char *okBtnText, const char *fmt, ...)
+{
+   char     emsg[256];
+   va_list  argptr;
+   
+   va_start (argptr, fmt);
+   vsprintf (emsg, fmt, argptr);
+   va_end   (argptr);
+   
+   return (id_base_devils_qmsg(kDevilsAlertDITL, okBtnText, 2, "%s", emsg));
+}
+
 /* === FormLists ==================================================================== */
 
 #pragma mark -

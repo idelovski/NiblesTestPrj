@@ -33,13 +33,13 @@ FORM_REC         *dtMainForm = NULL;
 FORM_REC         *dtDialogForm = NULL;
 FORM_REC         *dtRenderedForm = NULL;
 
-static int  pr_InspectMenu (short theMenuID);  // 129 is File menu
-static int  pr_CreateMenu (NSMenu *menuBar, id target, short theMenuID);  // 129 is File menu
-static int  pr_InsertSubMenu (NSMenuItem *parentMenuItem, id target, short theMenuID);
+static int   pr_InspectMenu (short theMenuID);  // 129 is File menu
+static int   pr_CreateMenu (NSMenu *menuBar, id target, short theMenuID);  // 129 is File menu
+static int   pr_InsertSubMenu (NSMenuItem *parentMenuItem, id target, short theMenuID);
 
-static int  id_InitStatusbarIcons (void);
-static int  id_DrawStatusbarText (FORM_REC *form, short statPart, char *statusText);
-static int  id_DrawTBPopUp (FORM_REC  *form);
+static int   id_InitStatusbarIcons (void);
+static int   id_DrawStatusbarText (FORM_REC *form, short statPart, char *statusText);
+static int   id_DrawTBPopUp (FORM_REC  *form);
 
 // extern EventRecord  gGSavedEventRecord;
 
@@ -636,6 +636,9 @@ int  id_InitDTool (   // rev. 13.04.05
          CloseResFile (rfRefNum);
       }
    }
+   
+   GetIndString ((StringPtr)fileName, 131, 5);
+   NSLog (@"IndString: %.*s", (short)((unsigned char)*fileName), fileName+1);
    
    TestVersion ();
    // pr_ListFonts ();
@@ -4312,6 +4315,36 @@ void id_attach_EDIT_info (                     /*- Just attaching the pointers -
    }
    if (edit_def && edit_array && edit_array->e_fldno)
       id_SysBeep (10);
+}
+
+void  GetIndString (Str255 theString, short rsrc_id, short item)  // One based
+{
+   Handle  sh = (Handle)GetResource ('STR#', rsrc_id); 
+   char    tmpStr[256], *chPtr, *strPtr, *dataPtr;
+   short   i, idx = item-1, len, maxItemCount;
+   
+   *theString = '\0';
+   
+   if (sh)  {
+      HLock (sh);
+      dataPtr = (char *)*sh;
+      
+      maxItemCount = *(short *)dataPtr;
+      
+      if (idx >= 0 && idx < maxItemCount)  {
+      
+         for (i=0,chPtr=dataPtr+2; i<maxItemCount; i++)  {
+            len = (short) ((unsigned char)(chPtr[0])) + 1;
+            if (i==idx)  {
+               BlockMove (chPtr, theString, len);
+               break;
+            }
+            chPtr += len;
+         }
+      }
+
+      HUnlock (sh);
+   }
 }
 
 static int  pr_InspectMenu (short theMenuID)  // 129 is File menu
