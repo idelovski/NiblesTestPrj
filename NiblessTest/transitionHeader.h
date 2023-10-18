@@ -272,6 +272,34 @@ typedef struct  {                /* -------------------- Data from ResorceDataFi
 
 #endif  // _DTOOL_COCOA_
 
+// -------------------------------------------------------------------------- alis ------
+
+typedef struct  {                /* -------------------- Data from ResorceDataFile --- */
+   OSType  aType;          // user type name/app creator code = long ASCII text string (none = 0)
+   UInt16  totalLength;    // total length
+   UInt16  version;        // version (current version = 2
+   SInt16  fileOrDir;      // 0=file, 1=dir
+   char    volumeName[28]; // volume name pascal string
+   UInt32  aCreationDate;  // volume created mac date
+   UInt16  volSig;         // volume signature, short unsigned HFS value
+   UInt16  volType;        // volume type - Fixed HD = 0; Network Disk = 1; 400kB FD = 2; 800kB FD = 3; 1.4MB FD = 4; Other Ejectable Media = 5
+   UInt16  parentDirId;    // short unsigned HFS value
+   char    fileName[64];   // file name pascal string
+   UInt32  fileNumber;     // long unsigned HFS value
+   UInt32  fCreationDate;  // file created mac date
+   OSType  fType;          // file type code = long ASCII text string
+   OSType  fCreator;       // file creator code = long ASCII text string
+   SInt16  nlvlFrom;       // nlvl From (directories from alias thru to root) = short integer range
+   SInt16  nlvlTo;         // nlvl To (directories from root thru to source) = NOTE: if alias on different volume then set to -1
+   UInt32  volAttribs;     // volume attributes = long hex flags
+   SInt16  volFileSysId;   // volume file system id = short integer HFS value
+   char    filler[10];
+   
+   // part of the data: SInt16  strType; - Extended Info End = -1; Directory Name = 0; Directory IDs = 1; Absolute Path = 2; AppleShare Zone Name = 3; AppleShare Server Name = 4; AppleShare User Name = 5; Driver Name = 6; Revised AppleShare info = 9
+   // part of the data: UInt16  strLen;  - String Length
+   char    data[];
+} AlisHeader;
+
 // --------------------------------------------------------------------------------------
 // EDIT_item, FORM_REC, DTGlobalData, etc
 // --------------------------------------------------------------------------------------
