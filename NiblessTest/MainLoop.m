@@ -2428,16 +2428,27 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, B
             Boolean  wasAliased;
             char     pathStr[256];
             
-            // So, this does work on 10.6 but fails on 10.14 and later: -1 and mapReadErr. Need to check it on other OSes
+            // So, this does work on 10.6 but fails on 10.14 and later: -1 and mapReadErr, then eofErr. Need to check it on other OSes
             
-            fileReference = FSOpenResFile (&fsRef, fsRdPerm);
+            fileReference = FSOpenResFile (&fsRef, fsRdWrPerm);  //  fsRdPerm
             
             if (fileReference == -1)  {
-               UniChar  rsrcForkName[] = { '/', '.', '.', 'n', 'a', 'm', 'e', 'd', 'f', 'o', 'r', 'k', '/', 'r', 's', 'r', 'c', '\0' };
+               HFSUniStr255        rsrcForkName;
+               OSErr               result;
                
-               OSErr  err = FSOpenResourceFile (&fsRef, 17, rsrcForkName, fsRdPerm, &fileReference);  // errFSBadForkName, then mapReadErr with good fork
+               // UniChar  rsrcForkName[] = { '.', '.', 'n', 'a', 'm', 'e', 'd', 'f', 'o', 'r', 'k', '/', 'r', 's', 'r', 'c', '\0' };
+
+               result = FSGetResourceForkName (&rsrcForkName);  // just: 'RESOURCE_FORK'
                
-               NSLog (@"Err: %hd", err);
+               OSErr  err = FSOpenResourceFile (&fsRef, rsrcForkName.length, rsrcForkName.unicode, fsRdPerm, &fileReference);  // errFSBadForkName, then mapReadErr with good fork
+               
+               NSLog (@"Res Err: %hd", err);
+
+               if (fileReference == -1)  {
+                  err = FSOpenResourceFile (&fsRef, 0, NULL, fsRdPerm, &fileReference);  // errFSBadForkName, then mapReadErr with good fork
+                  
+                  NSLog (@"Res Err: %hd", err);
+               }
             }
                
                if (fileReference != -1)  {
