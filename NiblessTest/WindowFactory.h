@@ -40,6 +40,7 @@ NSTextFieldDelegate
 
 // - (void)textFieldDidBeginEditing:(NSNotification *)notification;
 
+- (void)dtButtonPressed:(NSButton *)aButton;
 
 #pragma mark -
 

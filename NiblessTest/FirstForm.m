@@ -1291,6 +1291,8 @@ int  pr_CreateDitlWindow (
             [((NSTextField *)f_ditl_def->i_handle).cell setFont:[NSFont fontWithName:@"Lucida Grande" size:10]];
             
             [(NSTextField *)f_ditl_def->i_handle setStringValue:(NSString *)labelText];
+            
+            ((NSTextField *)f_ditl_def->i_handle).tag = index + 1;
 
             // id_create_stat (form, index, savedPort);
             CFRelease (labelText);
@@ -1308,6 +1310,10 @@ int  pr_CreateDitlWindow (
                f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateButtonWithFrame:id_Rect2CGRect(&tmpRect)
                                                                                                 inForm:form
                                                                                                  title:(NSString *)buttonTitle];
+               [(NSButton *)f_ditl_def->i_handle setTarget:appDelegate.firstFormHandler.windowFactory];
+               [(NSButton *)f_ditl_def->i_handle setAction:@selector(dtButtonPressed:)];
+               
+               ((NSButton *)f_ditl_def->i_handle).tag = index + 1;
             }
             else  if (pureIType == (ctrlItem+chkCtrl))  {  /* Check Box */
                

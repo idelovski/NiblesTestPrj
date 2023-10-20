@@ -80,6 +80,17 @@
 
 #pragma mark -
 
+- (void)dtButtonPressed:(NSButton *)aButton
+{
+   FORM_REC  *form = id_FindForm (aButton.window);
+   
+   if (form)  {
+      form->retValue = aButton.tag;
+   }
+}
+
+#pragma mark -
+
 - (BOOL)handleCurrentFieldChange:(NSTextField *)textField
 {
    FORM_REC  *form = id_FindForm (textField.window);

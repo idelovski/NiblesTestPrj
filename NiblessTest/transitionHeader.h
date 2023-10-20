@@ -401,6 +401,8 @@ struct  FormRecord  {
    
    short           lastTouchedFldno;   // Reset it yourselve as it keeps value til the next touch
    short           lastHoveredFldno;
+   
+   int             retValue;
 
    struct
     FormRecord    *parentForm;

@@ -1821,6 +1821,11 @@ int  id_do_the_form (
    NOT_YET  // if (entryFldno != form->cur_fldno)
    NOT_YET  //    gGChangedFldno = TRUE;
    
+   if (!retValue)  {
+      retValue = form->retValue;
+      form->retValue = 0;
+   }
+   
    return (retValue);
 }                              /* End of function */
 
@@ -6713,8 +6718,10 @@ int  id_put_statText (
    }
    else
       len = id_field_text_length (form, index+1);      /* ... else put current value.  */
+   
+   TExSetText ((NSTextField *)form->ditl_def[index]->i_handle, id_field_text_buffer(form, index+1), len);
   
-   TExTextBox (id_field_text_buffer(form, index+1), len, &tmpRect, f_edit_def->e_justify, wrapFlag, TRUE);  // wrap, erase back
+   // NOPE! TExTextBox (id_field_text_buffer(form, index+1), len, &tmpRect, f_edit_def->e_justify, wrapFlag, TRUE);  // wrap, erase back
    // TextBox (f_ditl_def->i_data.d_text, len, &tmpRect, f_edit_def->e_justify);
    NOT_YET  // if (f_edit_def->e_fld_edits & ID_FE_INVERT)
    NOT_YET  //    InvertRect (&tmpRect);
