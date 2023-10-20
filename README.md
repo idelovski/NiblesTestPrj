@@ -11,10 +11,11 @@ App starts without a NIB file - therefore, it's a so called nibless application.
 
 There is no NIB/XIB file and everything is created in code except  for the things from an old Resource file in Classic Mac resorce format.
 
-There are these two lines:
+There are these three lines:
 
     GetResource ('MENU', menu_id);
     GetResource ('DITL', ditl_id);
+    GetResource ('STR#', stra_id);
 
 CarbonCore allows you to read these resources but then you are on your own, parsing them requires information from old Inside Macintosh volumes from the eighties and this project contains an example how to do exactly that. Menus and windows are recreated from these two resource types.
 
