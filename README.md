@@ -20,7 +20,7 @@ CarbonCore allows you to read these resources but then you are on your own, pars
 
 I don't think this rsrc file will be handled well by GitHub, but I have added a zip archive so at least it can be extracted into a good resource file.
 
-**So, before running, code signing identity may be a problem, so add or remove "-" identity and then expand the zip archive in Rsrc folder after removing downloaded zero-length rsrc file.**
+**So, before running, code signing identity may be a problem, so add or remove "-" identity and then expand the zip archives in Rsrc folder after removing downloaded zero-length rsrc files - two of them.**
 
 Project includes NSFont+CFTraits NSFont cat from the gist by Eric Methot: https://gist.github.com/macprog-guy/156d33bfefef570a7efb
 
@@ -31,8 +31,8 @@ The script:
     RESOURCE_DIR="${PROJECT_DIR}/Rsrc"
     APP_BUNDLE="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app" 
 
-    /usr/bin/ResMerger -srcIs RSRC "${RESOURCE_DIR}/Appl_KnjigeNT.rsrc" -o "${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc" 
-
+    /usr/bin/ResMerger -srcIs RSRC "${RESOURCE_DIR}/Appl_KnjigeNT.rsrc" -srcIs RSRC "${RESOURCE_DIR}/dTOOL_All.rsrc" -o "${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc"
+    
     cd $BUILT_PRODUCTS_DIR
 
     rm -f ${TARGET_NAME}.zip
