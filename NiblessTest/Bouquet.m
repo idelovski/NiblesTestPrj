@@ -329,6 +329,8 @@ int  pr_OnUpdateKupdob (
    return (0);
 }
 
+extern  FORM_REC  *dtRenderedForm;
+
 void  pr_OpenKupdob (void)
 {
    Rect  tmpRect;
@@ -341,6 +343,8 @@ void  pr_OpenKupdob (void)
       kupdobForm.update_func = pr_OnUpdateKupdob;
       
       pr_CreateDitlWindow (&kupdobForm, 601, &tmpRect, "Adresar", &kupdob_edit_items[0]);
+      
+      dtRenderedForm = &kupdobForm;
       
       id_move_field (&kupdobForm, K_12x_POP, 0, -303);
       id_move_field (&kupdobForm, K_22x_POP, 0, -303);

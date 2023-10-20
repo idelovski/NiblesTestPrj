@@ -178,12 +178,23 @@ extern  FORM_REC  *dtRenderedForm;
    NSWindow  *aWindow = (NSWindow *)[aNotification object];
    FORM_REC  *form = id_FindForm (aWindow);
    
-   id_BuildCloseWindowEvent (form, NULL);
-   
    if (form == dtRenderedForm)  {
       id_FlushUsedEvents (form);
       id_release_form (form);
    }
+   
+   if (form)  {
+      if ((form->w_procID == movableDBoxProc) || (form->w_procID == dBoxProc) ||
+          (form->w_procID == plainDBox))  {
+         dtGData->modalFormsCount--;
+         if (form->modalSession)
+            [NSApp endModalSession:form->modalSession];
+         form->modalSession = NULL;
+      }
+   }
+
+   id_BuildCloseWindowEvent (form, NULL);
+   
    
    NSLog (@"windowWillClose: %@ %d", aWindow.title, (int)aWindow.windowNumber);
 }

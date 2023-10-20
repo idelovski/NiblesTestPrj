@@ -410,6 +410,8 @@ struct  FormRecord  {
    
    CGContextRef    drawRectCtx;  // = [NSGraphicsContext currentContext];
    
+   NSModalSession  modalSession; // For modal forms
+
    CFMutableArrayRef  pathsArray;  // = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
    CFMutableArrayRef  pdfsArray;   // = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
 

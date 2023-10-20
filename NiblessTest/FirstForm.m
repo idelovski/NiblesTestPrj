@@ -169,6 +169,7 @@ static double  gYOffset = 30.;
       }
       if (event.modifierFlags & NSShiftKeyMask)  {
          NSLog (@"Shift key!");
+         id_devils_query("Ajde", "Ovo je poruka!");
       }
       if (event.modifierFlags & NSControlKeyMask)  {
          NSLog (@"Ctrl key!");
@@ -1137,8 +1138,6 @@ static double  gYOffset = 30.;
 
 /* ................................................... pr_CreateDitlWindow .......... */
 
-extern  FORM_REC  *dtRenderedForm;
-
 // do outside self.otherWindow = newWin;
 
 int  pr_CreateDitlWindow (
@@ -1233,11 +1232,14 @@ int  pr_CreateDitlWindow (
              NSStringFromRect([newWin contentRectForFrameRect:newWin.frame]));
       
       form->my_window = newWin; 
-      // self.otherWindow = newWin;
+
+      if ((form->w_procID == movableDBoxProc) || (form->w_procID == dBoxProc) ||
+          (form->w_procID == plainDBox))  {
+         form->modalSession = [NSApp beginModalSessionForWindow:form->my_window];
+         dtGData->modalFormsCount++;
+      }
       
       form->pen_flags |= ID_PEN_DOWN;
-      
-      dtRenderedForm = form;
       
       if (form->update_func)
          (*form->update_func)(form, NULL, ID_BEGIN_OF_OPEN, 0);
@@ -1996,6 +1998,8 @@ FLHandle id_NextFormList (
 }
 
 /* ................................................... id_FindForm .................. */
+
+extern  FORM_REC  *dtRenderedForm;
 
 FORM_REC  *id_FindForm (NSWindow *nsWindow)
 {

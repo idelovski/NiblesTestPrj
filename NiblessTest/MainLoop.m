@@ -118,9 +118,11 @@ static FORM_REC  theMainForm;
 + (void)finalizeFormWindow:(FORM_REC *)form
 {
    // TEMP HERE
-   id_create_toolbar (form);
-   if (form->toolBarHandle)
-      id_DrawIconToolbar (form);
+   if (form->w_procID == documentProc)  {
+      id_create_toolbar (form);
+      if (form->toolBarHandle)
+         id_DrawIconToolbar (form);
+   }
    // TEMP HERE ^
    
    NSRect   winFrame = form->my_window.frame;
@@ -637,7 +639,7 @@ int  id_InitDTool (   // rev. 13.04.05
       }
    }
    
-   GetIndString ((StringPtr)fileName, 131, 0);
+   GetIndString ((StringPtr)fileName, 131, 5);
    NSLog (@"IndString: %.*s", (short)((unsigned char)*fileName), fileName+1);
    
    TestVersion ();
