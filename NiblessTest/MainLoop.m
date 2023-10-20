@@ -637,7 +637,7 @@ int  id_InitDTool (   // rev. 13.04.05
       }
    }
    
-   GetIndString ((StringPtr)fileName, 131, 5);
+   GetIndString ((StringPtr)fileName, 131, 0);
    NSLog (@"IndString: %.*s", (short)((unsigned char)*fileName), fileName+1);
    
    TestVersion ();
@@ -2338,6 +2338,13 @@ int  id_CoreConcatPath (
    return (0);
 }
 
+static unsigned char  id_printableChar (char ch)
+{
+   if (isprint(ch))
+      return (ch);
+   return (ch ? '.' : ' ');
+}
+
 int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, Boolean *aliasFlag)
 {
    int           returnCode = 0;
@@ -2411,12 +2418,163 @@ int  id_NavGetFile (NSArray *allowedTypes, char *fileName, FSRef *parentFSRef, B
          if (aliasFlag)
             *aliasFlag = aliasFileFlag;
          if (aliasFileFlag)  {
+            ResFileRefNum  fileReference = -1;
+            UInt16         i, totalLength, curLength = sizeof (AlisHeader);
+            char          *chPtr;
+
             FSRef    curDestFSRef;
             Boolean  resolveAliasChains = FALSE;
             Boolean  targetIsFolder;
             Boolean  wasAliased;
             char     pathStr[256];
             
+            // So, this does work on 10.6 but fails on 10.14 and later: -1 and mapReadErr, then eofErr. Need to check it on other OSes
+            
+            fileReference = FSOpenResFile (&fsRef, fsRdWrPerm);  //  fsRdPerm
+            
+            if (fileReference == -1)  {
+               HFSUniStr255        rsrcForkName;
+               OSErr               result;
+               
+               // UniChar  rsrcForkName[] = { '.', '.', 'n', 'a', 'm', 'e', 'd', 'f', 'o', 'r', 'k', '/', 'r', 's', 'r', 'c', '\0' };
+
+               result = FSGetResourceForkName (&rsrcForkName);  // just: 'RESOURCE_FORK'
+               
+               OSErr  err = FSOpenResourceFile (&fsRef, rsrcForkName.length, rsrcForkName.unicode, fsRdPerm, &fileReference);  // errFSBadForkName, then mapReadErr with good fork
+               
+               NSLog (@"Res Err: %hd", err);
+
+               if (fileReference == -1)  {
+                  err = FSOpenResourceFile (&fsRef, 0, NULL, fsRdPerm, &fileReference);  // errFSBadForkName, then mapReadErr with good fork
+                  
+                  NSLog (@"Res Err: %hd", err);
+               }
+            }
+               
+               if (fileReference != -1)  {
+                  AlisHeader    *aHead;
+                  
+                  UInt16  dSomething1;
+                  UInt16  dSomething2;
+                  
+                  UseResFile (fileReference);
+                  
+                  Handle  ah = (Handle)GetResource ('alis', 0);
+                  
+                  HLock (ah);
+                  aHead = (AlisHeader *)*ah;
+
+                  totalLength = aHead->totalLength;
+                  dSomething1 = aHead->version;
+                  
+                  id_SwapDShortBytes (&totalLength);
+                  id_SwapDShortBytes (&dSomething1);
+
+                  NSLog (@"alis - len:%hu, ver:%hu, vol:%.*s, file:%.*s",
+                         totalLength, dSomething1,
+                         (int)(unsigned char)aHead->volumeName[0], aHead->volumeName+1,
+                         (int)(unsigned char)aHead->fileName[0], aHead->fileName+1);
+
+                  dSomething1 = *((short *)&aHead->data[0]);
+                  
+                  id_SwapDShortBytes (&dSomething1);
+                  
+                  chPtr = &aHead->data[0];
+                  
+                  for (i=0; curLength < totalLength; i+=10, curLength+=10)  {
+                  
+                     fprintf (stderr, "alis at %hd...%02hx %02hx %02hx %02hx %02hx %02hx %02hx %02hx %02hx %02hx  ",
+                             curLength,
+                             (short)(unsigned char)chPtr[i+0],
+                             (short)(unsigned char)chPtr[i+1], 
+                             (short)(unsigned char)chPtr[i+2], 
+                             (short)(unsigned char)chPtr[i+3], 
+                             (short)(unsigned char)chPtr[i+4], 
+                             (short)(unsigned char)chPtr[i+5], 
+                             (short)(unsigned char)chPtr[i+6], 
+                             (short)(unsigned char)chPtr[i+7], 
+                             (short)(unsigned char)chPtr[i+8], 
+                             (short)(unsigned char)chPtr[i+9]);
+                     fprintf (stderr, "%c%c%c%c%c%c%c%c%c%c  ",
+                             id_printableChar(chPtr[i+0]),
+                             id_printableChar(chPtr[i+1]), 
+                             id_printableChar(chPtr[i+2]), 
+                             id_printableChar(chPtr[i+3]), 
+                             id_printableChar(chPtr[i+4]), 
+                             id_printableChar(chPtr[i+5]), 
+                             id_printableChar(chPtr[i+6]), 
+                             id_printableChar(chPtr[i+7]), 
+                             id_printableChar(chPtr[i+8]), 
+                             id_printableChar(chPtr[i+9]));
+                     fprintf (stderr, "%03hd %03hd %03hd %03hd %03hd %03hd %03hd %03hd %03hd %03hd\n",
+                             (short)(unsigned char)chPtr[i+0],
+                             (short)(unsigned char)chPtr[i+1], 
+                             (short)(unsigned char)chPtr[i+2], 
+                             (short)(unsigned char)chPtr[i+3], 
+                             (short)(unsigned char)chPtr[i+4], 
+                             (short)(unsigned char)chPtr[i+5], 
+                             (short)(unsigned char)chPtr[i+6], 
+                             (short)(unsigned char)chPtr[i+7], 
+                             (short)(unsigned char)chPtr[i+8], 
+                             (short)(unsigned char)chPtr[i+9]);
+                     
+                     if (curLength == 212)  {
+                        UInt16  len = *((UInt16 *)&chPtr[i+8]);
+                        char   *str = &chPtr[i+10];
+                        
+                        id_SwapDShortBytes (&len);
+                        
+                        fprintf (stderr, "%.*s\n", len, str);
+                     }
+                     if (curLength == 312)  {
+                        // NSUnicodeStringEncoding, NSUTF16LittleEndianStringEncoding, NSUTF16BigEndianStringEncoding
+                        UInt16  len = *((UInt16 *)&chPtr[i+6]);
+                        char   *str = &chPtr[i+8], dstBuff[64], *dataPtr;
+                        
+                        CFStringRef  dstStr = nil;
+                        
+                        id_SwapDShortBytes (&len);
+                        
+                        dstStr = CFStringCreateWithBytes (NULL, (const UInt8 *)str, len*2, kTextEncodingUnicodeDefault, TRUE);  // kTextEncodingMacUnicode
+
+                        if (dstStr)  {
+                           fprintf (stderr, "A> %d: %s\n", (int)[(NSString *)dstStr length], [(NSString *)dstStr UTF8String]);
+                        
+                           CFRelease (dstStr);
+                        }
+                     }
+                     if (curLength == 352)  {
+                        // NSUnicodeStringEncoding, NSUTF16LittleEndianStringEncoding, NSUTF16BigEndianStringEncoding
+                        UInt16  len = *((UInt16 *)&chPtr[i+4]);
+                        char   *str = &chPtr[i+6];
+                        
+                        CFStringRef  dstStr = nil;
+                        
+                        id_SwapDShortBytes (&len);
+                        
+                        dstStr = CFStringCreateWithBytes (NULL, (const UInt8 *)str, len*2, kTextEncodingUnicodeDefault, TRUE);  // kTextEncodingMacUnicode
+                        
+                        if (dstStr)  {
+                           fprintf (stderr, "B> %d: %s\n", (int)[(NSString *)dstStr length], [(NSString *)dstStr UTF8String]);
+                           
+                           CFRelease (dstStr);
+                        }
+                     }
+                     if (curLength == 382)  {
+                        // NSUnicodeStringEncoding, NSUTF16LittleEndianStringEncoding, NSUTF16BigEndianStringEncoding
+                        UInt16  len = *((UInt16 *)&chPtr[i+2]);
+                        char   *str = &chPtr[i+4];
+                        
+                        id_SwapDShortBytes (&len);
+                        
+                        fprintf (stderr, "%.*s\n", len, str);
+                     }
+                  }
+                  
+                  HUnlock (ah);
+                  CloseResFile (fileReference);
+               }
+
             OSErr  myErr = FSResolveAliasFile (&fsRef, resolveAliasChains, &targetIsFolder, &wasAliased);
 
             // If it can't resolve the alias, fnfErr is returned but fsRef should point to non-existing original anyway - at least that is how it worked before with fsspec
@@ -4332,7 +4490,7 @@ void  GetIndString (Str255 theString, short rsrc_id, short item)  // One based
       maxItemCount = *(short *)dataPtr;
       
       if (idx >= 0 && idx < maxItemCount)  {
-      
+         
          for (i=0,chPtr=dataPtr+2; i<maxItemCount; i++)  {
             len = (short) ((unsigned char)(chPtr[0])) + 1;
             if (i==idx)  {
@@ -4342,10 +4500,11 @@ void  GetIndString (Str255 theString, short rsrc_id, short item)  // One based
             chPtr += len;
          }
       }
-
+      
       HUnlock (sh);
    }
 }
+
 
 static int  pr_InspectMenu (short theMenuID)  // 129 is File menu
 {
