@@ -84,9 +84,8 @@
 {
    FORM_REC  *form = id_FindForm (aButton.window);
    
-   if (form)  {
-      form->retValue = aButton.tag;
-   }
+   if (form)
+      form->retValue = (int)aButton.tag;
 }
 
 #pragma mark -
