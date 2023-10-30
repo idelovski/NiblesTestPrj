@@ -41,6 +41,8 @@ static int   id_InitStatusbarIcons (void);
 static int   id_DrawStatusbarText (FORM_REC *form, short statPart, char *statusText);
 static int   id_DrawTBPopUp (FORM_REC  *form);
 
+static int   id_handle_default_button (FORM_REC *form);
+
 // extern EventRecord  gGSavedEventRecord;
 
 @implementation MainLoop
@@ -1153,8 +1155,8 @@ static void  id_activate_form (
       NOT_YET  //    id_DrawGrowIcon (form);
       NOT_YET  // }
 
-      NOT_YET  // if (form->aDefItem >= 0)
-      NOT_YET  //    id_outline_button (form, form->aDefItem);
+      if (form->aDefItem >= 0)
+         id_outline_button (form, form->aDefItem);
    }
 }
 
@@ -1439,8 +1441,7 @@ int  id_do_the_form (
    
    if (wEvent->what == nullEvent)  {
       if (gGFormDfltPressed && gGFormDfltPressed == form)  {
-         retValue = form->aDefItem + 1;
-         NOT_YET // retValue = id_handle_default_button  (form, savedPort);
+         retValue = id_handle_default_button (form/*, savedPort*/);
          gGFormDfltPressed = NULL;
       }
    }
@@ -1670,8 +1671,7 @@ int  id_do_the_form (
             retValue = form->cur_fldno+1;
          }
          else  if ((ch == '\r') && (form->aDefItem >= 0))  {
-            retValue = form->aDefItem + 1;
-            NOT_YET  // retValue = id_handle_default_button (form, savedPort);
+            retValue = id_handle_default_button (form/*, savedPort*/);
             index = form->aDefItem;
          }
          else  if (form->TE_handle && (form->pen_flags & ID_PEN_DOWN))  {
@@ -1860,6 +1860,66 @@ WindowPartCode  id_FindWindowPart (EventRecord *evtRec, NSWindow **window)
    }
 
    return (0);
+}
+
+/* ----------------------------------------------------------- id_outline_button ----- */
+
+void  id_outline_button (            /* Outline button and make it default */
+ FORM_REC   *form,
+ short       index
+)
+{
+   short      i;
+   NSButton  *theCtrl = nil;
+
+   for (i=0; i<=form->last_fldno; i++)  {
+      if ((form->ditl_def[i]->i_type & 127) == (ctrlItem+btnCtrl))  {
+         if ((form->aDefItem == i) || (form->aDefItem == index)) {
+            theCtrl = (NSButton *)form->ditl_def[i]->i_handle;
+            [theCtrl setKeyEquivalent:(form->aDefItem == index) ? @"\r" : @""];
+         }
+      }
+   }
+   form->aDefItem = index;
+} 
+ 
+/* ----------------------------------------------------------- id_unoutline_button --- */
+
+void  id_unoutline_button (             /* Delete Outline round button  */
+ FORM_REC   *form,
+ short       index
+)
+{ 
+   short      i;
+   NSButton  *theCtrl = nil;
+   
+   for (i=0; i<=form->last_fldno; i++)  {
+      if ((form->ditl_def[i]->i_type & 127) == (ctrlItem+btnCtrl))  {
+         if (form->aDefItem == index) {
+            theCtrl = (NSButton *)form->ditl_def[i]->i_handle;
+            [theCtrl setKeyEquivalent:@""];
+         }
+      }
+   }
+}
+
+/* ------------------------------------------------------ id_handle_default_button --- */
+
+static int  id_handle_default_button (FORM_REC *form)
+{
+   short  index, retVal = 0;
+   
+   if (form->aDefItem >= 0)  {
+      
+      index = form->aDefItem;
+      
+      if (!(form->ditl_def[index]->i_type & itemDisable))  {
+         id_check_exit (form, index, NULL);
+         retVal = form->aDefItem + 1;
+      }
+   }
+   
+   return (retVal);
 }
 
 NSWindow  *FrontWindow (void)

@@ -60,6 +60,9 @@ FORM_REC  *id_find_form (FORM_REC *form, EventRecord *wEvent, NSWindow *whichWin
 
 WindowPartCode  id_FindWindowPart (EventRecord *evtRec, NSWindow **window);
 
+void  id_outline_button (FORM_REC *form, short index);
+void  id_unoutline_button (FORM_REC *form, short index);
+
 NSWindow  *FrontWindow (void);
 void       SelectWindow (NSWindow *win);
 void       SendBehind (NSWindow *ourWin, NSWindow *otherWin);
