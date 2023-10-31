@@ -879,7 +879,7 @@ void  id_SysBeep (short numb)
 
 /* ----------------------------------------------------------- id_our_window --------- */
 
-static Boolean  id_our_window (NSWindow *my_window, NSWindow *whichWindow)
+static Boolean  id_our_window (NSWindowPtr my_window, NSWindowPtr whichWindow)
 {
     return ((my_window!=NULL) && (my_window==whichWindow));
 }   
@@ -2893,8 +2893,8 @@ void  id_ConvertTextTo1250 (
    long  retLen = (short)*len;
    
    if (retLen < 0)
-      NOT_YET  // id_note_emsg ("id_ConvertTextTo1250 - Duljina teksta!");
-      NSLog (@"id_ConvertTextTo1250 - Duljina teksta!");
+      id_note_emsg ("id_ConvertTextTo1250 - Duljina teksta!");
+      // NSLog (@"id_ConvertTextTo1250 - Duljina teksta!");
    
    id_ConvertTextTo1250L (sText, &retLen, expandNewLines);
    
@@ -7153,8 +7153,8 @@ int  id_check_entry (
       if (form->ditl_def[index]->i_type & editText)  {
          id_show_comment (form, index, TRUE);
          if (id_field_empty(form, index+1))  {       // 28/04/04
-            NOT_YET // if (f_edit_def->e_fld_edits & ID_FE_SYS_DATE)   /* SysDate */
-               NOT_YET // id_put_editText (form, index, id_form_date(id_sys_date (), _DD_MM_YY));
+            if (f_edit_def->e_fld_edits & ID_FE_SYS_DATE)   /* SysDate */
+               id_put_editText (form, index, id_form_date(id_sys_date (), _DD_MM_YY));
             NOT_YET // if (f_edit_def->e_fld_edits & ID_FE_SYS_TIME)   /* SysTime */
                NOT_YET // id_put_editText (form, index, id_form_time(id_sys_time (), _HH_MI_SS));
          }

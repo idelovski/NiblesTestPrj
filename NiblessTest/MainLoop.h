@@ -530,6 +530,9 @@ void  id_SwapRectBytes (Rect *rect);
 #ifdef __OBJC__
 
 // We're in objc
+
+typedef  NSWindow  *NSWindowPtr;
+
 #else
  
 // or maybe use something like MacWindow, NSWindowPtr

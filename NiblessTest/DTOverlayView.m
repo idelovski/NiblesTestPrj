@@ -255,6 +255,10 @@ extern  FORM_REC  *dtRenderedForm;
 
    if (form->update_func)
       (*form->update_func)(form, NULL, ID_END_OF_UPDATE, 0);
+   
+   // Here, need to do the _ID_FB_BAT_HISTORY_ thing!
+   
+   form->formFlags &= ~ID_F_NEEDS_UPDATE;
 
    form->drawRectCtx = NULL;
 }
