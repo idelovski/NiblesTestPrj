@@ -175,6 +175,13 @@ static FORM_REC  theMainForm;
    
    NSLog (@"ALT MenuId: %hd, itemId: %hd", theMenu, theItem);
    
+   if (TRUE)  {
+      NSMenu  *foundMenu = [self findMenu:nil withMenuId:theMenu itemId:theItem];
+      
+      if (foundMenu)
+         NSLog (@"HA!HA!\nFOUND MenuId: %hd, itemId: %hd", theMenu, theItem);
+   }
+   
    if ((theMenu == Wind_MENU_ID) || (theMenu == Matpod_SMENU_ID))  {
       pr_OpenKupdob ();
    }
@@ -356,6 +363,29 @@ static FORM_REC  theMainForm;
       
       if (mi.tag == itemsTag)
          return (mi);
+   }
+   
+   return (nil);
+}
+
++ (NSMenu *)findMenu:(NSMenu *)menuOrNil withMenuId:(short)menuId itemId:(short)itemId
+{
+   NSMenu        *foundMenu = nil;
+   NSMenu        *menu = menuOrNil ? menuOrNil : [NSApp mainMenu];
+   NSEnumerator  *enumerator = [[menu itemArray] objectEnumerator];
+   id             item = [enumerator nextObject];
+   
+   while (item)  {
+      if ([item tag] == MakeLong(itemId,menuId))
+         foundMenu = [item menu];
+      else  if ([item hasSubmenu])
+         foundMenu = [self findMenu:[item submenu]
+                         withMenuId:menuId
+                             itemId:itemId];
+      
+      if (foundMenu)
+         return (foundMenu);
+      item = [enumerator nextObject];
    }
    
    return (nil);

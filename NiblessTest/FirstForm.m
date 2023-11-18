@@ -168,6 +168,7 @@ static double  gYOffset = 30.;
          [self showAlertsButtonHit:button];
       }
       if (event.modifierFlags & NSShiftKeyMask)  {
+         id_devils_query ("Hola!", "Ajde sad, sve je ok!");
          NSLog (@"Shift key!");
       }
       if (event.modifierFlags & NSControlKeyMask)  {
