@@ -32,7 +32,7 @@ The script:
     RESOURCE_DIR="${PROJECT_DIR}/Rsrc"
     APP_BUNDLE="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app" 
 
-    /usr/bin/ResMerger -srcIs RSRC "${RESOURCE_DIR}/Appl_KnjigeNT.rsrc" -srcIs RSRC "${RESOURCE_DIR}/dTOOL_All.rsrc" -o "${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc"
+    /Applications/Xcode.app/Contents/Developer/usr/bin/ResMerger -srcIs RSRC "${RESOURCE_DIR}/Appl_KnjigeNT.rsrc" -srcIs RSRC "${RESOURCE_DIR}/dTOOL_All.rsrc" -o "${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc"
     
     cd $BUILT_PRODUCTS_DIR
 
