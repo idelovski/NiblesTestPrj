@@ -49,9 +49,7 @@ Adding *-Wno-unknown-warning-option* will silence it.
 
 And with Xcode 15.0.1 my project was failing to build properly.
 
-Resources copied to the resulting app were somehow bad. GetResource() failed to load anything and CountResources() would give me count lower than I expected. After experimenting and finding out that app runs just fine if 
-
-I manually copy the rsrsc file into the resulting app bundle, I think I found the problem.
+Resources copied to the resulting app were somehow bad. GetResource() failed to load anything and CountResources() would give me count lower than I expected. After experimenting and finding out that app runs just fine if I manually copy the rsrsc file into the resulting app bundle, I think I found the problem.
 
 ResMerger that ends up in /usr/bin does not work properly. Changing the above script to use ResMerger inside Xcode does the trick.
 
