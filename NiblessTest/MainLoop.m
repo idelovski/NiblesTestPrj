@@ -2762,7 +2762,7 @@ int  id_CreateAliasToPath (char *cTargetFileOrFolderPath, char *cParentFolderPat
    return (0);
 }
 
-Boolean  id_SupportsExclusiveFileAccess (short vRefNum)
+Boolean  id_SupportsExclusiveFileAccess (short vRefNum)  // 18.12.2023
 {
    OSErr   err;
    SInt32  response;
@@ -2807,6 +2807,8 @@ Boolean  id_SupportsExclusiveFileAccess (short vRefNum)
          exclusiveAccess = (volParmsBuffer.vMExtendedAttributes & (1L << bSupportsExclusiveLocks)) != 0;
 #endif  // _NIJE_
    }
+
+   // Use kFSCatInfoVolume on FSGetCatalogInfo() and send that over here
 
    return (exclusiveAccess);
 }
