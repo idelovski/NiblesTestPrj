@@ -2762,6 +2762,55 @@ int  id_CreateAliasToPath (char *cTargetFileOrFolderPath, char *cParentFolderPat
    return (0);
 }
 
+Boolean  id_SupportsExclusiveFileAccess (short vRefNum)
+{
+   OSErr   err;
+   SInt32  response;
+   
+   Boolean         exclusiveAccess = FALSE;
+   
+   GetVolParmsInfoBuffer  volParmsBuffer;
+
+   err = Gestalt (gestaltSystemVersion, &response);
+   
+   if ((err == noErr) && (response < 0x01000))  {
+      err = Gestalt (gestaltMacOSCompatibilityBoxAttr, &response);
+      if ((err != noErr) || ((response & (1 << gestaltMacOSCompatibilityBoxPresent)) == 0))
+         return (TRUE);        //    Running on Mac OS 9, not in Classic
+   }
+
+   err = Gestalt (gestaltFSAttr, &response);
+   
+   if (!err && (response & (1L << gestaltFSSupportsExclusiveLocks)))  {
+      
+      // New
+      
+      GetVolParmsInfoBuffer  vparams = { 0 };  
+     
+      OSStatus  status = FSGetVolumeParms (vRefNum, // use default volume   
+                                           &vparams, // write  
+                                           sizeof(GetVolParmsInfoBuffer));  
+
+      if (!status)
+         exclusiveAccess = (vparams.vMExtendedAttributes & (1L << bSupportsExclusiveLocks)) != 0;
+#ifdef _NIJE_
+      HParamBlockRec  hPB;
+
+      hPB.ioParam.ioVRefNum     = vRefNum;
+      hPB.ioParam.ioNamePtr     = NULL;
+      hPB.ioParam.ioBuffer      = (Ptr) &volParmsBuffer;
+      hPB.ioParam.ioReqCount    = sizeof (volParmsBuffer);
+      
+      err = PBHGetVolParmsSync (&hPB);
+      
+      if (!err)
+         exclusiveAccess = (volParmsBuffer.vMExtendedAttributes & (1L << bSupportsExclusiveLocks)) != 0;
+#endif  // _NIJE_
+   }
+
+   return (exclusiveAccess);
+}
+
 #pragma mark strings
 
 int  id_UniCharToUpper (UniChar *uch)
