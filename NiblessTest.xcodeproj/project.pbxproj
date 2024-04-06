@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -364,7 +364,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1340;
+				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = "Delovski d.o.o.";
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "NiblessTest" */;
@@ -430,6 +430,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		EBD0891C2A924E8A00E89CF1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -443,7 +444,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Path to the directory containing your resource files \nRESOURCE_DIR=\"${PROJECT_DIR}/Rsrc\" \n\n# Path to the built app bundle \nAPP_BUNDLE=\"${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app\" \n\n/usr/bin/ResMerger -srcIs RSRC \"${RESOURCE_DIR}/Appl_KnjigeNT.rsrc\" -srcIs RSRC \"${RESOURCE_DIR}/dTOOL_All.rsrc\" -o \"${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc\"\n\ncd $BUILT_PRODUCTS_DIR \n# rm -f GeneralCocoaProject.zip \nrm -f ${TARGET_NAME}.zip \n# zip -r GeneralCocoaProject GeneralCocoaProject.app \nzip -r ${TARGET_NAME} ${TARGET_NAME}.app\n";
+			shellScript = "# Path to the directory containing your resource files \nRESOURCE_DIR=\"${PROJECT_DIR}/Rsrc\" \n\n# Path to the built app bundle \nAPP_BUNDLE=\"${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app\" \n\n/Applications/Xcode.app/Contents/Developer/usr/bin/ResMerger -srcIs RSRC \"${RESOURCE_DIR}/Appl_KnjigeNT.rsrc\" -srcIs RSRC \"${RESOURCE_DIR}/dTOOL_All.rsrc\" -o \"${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc\"\n\ncd $BUILT_PRODUCTS_DIR \n# rm -f GeneralCocoaProject.zip \nrm -f ${TARGET_NAME}.zip \n# zip -r GeneralCocoaProject GeneralCocoaProject.app \nzip -r ${TARGET_NAME} ${TARGET_NAME}.app\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -486,7 +487,11 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -494,8 +499,9 @@
 				GCC_PREFIX_HEADER = NiblessTest_Prefix.pch;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				INFOPLIST_FILE = "NiblessTest-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wno-unused-variable",
@@ -506,6 +512,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "hr.delovski.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = NiblessTest;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -516,14 +523,19 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "";
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = NiblessTest_Prefix.pch;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				INFOPLIST_FILE = "NiblessTest-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wno-unused-variable",
@@ -534,6 +546,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "hr.delovski.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = NiblessTest;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -560,6 +573,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -599,6 +613,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;

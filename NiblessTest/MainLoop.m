@@ -625,13 +625,22 @@ int  id_InitDTool (   // rev. 13.04.05
       if (!id_SetDefaultDir(&bundleParentFolderFSRef))  {
          short   rCount, rID, rfRefNum = 0;
          ResType rType;
-         Handle  rHandle;
+         Handle  rHandle, picHandle = NULL;
          Str255  rName;
          
          snprintf (fileName, 256, "%s/%s", pathStr, "Appl_KnjigeNT.rsrc");
          rfRefNum = OpenResFile (fileName);
          
          if (rfRefNum > 0)  {
+            picHandle = GetResource ('PICT', 512);
+            
+            if (picHandle)  {
+               long  len = GetHandleSize ((Handle)picHandle);
+
+               HLock (picHandle);
+               NSLog (@"Pict 512: %ld", len);
+               HUnlock (picHandle);
+            }
             rCount = Count1Resources ('DITL');
 
             rHandle = Get1IndResource ('DITL', 1);
