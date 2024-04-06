@@ -401,6 +401,8 @@ struct  FormRecord  {
    
    short           lastTouchedFldno;   // Reset it yourselve as it keeps value til the next touch
    short           lastHoveredFldno;
+   
+   int             retValue;
 
    struct
     FormRecord    *parentForm;
@@ -410,6 +412,8 @@ struct  FormRecord  {
    
    CGContextRef    drawRectCtx;  // = [NSGraphicsContext currentContext];
    
+   NSModalSession  modalSession; // For modal forms
+
    CFMutableArrayRef  pathsArray;  // = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
    CFMutableArrayRef  pdfsArray;   // = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
 

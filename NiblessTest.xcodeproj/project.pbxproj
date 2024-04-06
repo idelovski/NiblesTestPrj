@@ -14,6 +14,8 @@
 		EB1643962AA64255009446E6 /* PICT0604.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643932AA64255009446E6 /* PICT0604.jpg */; };
 		EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB1643942AA64255009446E6 /* PICT0602.jpg */; };
 		EB26B6272ABB6C6300FC2E83 /* Bouquet.m in Sources */ = {isa = PBXBuildFile; fileRef = EB26B6252ABB6C6200FC2E83 /* Bouquet.m */; };
+		EB2B9F252AE2C813009E4041 /* dTOOL_All.rsrc in Resources */ = {isa = PBXBuildFile; fileRef = EB2B9F232AE2C813009E4041 /* dTOOL_All.rsrc */; };
+		EB2B9F262AE2C813009E4041 /* dTOOL_All.rsrc.zip in Resources */ = {isa = PBXBuildFile; fileRef = EB2B9F242AE2C813009E4041 /* dTOOL_All.rsrc.zip */; };
 		EB30958B2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip in Resources */ = {isa = PBXBuildFile; fileRef = EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */; };
 		EB3921052AAB5FB4003EBFBC /* PICT0132.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB3921032AAB5FB4003EBFBC /* PICT0132.jpg */; };
 		EB3921062AAB5FB4003EBFBC /* PICT0131.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */; };
@@ -64,6 +66,8 @@
 		EB1643942AA64255009446E6 /* PICT0602.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0602.jpg; path = PICT/PICT0602.jpg; sourceTree = "<group>"; };
 		EB26B6252ABB6C6200FC2E83 /* Bouquet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Bouquet.m; path = NiblessTest/Bouquet.m; sourceTree = "<group>"; };
 		EB26B6262ABB6C6300FC2E83 /* Bouquet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Bouquet.h; path = NiblessTest/Bouquet.h; sourceTree = "<group>"; };
+		EB2B9F232AE2C813009E4041 /* dTOOL_All.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; path = dTOOL_All.rsrc; sourceTree = "<group>"; };
+		EB2B9F242AE2C813009E4041 /* dTOOL_All.rsrc.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = dTOOL_All.rsrc.zip; sourceTree = "<group>"; };
 		EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Appl_KnjigeNT.rsrc.zip; sourceTree = "<group>"; };
 		EB3921032AAB5FB4003EBFBC /* PICT0132.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0132.jpg; path = PICT/PICT0132.jpg; sourceTree = "<group>"; };
 		EB3921042AAB5FB4003EBFBC /* PICT0131.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = PICT0131.jpg; path = PICT/PICT0131.jpg; sourceTree = "<group>"; };
@@ -296,7 +300,9 @@
 				EB6B95A02A9D21C50013DC1D /* CICN */,
 				EBF336982A8FA04600069683 /* Bouquet512.png */,
 				EB30958A2AA0BC6B000D946F /* Appl_KnjigeNT.rsrc.zip */,
+				EB2B9F242AE2C813009E4041 /* dTOOL_All.rsrc.zip */,
 				EBF338842A8FB1BC00069683 /* Appl_KnjigeNT.rsrc */,
+				EB2B9F232AE2C813009E4041 /* dTOOL_All.rsrc */,
 			);
 			path = Rsrc;
 			sourceTree = "<group>";
@@ -391,6 +397,7 @@
 				EB3921062AAB5FB4003EBFBC /* PICT0131.jpg in Resources */,
 				EB1643972AA64255009446E6 /* PICT0602.jpg in Resources */,
 				EB1643952AA64255009446E6 /* PICT0603.jpg in Resources */,
+				EB2B9F262AE2C813009E4041 /* dTOOL_All.rsrc.zip in Resources */,
 				EB8D15922AB4D7EB00B7EA5B /* ICON0147.jpg in Resources */,
 				EBF568322A9E63CF0062D320 /* CICN0820.jpg in Resources */,
 				EBF5682F2A9E63CF0062D320 /* CICN0818.jpg in Resources */,
@@ -405,6 +412,7 @@
 				EB8D15912AB4D7EB00B7EA5B /* ICON0145.jpg in Resources */,
 				EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */,
 				EBF5682A2A9E63CF0062D320 /* CICN0814.jpg in Resources */,
+				EB2B9F252AE2C813009E4041 /* dTOOL_All.rsrc in Resources */,
 				EBF568332A9E63CF0062D320 /* CICN0819.jpg in Resources */,
 				EBF568302A9E63CF0062D320 /* CICN0821.jpg in Resources */,
 				EBF5682D2A9E63CF0062D320 /* CICN0817.jpg in Resources */,
@@ -435,7 +443,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Path to the directory containing your resource files \nRESOURCE_DIR=\"${PROJECT_DIR}/Rsrc\" \n\n# Path to the built app bundle \nAPP_BUNDLE=\"${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app\" \n\n/usr/bin/ResMerger -srcIs RSRC \"${RESOURCE_DIR}/Appl_KnjigeNT.rsrc\" -o \"${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc\" \n\ncd $BUILT_PRODUCTS_DIR \n# rm -f GeneralCocoaProject.zip \nrm -f ${TARGET_NAME}.zip \n# zip -r GeneralCocoaProject GeneralCocoaProject.app \nzip -r ${TARGET_NAME} ${TARGET_NAME}.app\n";
+			shellScript = "# Path to the directory containing your resource files \nRESOURCE_DIR=\"${PROJECT_DIR}/Rsrc\" \n\n# Path to the built app bundle \nAPP_BUNDLE=\"${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app\" \n\n/usr/bin/ResMerger -srcIs RSRC \"${RESOURCE_DIR}/Appl_KnjigeNT.rsrc\" -srcIs RSRC \"${RESOURCE_DIR}/dTOOL_All.rsrc\" -o \"${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc\"\n\ncd $BUILT_PRODUCTS_DIR \n# rm -f GeneralCocoaProject.zip \nrm -f ${TARGET_NAME}.zip \n# zip -r GeneralCocoaProject GeneralCocoaProject.app \nzip -r ${TARGET_NAME} ${TARGET_NAME}.app\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

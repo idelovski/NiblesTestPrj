@@ -41,6 +41,8 @@ static int   id_InitStatusbarIcons (void);
 static int   id_DrawStatusbarText (FORM_REC *form, short statPart, char *statusText);
 static int   id_DrawTBPopUp (FORM_REC  *form);
 
+static int   id_handle_default_button (FORM_REC *form);
+
 // extern EventRecord  gGSavedEventRecord;
 
 @implementation MainLoop
@@ -118,9 +120,11 @@ static FORM_REC  theMainForm;
 + (void)finalizeFormWindow:(FORM_REC *)form
 {
    // TEMP HERE
-   id_create_toolbar (form);
-   if (form->toolBarHandle)
-      id_DrawIconToolbar (form);
+   if (form->w_procID == documentProc)  {
+      id_create_toolbar (form);
+      if (form->toolBarHandle)
+         id_DrawIconToolbar (form);
+   }
    // TEMP HERE ^
    
    NSRect   winFrame = form->my_window.frame;
@@ -667,7 +671,7 @@ int  id_InitDTool (   // rev. 13.04.05
       }
    }
    
-   GetIndString ((StringPtr)fileName, 131, 0);
+   GetIndString ((StringPtr)fileName, 131, 5);
    NSLog (@"IndString: %.*s", (short)((unsigned char)*fileName), fileName+1);
    
    TestVersion ();
@@ -905,7 +909,7 @@ void  id_SysBeep (short numb)
 
 /* ----------------------------------------------------------- id_our_window --------- */
 
-static Boolean  id_our_window (NSWindow *my_window, NSWindow *whichWindow)
+static Boolean  id_our_window (NSWindowPtr my_window, NSWindowPtr whichWindow)
 {
     return ((my_window!=NULL) && (my_window==whichWindow));
 }   
@@ -1181,8 +1185,8 @@ static void  id_activate_form (
       NOT_YET  //    id_DrawGrowIcon (form);
       NOT_YET  // }
 
-      NOT_YET  // if (form->aDefItem >= 0)
-      NOT_YET  //    id_outline_button (form, form->aDefItem);
+      if (form->aDefItem >= 0)
+         id_outline_button (form, form->aDefItem);
    }
 }
 
@@ -1467,8 +1471,7 @@ int  id_do_the_form (
    
    if (wEvent->what == nullEvent)  {
       if (gGFormDfltPressed && gGFormDfltPressed == form)  {
-         retValue = form->aDefItem + 1;
-         NOT_YET // retValue = id_handle_default_button  (form, savedPort);
+         retValue = id_handle_default_button (form/*, savedPort*/);
          gGFormDfltPressed = NULL;
       }
    }
@@ -1698,8 +1701,7 @@ int  id_do_the_form (
             retValue = form->cur_fldno+1;
          }
          else  if ((ch == '\r') && (form->aDefItem >= 0))  {
-            retValue = form->aDefItem + 1;
-            NOT_YET  // retValue = id_handle_default_button (form, savedPort);
+            retValue = id_handle_default_button (form/*, savedPort*/);
             index = form->aDefItem;
          }
          else  if (form->TE_handle && (form->pen_flags & ID_PEN_DOWN))  {
@@ -1849,6 +1851,11 @@ int  id_do_the_form (
    NOT_YET  // if (entryFldno != form->cur_fldno)
    NOT_YET  //    gGChangedFldno = TRUE;
    
+   if (!retValue)  {
+      retValue = form->retValue;
+      form->retValue = 0;
+   }
+   
    return (retValue);
 }                              /* End of function */
 
@@ -1883,6 +1890,66 @@ WindowPartCode  id_FindWindowPart (EventRecord *evtRec, NSWindow **window)
    }
 
    return (0);
+}
+
+/* ----------------------------------------------------------- id_outline_button ----- */
+
+void  id_outline_button (            /* Outline button and make it default */
+ FORM_REC   *form,
+ short       index
+)
+{
+   short      i;
+   NSButton  *theCtrl = nil;
+
+   for (i=0; i<=form->last_fldno; i++)  {
+      if ((form->ditl_def[i]->i_type & 127) == (ctrlItem+btnCtrl))  {
+         if ((form->aDefItem == i) || (form->aDefItem == index)) {
+            theCtrl = (NSButton *)form->ditl_def[i]->i_handle;
+            [theCtrl setKeyEquivalent:(form->aDefItem == index) ? @"\r" : @""];
+         }
+      }
+   }
+   form->aDefItem = index;
+} 
+ 
+/* ----------------------------------------------------------- id_unoutline_button --- */
+
+void  id_unoutline_button (             /* Delete Outline round button  */
+ FORM_REC   *form,
+ short       index
+)
+{ 
+   short      i;
+   NSButton  *theCtrl = nil;
+   
+   for (i=0; i<=form->last_fldno; i++)  {
+      if ((form->ditl_def[i]->i_type & 127) == (ctrlItem+btnCtrl))  {
+         if (form->aDefItem == index) {
+            theCtrl = (NSButton *)form->ditl_def[i]->i_handle;
+            [theCtrl setKeyEquivalent:@""];
+         }
+      }
+   }
+}
+
+/* ------------------------------------------------------ id_handle_default_button --- */
+
+static int  id_handle_default_button (FORM_REC *form)
+{
+   short  index, retVal = 0;
+   
+   if (form->aDefItem >= 0)  {
+      
+      index = form->aDefItem;
+      
+      if (!(form->ditl_def[index]->i_type & itemDisable))  {
+         id_check_exit (form, index, NULL);
+         retVal = form->aDefItem + 1;
+      }
+   }
+   
+   return (retVal);
 }
 
 NSWindow  *FrontWindow (void)
@@ -2725,6 +2792,57 @@ int  id_CreateAliasToPath (char *cTargetFileOrFolderPath, char *cParentFolderPat
    return (0);
 }
 
+Boolean  id_SupportsExclusiveFileAccess (short vRefNum)  // 18.12.2023
+{
+   OSErr   err;
+   SInt32  response;
+   
+   Boolean         exclusiveAccess = FALSE;
+   
+   GetVolParmsInfoBuffer  volParmsBuffer;
+
+   err = Gestalt (gestaltSystemVersion, &response);
+   
+   if ((err == noErr) && (response < 0x01000))  {
+      err = Gestalt (gestaltMacOSCompatibilityBoxAttr, &response);
+      if ((err != noErr) || ((response & (1 << gestaltMacOSCompatibilityBoxPresent)) == 0))
+         return (TRUE);        //    Running on Mac OS 9, not in Classic
+   }
+
+   err = Gestalt (gestaltFSAttr, &response);
+   
+   if (!err && (response & (1L << gestaltFSSupportsExclusiveLocks)))  {
+      
+      // New
+      
+      GetVolParmsInfoBuffer  vparams = { 0 };  
+     
+      OSStatus  status = FSGetVolumeParms (vRefNum, // use default volume   
+                                           &vparams, // write  
+                                           sizeof(GetVolParmsInfoBuffer));  
+
+      if (!status)
+         exclusiveAccess = (vparams.vMExtendedAttributes & (1L << bSupportsExclusiveLocks)) != 0;
+#ifdef _NIJE_
+      HParamBlockRec  hPB;
+
+      hPB.ioParam.ioVRefNum     = vRefNum;
+      hPB.ioParam.ioNamePtr     = NULL;
+      hPB.ioParam.ioBuffer      = (Ptr) &volParmsBuffer;
+      hPB.ioParam.ioReqCount    = sizeof (volParmsBuffer);
+      
+      err = PBHGetVolParmsSync (&hPB);
+      
+      if (!err)
+         exclusiveAccess = (volParmsBuffer.vMExtendedAttributes & (1L << bSupportsExclusiveLocks)) != 0;
+#endif  // _NIJE_
+   }
+
+   // Use kFSCatInfoVolume on FSGetCatalogInfo() and send that over here
+
+   return (exclusiveAccess);
+}
+
 #pragma mark strings
 
 int  id_UniCharToUpper (UniChar *uch)
@@ -2856,8 +2974,8 @@ void  id_ConvertTextTo1250 (
    long  retLen = (short)*len;
    
    if (retLen < 0)
-      NOT_YET  // id_note_emsg ("id_ConvertTextTo1250 - Duljina teksta!");
-      NSLog (@"id_ConvertTextTo1250 - Duljina teksta!");
+      id_note_emsg ("id_ConvertTextTo1250 - Duljina teksta!");
+      // NSLog (@"id_ConvertTextTo1250 - Duljina teksta!");
    
    id_ConvertTextTo1250L (sText, &retLen, expandNewLines);
    
@@ -6741,8 +6859,10 @@ int  id_put_statText (
    }
    else
       len = id_field_text_length (form, index+1);      /* ... else put current value.  */
+   
+   TExSetText ((NSTextField *)form->ditl_def[index]->i_handle, id_field_text_buffer(form, index+1), len);
   
-   TExTextBox (id_field_text_buffer(form, index+1), len, &tmpRect, f_edit_def->e_justify, wrapFlag, TRUE);  // wrap, erase back
+   // NOPE! TExTextBox (id_field_text_buffer(form, index+1), len, &tmpRect, f_edit_def->e_justify, wrapFlag, TRUE);  // wrap, erase back
    // TextBox (f_ditl_def->i_data.d_text, len, &tmpRect, f_edit_def->e_justify);
    NOT_YET  // if (f_edit_def->e_fld_edits & ID_FE_INVERT)
    NOT_YET  //    InvertRect (&tmpRect);
@@ -7114,8 +7234,8 @@ int  id_check_entry (
       if (form->ditl_def[index]->i_type & editText)  {
          id_show_comment (form, index, TRUE);
          if (id_field_empty(form, index+1))  {       // 28/04/04
-            NOT_YET // if (f_edit_def->e_fld_edits & ID_FE_SYS_DATE)   /* SysDate */
-               NOT_YET // id_put_editText (form, index, id_form_date(id_sys_date (), _DD_MM_YY));
+            if (f_edit_def->e_fld_edits & ID_FE_SYS_DATE)   /* SysDate */
+               id_put_editText (form, index, id_form_date(id_sys_date (), _DD_MM_YY));
             NOT_YET // if (f_edit_def->e_fld_edits & ID_FE_SYS_TIME)   /* SysTime */
                NOT_YET // id_put_editText (form, index, id_form_time(id_sys_time (), _HH_MI_SS));
          }

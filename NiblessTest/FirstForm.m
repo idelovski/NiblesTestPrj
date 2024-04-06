@@ -170,6 +170,7 @@ static double  gYOffset = 30.;
       if (event.modifierFlags & NSShiftKeyMask)  {
          id_devils_query ("Hola!", "Ajde sad, sve je ok!");
          NSLog (@"Shift key!");
+         id_devils_query("Ajde", "Ovo je poruka!");
       }
       if (event.modifierFlags & NSControlKeyMask)  {
          NSLog (@"Ctrl key!");
@@ -1138,8 +1139,6 @@ static double  gYOffset = 30.;
 
 /* ................................................... pr_CreateDitlWindow .......... */
 
-extern  FORM_REC  *dtRenderedForm;
-
 // do outside self.otherWindow = newWin;
 
 int  pr_CreateDitlWindow (
@@ -1234,11 +1233,14 @@ int  pr_CreateDitlWindow (
              NSStringFromRect([newWin contentRectForFrameRect:newWin.frame]));
       
       form->my_window = newWin; 
-      // self.otherWindow = newWin;
+
+      if ((form->w_procID == movableDBoxProc) || (form->w_procID == dBoxProc) ||
+          (form->w_procID == plainDBox))  {
+         form->modalSession = [NSApp beginModalSessionForWindow:form->my_window];
+         dtGData->modalFormsCount++;
+      }
       
       form->pen_flags |= ID_PEN_DOWN;
-      
-      dtRenderedForm = form;
       
       if (form->update_func)
          (*form->update_func)(form, NULL, ID_BEGIN_OF_OPEN, 0);
@@ -1290,6 +1292,8 @@ int  pr_CreateDitlWindow (
             [((NSTextField *)f_ditl_def->i_handle).cell setFont:[NSFont fontWithName:@"Lucida Grande" size:10]];
             
             [(NSTextField *)f_ditl_def->i_handle setStringValue:(NSString *)labelText];
+            
+            ((NSTextField *)f_ditl_def->i_handle).tag = index + 1;
 
             // id_create_stat (form, index, savedPort);
             CFRelease (labelText);
@@ -1307,6 +1311,10 @@ int  pr_CreateDitlWindow (
                f_ditl_def->i_handle = (Handle) [appDelegate.firstFormHandler coreCreateButtonWithFrame:id_Rect2CGRect(&tmpRect)
                                                                                                 inForm:form
                                                                                                  title:(NSString *)buttonTitle];
+               [(NSButton *)f_ditl_def->i_handle setTarget:appDelegate.firstFormHandler.windowFactory];
+               [(NSButton *)f_ditl_def->i_handle setAction:@selector(dtButtonPressed:)];
+               
+               ((NSButton *)f_ditl_def->i_handle).tag = index + 1;
             }
             else  if (pureIType == (ctrlItem+chkCtrl))  {  /* Check Box */
                
@@ -1997,6 +2005,8 @@ FLHandle id_NextFormList (
 }
 
 /* ................................................... id_FindForm .................. */
+
+extern  FORM_REC  *dtRenderedForm;
 
 FORM_REC  *id_FindForm (NSWindow *nsWindow)
 {
