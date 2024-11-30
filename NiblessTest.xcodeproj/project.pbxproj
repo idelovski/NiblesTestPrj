@@ -27,6 +27,7 @@
 		EB8D15942AB4D7EB00B7EA5B /* ICON0306.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158E2AB4D7EB00B7EA5B /* ICON0306.jpg */; };
 		EB8D15952AB4D7EB00B7EA5B /* ICON0146.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D158F2AB4D7EB00B7EA5B /* ICON0146.jpg */; };
 		EB8D15962AB4D7EB00B7EA5B /* ICON0307.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8D15902AB4D7EB00B7EA5B /* ICON0307.jpg */; };
+		EBA7BFDB2CF9BB7B00C378F4 /* Appl_KnjigeNT.rsrc in Resources */ = {isa = PBXBuildFile; fileRef = EBF338842A8FB1BC00069683 /* Appl_KnjigeNT.rsrc */; };
 		EBCDD3EB2ACF48C20090487E /* DTTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EBCDD3EA2ACF48C20090487E /* DTTableViewController.m */; };
 		EBD283FC2AA238BE0021BAEE /* NSFont+CFTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = EBD283FB2AA238BE0021BAEE /* NSFont+CFTraits.m */; };
 		EBE7FE862A8D4635001CD6A9 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE7FE852A8D4635001CD6A9 /* Carbon.framework */; };
@@ -364,7 +365,8 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1420;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1610;
 				ORGANIZATIONNAME = "Delovski d.o.o.";
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "NiblessTest" */;
@@ -413,6 +415,7 @@
 				EB6B95A42A9D21D90013DC1D /* CICN0702.jpg in Resources */,
 				EBF5682A2A9E63CF0062D320 /* CICN0814.jpg in Resources */,
 				EB2B9F252AE2C813009E4041 /* dTOOL_All.rsrc in Resources */,
+				EBA7BFDB2CF9BB7B00C378F4 /* Appl_KnjigeNT.rsrc in Resources */,
 				EBF568332A9E63CF0062D320 /* CICN0819.jpg in Resources */,
 				EBF568302A9E63CF0062D320 /* CICN0821.jpg in Resources */,
 				EBF5682D2A9E63CF0062D320 /* CICN0817.jpg in Resources */,
@@ -444,7 +447,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Path to the directory containing your resource files \nRESOURCE_DIR=\"${PROJECT_DIR}/Rsrc\" \n\n# Path to the built app bundle \nAPP_BUNDLE=\"${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app\" \n\n/Applications/Xcode.app/Contents/Developer/usr/bin/ResMerger -srcIs RSRC \"${RESOURCE_DIR}/Appl_KnjigeNT.rsrc\" -srcIs RSRC \"${RESOURCE_DIR}/dTOOL_All.rsrc\" -o \"${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc\"\n\ncd $BUILT_PRODUCTS_DIR \n# rm -f GeneralCocoaProject.zip \nrm -f ${TARGET_NAME}.zip \n# zip -r GeneralCocoaProject GeneralCocoaProject.app \nzip -r ${TARGET_NAME} ${TARGET_NAME}.app\n";
+			shellScript = "# Path to the directory containing your resource files \nRESOURCE_DIR=\"${PROJECT_DIR}/Rsrc\" \n\n# Path to the built app bundle \nAPP_BUNDLE=\"${BUILT_PRODUCTS_DIR}/${TARGET_NAME}.app\" \n\n# /Applications/Xcode.app/Contents/Developer/usr/bin/ResMerger -srcIs RSRC \"${RESOURCE_DIR}/Appl_KnjigeNT.rsrc\" -srcIs RSRC \"${RESOURCE_DIR}/dTOOL_All.rsrc\" -o \"${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc\"\n/usr/bin/ResMerger -srcIs RSRC \"${RESOURCE_DIR}/Appl_KnjigeNT.rsrc\" -srcIs RSRC \"${RESOURCE_DIR}/dTOOL_All.rsrc\" -o \"${APP_BUNDLE}/Contents/Resources/${TARGET_NAME}.rsrc\"\n\ncd $BUILT_PRODUCTS_DIR \n# rm -f GeneralCocoaProject.zip \nrm -f ${TARGET_NAME}.zip \n# zip -r GeneralCocoaProject GeneralCocoaProject.app \nzip -r ${TARGET_NAME} ${TARGET_NAME}.app\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -486,12 +489,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "";
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -501,7 +505,7 @@
 				INFOPLIST_FILE = "NiblessTest-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wno-unused-variable",
@@ -522,12 +526,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "";
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = NiblessTest_Prefix.pch;
@@ -535,7 +540,7 @@
 				INFOPLIST_FILE = "NiblessTest-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wno-unused-variable",
@@ -576,6 +581,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -615,6 +621,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

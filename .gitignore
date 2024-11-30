@@ -4,3 +4,8 @@ NiblessTest.xcodeproj/idelovski.pbxuser
 NiblessTest.xcodeproj/project.xcworkspace
 NiblessTest.xcodeproj/xcuserdata 
 .DS_Store
+Debug/
+Debug
+xcshareddata/
+*.xcbkptlist
+Breakpoints_v2.xcbkptlist
